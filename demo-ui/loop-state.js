@@ -46,12 +46,33 @@
       guard.gate_after_restore === "SEMANTICALLY_READY";
   }
 
-  // state: { mode, decision, abstention, guard }
+  // Rail order of the nodes the compile reveal walks through, and how many
+  // compile checklist items must be displayed before each node is shown done.
+  const COMPILE_NODES = ["DECIDE", "COMPILE", "PATCH", "VERIFY", "REMEMBER"];
+  const COMPILE_REQUIRES = { DECIDE: 1, COMPILE: 1, PATCH: 4, REMEMBER: 6, VERIFY: 7 };
+  const COMPILE_ITEMS = 7;
+
+  // Display phase of the guard probe, synchronized with what the UI shows:
+  //   0 = request in flight / not yet revealed, 1 = ATTEMPT, 2 = VIOLATION,
+  //   3 = RESTORING, 4 = RESTORED. The receipt is never altered; the rail only
+  //   waits until the corresponding phase is actually on screen.
+  function guardStatus(guard, guardPhase, guardRunning) {
+    if (!guard) return guardRunning ? "running" : null;
+    const phase = guardPhase === undefined ? 4 : guardPhase;
+    if (phase <= 0) return "running";
+    if (phase <= 2) return "violation";
+    if (phase === 3) return "restoring";
+    return guardCompleted(guard) ? "done" : "failed";
+  }
+
+  // state: { mode, decision, abstention, guard,
+  //          compileRevealed?, guardPhase?, guardRunning? }
+  // The optional display parameters default to "fully revealed".
   // returns { NODE: status } with status in
-  //   done | waiting | idle | skipped | abstained | failed |
-  //   not-in-evidence | pending
+  //   done | waiting | running | violation | restoring | idle | skipped |
+  //   abstained | failed | not-in-evidence | pending
   function loopState(state) {
-    const { mode, decision, abstention, guard } = state;
+    const { mode, decision, abstention, guard, compileRevealed, guardPhase, guardRunning } = state;
     const s = Object.fromEntries(NODES.map((n) => [n, "idle"]));
     s.DETECT = "done";
     s.REPLAY = "pending"; // NOT_EXECUTED / PENDING_LIVE_BOB, always
@@ -69,14 +90,26 @@
     }
 
     const ready = decision.gate_after && decision.gate_after.verdict === "SEMANTICALLY_READY";
-    ["DECIDE", "COMPILE", "PATCH", "REMEMBER"].forEach((n) => { s[n] = "done"; });
-    s.VERIFY = ready ? "done" : "failed";
+    const shown = compileRevealed === undefined ? COMPILE_ITEMS : compileRevealed;
 
-    if (guard) s.GUARD = guardCompleted(guard) ? "done" : "failed";
+    COMPILE_NODES.forEach((n) => {
+      if (shown >= COMPILE_REQUIRES[n]) s[n] = n === "VERIFY" && !ready ? "failed" : "done";
+    });
+    if (shown < COMPILE_ITEMS) {
+      const next = COMPILE_NODES.find((n) => s[n] === "idle");
+      if (next) s[next] = "running";
+      s.GUARD = "idle";
+      return s;
+    }
+
+    const g = guardStatus(guard, guardPhase, guardRunning);
+    if (g) s.GUARD = g;
     else if (mode === "EVIDENCE") s.GUARD = "not-in-evidence";
     else s.GUARD = ready ? "waiting" : "idle";
     return s;
   }
 
-  return { NODES, PROVENANCE, provenance, acceptsResult, guardCompleted, loopState };
+  return {
+    NODES, PROVENANCE, COMPILE_ITEMS, provenance, acceptsResult, guardCompleted, loopState
+  };
 });

@@ -20,6 +20,18 @@ Serves the UI at 127.0.0.1:4173 with bounded local actions:
 No HTTP input carries values or paths. Every action writes only to the
 git-ignored `.collider/workspaces/` and `.collider/runs/`.
 
+### Layout
+
+ACTIVE MODE is a fixed-height application shell (no document scrolling):
+top bar with provenance · left loop rail (DETECT → GUARD, replay pending) ·
+one current step in the center · proof drawer (collapsed by default: code diff,
+spec patch, regression contract, decision memory, receipts, hashes, provenance) ·
+bottom action bar holding the primary action. The rail follows what is on
+screen: GUARD reads blocking → restoring → ✓ only as the receipt-driven guard
+phases are revealed. On phones the rail becomes a compact progress line, the
+action bar is sticky, and proof opens as a bottom sheet. All API calls are
+relative (`./api/...`), so the UI works behind any single origin.
+
 ## EVIDENCE MODE
 
 Switch with the mode control in the masthead. It shows the committed receipts

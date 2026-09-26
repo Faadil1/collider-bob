@@ -369,9 +369,86 @@ class TestLoopState(unittest.TestCase):
             [True, False, False, False],
         )
 
+    # --- display synchronization (guard timing fix) -----------------------
+
+    def guard_at(self, phase):
+        return run_node(
+            f'L.loopState({{mode: "ACTIVE", decision: {self.READY}, '
+            f'guard: {self.GUARD_OK}, guardPhase: {phase}}}).GUARD'
+        )
+
+    def test_guard_rail_follows_displayed_phase(self):
+        # The receipt is complete in every case; only the displayed phase moves.
+        self.assertEqual(self.guard_at(0), "running")
+        self.assertEqual(self.guard_at(1), "violation")
+        self.assertEqual(self.guard_at(2), "violation")
+        self.assertEqual(self.guard_at(3), "restoring")
+        self.assertEqual(self.guard_at(4), "done")
+
+    def test_guard_not_done_while_merge_blocked_is_displayed(self):
+        self.assertNotEqual(self.guard_at(2), "done")
+
+    def test_guard_running_before_receipt(self):
+        s = run_node(f'L.loopState({{mode: "ACTIVE", decision: {self.READY}, guardRunning: true}})')
+        self.assertEqual(s["GUARD"], "running")
+
+    def test_failed_guard_never_done_even_when_fully_displayed(self):
+        s = run_node(
+            f'L.loopState({{mode: "ACTIVE", decision: {self.READY}, guardPhase: 4, '
+            f'guard: {{guard_verdict: "GUARD_DID_NOT_BLOCK", restoration_verified: true, '
+            f'gate_after_restore: "SEMANTICALLY_READY"}}}})'
+        )
+        self.assertEqual(s["GUARD"], "failed")
+
+    def test_compile_rail_follows_revealed_checklist(self):
+        partial = run_node(f'L.loopState({{mode: "ACTIVE", decision: {self.READY}, compileRevealed: 2}})')
+        self.assertEqual(partial["DECIDE"], "done")
+        self.assertEqual(partial["COMPILE"], "done")
+        self.assertEqual(partial["PATCH"], "running")
+        self.assertEqual(partial["VERIFY"], "idle")
+        self.assertEqual(partial["GUARD"], "idle")
+        full = run_node(
+            f'L.loopState({{mode: "ACTIVE", decision: {self.READY}, compileRevealed: L.COMPILE_ITEMS}})'
+        )
+        for n in ("DECIDE", "COMPILE", "PATCH", "VERIFY", "REMEMBER"):
+            self.assertEqual(full[n], "done", n)
+        self.assertEqual(full["GUARD"], "waiting")
+
+    def test_display_params_default_to_fully_revealed(self):
+        with_defaults = run_node(
+            f'L.loopState({{mode: "ACTIVE", decision: {self.READY}, guard: {self.GUARD_OK}}})'
+        )
+        explicit = run_node(
+            f'L.loopState({{mode: "ACTIVE", decision: {self.READY}, guard: {self.GUARD_OK}, '
+            f'compileRevealed: L.COMPILE_ITEMS, guardPhase: 4}})'
+        )
+        self.assertEqual(with_defaults, explicit)
+
     def test_committed_receipt_is_evidence_provenance(self):
         data = json.loads((ROOT / "demo-ui/evidence.json").read_text())
         self.assertEqual(data["decisionReceipt"]["provenance_mode"], "EVIDENCE")
+
+
+# ---------------------------------------------------------------------------
+# Frontend portability: same-origin, relative API calls only
+# ---------------------------------------------------------------------------
+
+class TestFrontendPortability(unittest.TestCase):
+
+    FILES = ["demo-ui/app.js", "demo-ui/loop-state.js", "demo-ui/index.html"]
+
+    def test_no_hard_coded_hosts(self):
+        for rel in self.FILES:
+            text = (ROOT / rel).read_text()
+            for host in ("127.0.0.1", "localhost", "github.dev", "app.github.dev", "codespaces"):
+                self.assertNotIn(host, text, f"{host} in {rel}")
+
+    def test_api_calls_are_relative(self):
+        app = (ROOT / "demo-ui/app.js").read_text()
+        for endpoint in ("api/state", "api/decide", "api/guard"):
+            self.assertIn(f'"./{endpoint}"', app)
+        self.assertNotRegex(app, r'fetch\(\s*["\']https?://')
+        self.assertNotRegex(app, r'["\']https?://[^"\']*/api/')
 
 
 # ---------------------------------------------------------------------------
