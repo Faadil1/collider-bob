@@ -190,7 +190,12 @@ NO REPAIR:         workstream=Ledger   reason="customer_identity = account_id; m
 NO DEPENDENCY:     workstream=Notifications   reason="concept=notification_contact; not in customer_identity scope"
 ```
 
-Only the API workstream reruns. Ledger and Notifications are preserved as-is.
+For the `customer_identity` SPEC_GAP, only the API requires repair after the
+human decision; Ledger already matches the new canon and Notifications has no
+dependency on that concept.
+
+Separately, the source-proven `field_name` AGENT_DRIFT repairs Ledger from
+`credit_amount` to `refund_amount` without a human clarification.
 
 ---
 
@@ -409,14 +414,18 @@ This is now a durable, auditable artifact — not a chat message.
 | Ledger | Yes — uses `account_id` | Yes | Preserve |
 | Notifications | No — receives resolved target | N/A | Preserve |
 
-> *"One question. One repair."*
+> *"One question for the decision the specification forgot. Source evidence repairs the agent mistake separately."*
 
 ---
 
 ### Step 14 — Targeted repair
 
-API workstream reruns with the canon patch in scope. Ledger and Notifications are untouched.
-Post-repair tests run: all pass.
+The API is repaired from `email` to `account_id` using the canon patch.
+The Ledger is repaired from `credit_amount` to `refund_amount` using explicit
+source evidence. Notifications remains untouched.
+
+Post-repair tests run: all pass. The executable integration probe reaches
+`INTEGRATION_READY` with zero conflicts.
 
 The evidence record shows:
 - what changed
@@ -523,7 +532,7 @@ The repair agent for the API workstream must incorporate the canon patch. If the
 - COLLIDER detected a semantic disagreement that passed all unit tests (OBSERVED, if the run shows green tests + disagreement)
 - COLLIDER classified the disagreement as SPEC_GAP because source evidence was absent (OBSERVED, if classifications.json shows evidence_state: INSUFFICIENT)
 - One minimal question resolved the ambiguity (OBSERVED, if the run record shows exactly one human clarification)
-- Only one workstream was repaired; two were preserved (OBSERVED, if impact-set.json confirms this)
+- The SPEC_GAP repair changes only the API consumer that disagrees with the human-selected canon; the separate source-proven AGENT_DRIFT repair changes Ledger; Notifications remains unchanged (OBSERVED in canonical LOCAL evidence)
 - The negative path returned UNKNOWN and did not invent a canon (OBSERVED, if a run demonstrates this)
 
 ## Claims We Must Not Make (ever)
