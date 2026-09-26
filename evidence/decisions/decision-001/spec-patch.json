@@ -1,0 +1,10 @@
+{
+  "target": "fixtures/failed-payment/BRIEF.md",
+  "op": "append_section",
+  "section": "Adopted Decisions (COLLIDER canon)",
+  "marker": "collider:canon customer_identity=account_id decision=decision-001",
+  "content": "\n---\n\n## Adopted Decisions (COLLIDER canon)\n\nDecisions below were made by a human after COLLIDER classified the concept as SPEC_GAP / UNKNOWN. They are authoritative source from the decision onward.\n\n<!-- collider:canon customer_identity=account_id decision=decision-001 -->\n- **customer_identity** = `account_id` \u2014 binds: api, ledger. Prior state: SPEC_GAP / UNKNOWN. Decision source: human (PRESEEDED). Decision id: `decision-001`.\n",
+  "sha256_before": "0c93b0d0dc7673234d5ee23109a07c68eaacfc3906ba8988b6ed16de7241f61b",
+  "sha256_after": "05b4841b7133275169d510d1e0dd47e7bc6c7f97223595ab83a5e5cd73b49f45",
+  "decision_ref": "canon/decisions/customer_identity.json"
+}

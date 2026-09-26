@@ -1,0 +1,15 @@
+--- a/fixtures/failed-payment/BRIEF.md
++++ b/fixtures/failed-payment/BRIEF.md
+@@ -188,3 +188,12 @@
+ up the customer and trigger the credit" will reasonably consider multiple identity
+ strategies — and whichever it chooses will reflect a real local design decision, not
+ a fabricated one.
++
++---
++
++## Adopted Decisions (COLLIDER canon)
++
++Decisions below were made by a human after COLLIDER classified the concept as SPEC_GAP / UNKNOWN. They are authoritative source from the decision onward.
++
++<!-- collider:canon customer_identity=account_id decision=decision-001 -->
++- **customer_identity** = `account_id` — binds: api, ledger. Prior state: SPEC_GAP / UNKNOWN. Decision source: human (PRESEEDED). Decision id: `decision-001`.

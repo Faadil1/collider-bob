@@ -1,0 +1,105 @@
+{
+  "schema": "collider.decision-memory/v1",
+  "decisions": [
+    {
+      "decision_id": "decision-001",
+      "concept": "customer_identity",
+      "canonical_value": "account_id",
+      "decision_state": "CANONICAL",
+      "decision_source": "human",
+      "human_decision_source": "PRESEEDED",
+      "decided_at": "2026-09-26T19:49:14Z",
+      "prior_classification": "SPEC_GAP",
+      "prior_epistemic_state": "UNKNOWN",
+      "affected_dependents": [
+        "api",
+        "ledger"
+      ],
+      "unaffected_workstreams": [
+        "notifications"
+      ],
+      "decision_ref": "canon/decisions/customer_identity.json",
+      "spec_ref": "fixtures/failed-payment/BRIEF.md",
+      "spec_patch_ref": "canon/spec-patches/customer_identity.json",
+      "regression_artifact_ref": "contracts/test_canon_customer_identity.py",
+      "repairs": [
+        {
+          "workstream": "api",
+          "concept": "field_name",
+          "action": "preserve",
+          "file_modified": null,
+          "prior_value": "refund_amount",
+          "canonical_value": "refund_amount",
+          "repair_source": "AGENT_DRIFT_EVIDENCE"
+        },
+        {
+          "workstream": "ledger",
+          "concept": "field_name",
+          "action": "repaired",
+          "file_modified": "ledger/credit_entry.py",
+          "prior_value": "credit_amount",
+          "canonical_value": "refund_amount",
+          "repair_source": "AGENT_DRIFT_EVIDENCE"
+        },
+        {
+          "workstream": "notifications",
+          "concept": "field_name",
+          "action": "preserve",
+          "file_modified": null,
+          "prior_value": "refund_amount",
+          "canonical_value": "refund_amount",
+          "repair_source": "AGENT_DRIFT_EVIDENCE"
+        },
+        {
+          "workstream": "api",
+          "concept": "customer_identity",
+          "action": "repaired",
+          "file_modified": "api/handlers/recover.py",
+          "prior_value": "email",
+          "canonical_value": "account_id",
+          "repair_source": "CANON_PATCH"
+        },
+        {
+          "workstream": "ledger",
+          "concept": "customer_identity",
+          "action": "preserve",
+          "file_modified": null,
+          "prior_value": "account_id",
+          "canonical_value": "account_id",
+          "repair_source": "CANON_PATCH"
+        },
+        {
+          "workstream": "notifications",
+          "concept": "customer_identity",
+          "action": "not_applicable",
+          "file_modified": null,
+          "prior_value": null,
+          "canonical_value": "account_id",
+          "repair_source": "CANON_PATCH"
+        }
+      ],
+      "provenance": {
+        "execution_environment": "LOCAL",
+        "interpretation_source": "PRESEEDED",
+        "human_decision_source": "PRESEEDED",
+        "compiler": "collider.decision_compiler",
+        "input_commit": "9249a63750300f5fa7093e039c10a0900ea7d953",
+        "compiled_at": "2026-09-26T19:49:14Z"
+      },
+      "evidence_state": "OBSERVED",
+      "verification": {
+        "gate_verdict": "SEMANTICALLY_READY",
+        "integration_conflicts_before": 2,
+        "integration_conflicts_after": 0,
+        "integration_status_after": "INTEGRATION_READY",
+        "tests_passed": 37,
+        "tests_failed": 0,
+        "command": "python3 -B -m pytest api/tests/test_recover.py ledger/tests/test_credit_entry.py notifications/tests/test_send_credit_notice.py contracts/test_canon_customer_identity.py -q -p no:cacheprovider --rootdir=."
+      },
+      "replay": {
+        "status": "NOT_EXECUTED",
+        "runtime_state": "PENDING_LIVE_BOB"
+      }
+    }
+  ]
+}

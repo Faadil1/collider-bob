@@ -1,0 +1,24 @@
+{
+  "decision_id": "decision-001",
+  "concept": "customer_identity",
+  "canonical_value": "account_id",
+  "decision_state": "CANONICAL",
+  "decision_source": "human",
+  "human_decision_source": "PRESEEDED",
+  "decided_at": "2026-09-26T19:49:14Z",
+  "question": "Which field should identify the customer at the API/Ledger boundary for credit operations \u2014 account_id (stable internal key) or email (portable but mutable)?",
+  "candidates": {
+    "api": "email",
+    "ledger": "account_id"
+  },
+  "prior_classification": "SPEC_GAP",
+  "prior_epistemic_state": "UNKNOWN",
+  "rationale": null,
+  "affected_dependents": [
+    "api",
+    "ledger"
+  ],
+  "unaffected_workstreams": [
+    "notifications"
+  ]
+}

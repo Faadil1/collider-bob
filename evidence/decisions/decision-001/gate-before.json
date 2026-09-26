@@ -1,0 +1,54 @@
+{
+  "gate": "collider-semantic-ci",
+  "verdict": "DECISION_REQUIRED",
+  "passed": false,
+  "findings": [
+    {
+      "kind": "AGENT_DRIFT",
+      "concept": "field_name",
+      "authority": "EXPLICIT_SOURCE",
+      "expected": "refund_amount",
+      "violations": {
+        "ledger": "credit_amount"
+      },
+      "source_evidence": "BRIEF.md \u00a7Source Document: API Contract Stub \u2014 request_body.refund_amount: integer"
+    },
+    {
+      "kind": "SPEC_GAP",
+      "concept": "customer_identity",
+      "authority": "NONE",
+      "epistemic_state": "UNKNOWN",
+      "candidates": {
+        "api": "email",
+        "ledger": "account_id"
+      },
+      "question": "Which field should identify the customer at the API/Ledger boundary for credit operations \u2014 account_id (stable internal key) or email (portable but mutable)?"
+    }
+  ],
+  "facts": {
+    "api_customer_identity_field": "email",
+    "ledger_customer_identity_field": "account_id",
+    "api_money_field": "refund_amount",
+    "ledger_money_field": "credit_amount",
+    "notifications_money_field": "refund_amount"
+  },
+  "integration": {
+    "probe": "executable-interface-compatibility",
+    "conflicts": [
+      {
+        "conflict_id": "customer-identity-interface-mismatch",
+        "api_value": "email",
+        "ledger_value": "account_id"
+      },
+      {
+        "conflict_id": "money-field-interface-mismatch",
+        "api_value": "refund_amount",
+        "ledger_value": "credit_amount"
+      }
+    ],
+    "conflict_count": 2,
+    "status": "INTEGRATION_BLOCKED"
+  },
+  "canon_resolved": [],
+  "verification": null
+}

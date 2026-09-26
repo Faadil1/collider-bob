@@ -1,0 +1,60 @@
+{
+  "decision_id": "decision-001",
+  "action": "compile_decision",
+  "command": "python3 -m collider.decision_compiler --concept customer_identity --value account_id --decision-id decision-001 --human-decision-source PRESEEDED",
+  "compiled_at": "2026-09-26T19:49:14Z",
+  "input_commit": "9249a63750300f5fa7093e039c10a0900ea7d953",
+  "working_tree_clean_at_start": true,
+  "workspace": ".collider/workspaces/decision-001",
+  "loop": [
+    "DETECT",
+    "DECIDE",
+    "COMPILE",
+    "PATCH",
+    "VERIFY",
+    "REMEMBER",
+    "GUARD"
+  ],
+  "gate_before": "DECISION_REQUIRED",
+  "gate_after": "SEMANTICALLY_READY",
+  "integration_conflicts_before": 2,
+  "integration_conflicts_after": 0,
+  "integration_status_after": "INTEGRATION_READY",
+  "workstreams": [
+    {
+      "workstream": "api",
+      "path": "api/handlers/recover.py",
+      "sha256_before": "e72c29d60d4765dd368d8c7ecbfd6f5b2ce8dfdf3146b3880dcde85e9e30c648",
+      "sha256_after": "bfe6bc974fdc2bb5764ac80378f3d32919f11112c2e978f35b0bfd2f7989900f",
+      "changed": true,
+      "role": "canon_dependent"
+    },
+    {
+      "workstream": "ledger",
+      "path": "ledger/credit_entry.py",
+      "sha256_before": "174a827bb6171375b11a612f2243d45e6197823327bb0f04f08b040de6f95ba8",
+      "sha256_after": "b63a62618c8b48b0e1b64b408ccc9fe8a9bb4cf5f8b360a54709b77e18e0caaf",
+      "changed": true,
+      "role": "canon_dependent"
+    },
+    {
+      "workstream": "notifications",
+      "path": "notifications/send_credit_notice.py",
+      "sha256_before": "b6aa312aa024ac0a08c6d474c5b090a00215e47a8554a37e7f5dbfccb4841243",
+      "sha256_after": "b6aa312aa024ac0a08c6d474c5b090a00215e47a8554a37e7f5dbfccb4841243",
+      "changed": false,
+      "role": "unaffected"
+    }
+  ],
+  "source_tree_untouched": true,
+  "truth_boundary": {
+    "execution": "LOCAL",
+    "interpretations": "PRESEEDED",
+    "human_decision": "PRESEEDED",
+    "fresh_agent_replay": "NOT_EXECUTED / PENDING_LIVE_BOB",
+    "live_bob": "NOT_EXECUTED",
+    "wall_clock_improvement": "NOT_MEASURED",
+    "percentage_improvement": "NOT_CLAIMED",
+    "canonical_evidence_modified": false
+  }
+}

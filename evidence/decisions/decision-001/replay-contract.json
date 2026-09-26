@@ -1,0 +1,36 @@
+{
+  "replay": "fresh-agent",
+  "concept": "customer_identity",
+  "decision_id": "decision-001",
+  "status": "NOT_EXECUTED",
+  "runtime_state": "PENDING_LIVE_BOB",
+  "reason": "Replay requires an independent live agent session. Bob budget is exhausted; no independent execution source exists in this environment. No result is fabricated.",
+  "inputs": {
+    "patched_spec": "fixtures/failed-payment/BRIEF.md",
+    "decision_memory": "canon/decision-memory.json",
+    "withheld": [
+      "repaired implementation files",
+      "repair.patch",
+      "canonical_value (agent must derive it from the patched spec)"
+    ]
+  },
+  "prompt_contract": "Implement the api, ledger workstream(s) from the patched specification. Emit an interpretation object for 'customer_identity' with epistemic_state and evidence_refs.",
+  "acceptance": {
+    "execution_source_in": [
+      "LIVE_BOB_SESSION"
+    ],
+    "emitted_value_equals": "canonical_value from decision memory",
+    "emitted_epistemic_state": "OBSERVED (cites patched spec marker)",
+    "regression_contract": "contracts/test_canon_customer_identity.py",
+    "required_result_fields": [
+      "execution_source",
+      "session_ref",
+      "agent_id",
+      "inputs_sha256",
+      "emitted_value",
+      "tests_passed",
+      "transcript_ref"
+    ]
+  },
+  "result": null
+}

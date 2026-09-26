@@ -76,6 +76,47 @@ Open port 4173.
 The UI does not hard-code the proof values independently. Its data generator
 reads the canonical baseline, COLLIDER run, and comparative receipt, and fails
 if their key invariants no longer hold.
+## Semantic CI loop: the demo is action-capable
+
+`DETECT → DECIDE → COMPILE → PATCH → VERIFY → REMEMBER → GUARD`
+
+```bash
+python3 -m collider.gate                       # committed tree → DECISION_REQUIRED (exit 1)
+python3 demo-ui/server.py                      # UI with a real decision control at :4173
+python3 -m collider.decision_compiler \
+  --value account_id --decision-id my-decision # CLI equivalent
+```
+
+Choosing `customer_identity = account_id` compiles one human decision into:
+
+- canon decision artifact: `canon/decisions/customer_identity.json`
+- source-spec patch: a BRIEF.md "Adopted Decisions" section with a machine-readable
+  `collider:canon` marker, plus `canon/spec-patches/customer_identity.json`
+- targeted code repair: API `email → account_id` (CANON_PATCH), Ledger
+  `credit_amount → refund_amount` (AGENT_DRIFT_EVIDENCE); Notifications unchanged
+- regression contract: `contracts/test_canon_customer_identity.py`
+- decision memory: `canon/decision-memory.json`
+
+It then runs verification in the compiled tree (30 workstream tests + 7 contract
+tests), the integration probe (2 → 0, `INTEGRATION_READY`), and the gate
+(`DECISION_REQUIRED → SEMANTICALLY_READY`).
+
+Mutation happens in a workspace copy (`.collider/workspaces/<id>`, git-ignored).
+The committed tree stays the canonical pre-decision input for baseline-001 and
+local-resolved-004, and the compiler checks that its hashes did not change.
+
+Gate verdicts: `DECISION_REQUIRED` (unresolved SPEC_GAP) · `AGENT_DRIFT` (explicit
+source or resolved canon violated) · `SEMANTICALLY_READY` (canon resolved,
+dependents conform, verification passes) · `VERIFICATION_FAILED`.
+
+Committed receipt: `evidence/decisions/decision-001/` (human decision source
+PRESEEDED). UI-triggered compiles record `INTERACTIVE_LOCAL_UI` and write only to
+`.collider/runs/`.
+
+Fresh-agent replay: the interface and acceptance contract exist
+(`collider/replay.py`), but execution is **NOT_EXECUTED / PENDING_LIVE_BOB**. It only
+accepts results from an independent `LIVE_BOB_SESSION`.
+
 Evidence
 Canonical baseline
 evidence/runs/baseline-001/
@@ -176,10 +217,11 @@ python3 -m pytest \
   api/tests/ \
   ledger/tests/ \
   notifications/tests/ \
+  tests/test_semantic_ci.py \
   -q
 
-Canonical current result:
-102 passed, 6 subtests passed
+Current result:
+140 passed, 6 subtests passed
 
 Project status
 Gate	Status

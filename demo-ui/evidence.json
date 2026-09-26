@@ -131,5 +131,329 @@
     },
     "note": "Repository commits differ because COLLIDER runtime/test code evolved. The API, Ledger, and Notifications implementation artifacts were byte-identical at the start of both measured conditions."
   },
-  "evidenceCommit": "49d59a6c48aae5dce5ebad9f36909b5c71e77bb6"
+  "evidenceCommit": "49d59a6c48aae5dce5ebad9f36909b5c71e77bb6",
+  "decisionReceipt": {
+    "receipt_dir": "evidence/decisions/decision-001",
+    "manifest": {
+      "decision_id": "decision-001",
+      "action": "compile_decision",
+      "command": "python3 -m collider.decision_compiler --concept customer_identity --value account_id --decision-id decision-001 --human-decision-source PRESEEDED",
+      "compiled_at": "2026-09-26T19:49:14Z",
+      "input_commit": "9249a63750300f5fa7093e039c10a0900ea7d953",
+      "working_tree_clean_at_start": true,
+      "workspace": ".collider/workspaces/decision-001",
+      "loop": [
+        "DETECT",
+        "DECIDE",
+        "COMPILE",
+        "PATCH",
+        "VERIFY",
+        "REMEMBER",
+        "GUARD"
+      ],
+      "gate_before": "DECISION_REQUIRED",
+      "gate_after": "SEMANTICALLY_READY",
+      "integration_conflicts_before": 2,
+      "integration_conflicts_after": 0,
+      "integration_status_after": "INTEGRATION_READY",
+      "workstreams": [
+        {
+          "workstream": "api",
+          "path": "api/handlers/recover.py",
+          "sha256_before": "e72c29d60d4765dd368d8c7ecbfd6f5b2ce8dfdf3146b3880dcde85e9e30c648",
+          "sha256_after": "bfe6bc974fdc2bb5764ac80378f3d32919f11112c2e978f35b0bfd2f7989900f",
+          "changed": true,
+          "role": "canon_dependent"
+        },
+        {
+          "workstream": "ledger",
+          "path": "ledger/credit_entry.py",
+          "sha256_before": "174a827bb6171375b11a612f2243d45e6197823327bb0f04f08b040de6f95ba8",
+          "sha256_after": "b63a62618c8b48b0e1b64b408ccc9fe8a9bb4cf5f8b360a54709b77e18e0caaf",
+          "changed": true,
+          "role": "canon_dependent"
+        },
+        {
+          "workstream": "notifications",
+          "path": "notifications/send_credit_notice.py",
+          "sha256_before": "b6aa312aa024ac0a08c6d474c5b090a00215e47a8554a37e7f5dbfccb4841243",
+          "sha256_after": "b6aa312aa024ac0a08c6d474c5b090a00215e47a8554a37e7f5dbfccb4841243",
+          "changed": false,
+          "role": "unaffected"
+        }
+      ],
+      "source_tree_untouched": true,
+      "truth_boundary": {
+        "execution": "LOCAL",
+        "interpretations": "PRESEEDED",
+        "human_decision": "PRESEEDED",
+        "fresh_agent_replay": "NOT_EXECUTED / PENDING_LIVE_BOB",
+        "live_bob": "NOT_EXECUTED",
+        "wall_clock_improvement": "NOT_MEASURED",
+        "percentage_improvement": "NOT_CLAIMED",
+        "canonical_evidence_modified": false
+      }
+    },
+    "decision": {
+      "decision_id": "decision-001",
+      "concept": "customer_identity",
+      "canonical_value": "account_id",
+      "decision_state": "CANONICAL",
+      "decision_source": "human",
+      "human_decision_source": "PRESEEDED",
+      "decided_at": "2026-09-26T19:49:14Z",
+      "question": "Which field should identify the customer at the API/Ledger boundary for credit operations \u2014 account_id (stable internal key) or email (portable but mutable)?",
+      "candidates": {
+        "api": "email",
+        "ledger": "account_id"
+      },
+      "prior_classification": "SPEC_GAP",
+      "prior_epistemic_state": "UNKNOWN",
+      "rationale": null,
+      "affected_dependents": [
+        "api",
+        "ledger"
+      ],
+      "unaffected_workstreams": [
+        "notifications"
+      ]
+    },
+    "memory": {
+      "decision_id": "decision-001",
+      "concept": "customer_identity",
+      "canonical_value": "account_id",
+      "decision_state": "CANONICAL",
+      "decision_source": "human",
+      "human_decision_source": "PRESEEDED",
+      "decided_at": "2026-09-26T19:49:14Z",
+      "prior_classification": "SPEC_GAP",
+      "prior_epistemic_state": "UNKNOWN",
+      "affected_dependents": [
+        "api",
+        "ledger"
+      ],
+      "unaffected_workstreams": [
+        "notifications"
+      ],
+      "decision_ref": "canon/decisions/customer_identity.json",
+      "spec_ref": "fixtures/failed-payment/BRIEF.md",
+      "spec_patch_ref": "canon/spec-patches/customer_identity.json",
+      "regression_artifact_ref": "contracts/test_canon_customer_identity.py",
+      "repairs": [
+        {
+          "workstream": "api",
+          "concept": "field_name",
+          "action": "preserve",
+          "file_modified": null,
+          "prior_value": "refund_amount",
+          "canonical_value": "refund_amount",
+          "repair_source": "AGENT_DRIFT_EVIDENCE"
+        },
+        {
+          "workstream": "ledger",
+          "concept": "field_name",
+          "action": "repaired",
+          "file_modified": "ledger/credit_entry.py",
+          "prior_value": "credit_amount",
+          "canonical_value": "refund_amount",
+          "repair_source": "AGENT_DRIFT_EVIDENCE"
+        },
+        {
+          "workstream": "notifications",
+          "concept": "field_name",
+          "action": "preserve",
+          "file_modified": null,
+          "prior_value": "refund_amount",
+          "canonical_value": "refund_amount",
+          "repair_source": "AGENT_DRIFT_EVIDENCE"
+        },
+        {
+          "workstream": "api",
+          "concept": "customer_identity",
+          "action": "repaired",
+          "file_modified": "api/handlers/recover.py",
+          "prior_value": "email",
+          "canonical_value": "account_id",
+          "repair_source": "CANON_PATCH"
+        },
+        {
+          "workstream": "ledger",
+          "concept": "customer_identity",
+          "action": "preserve",
+          "file_modified": null,
+          "prior_value": "account_id",
+          "canonical_value": "account_id",
+          "repair_source": "CANON_PATCH"
+        },
+        {
+          "workstream": "notifications",
+          "concept": "customer_identity",
+          "action": "not_applicable",
+          "file_modified": null,
+          "prior_value": null,
+          "canonical_value": "account_id",
+          "repair_source": "CANON_PATCH"
+        }
+      ],
+      "provenance": {
+        "execution_environment": "LOCAL",
+        "interpretation_source": "PRESEEDED",
+        "human_decision_source": "PRESEEDED",
+        "compiler": "collider.decision_compiler",
+        "input_commit": "9249a63750300f5fa7093e039c10a0900ea7d953",
+        "compiled_at": "2026-09-26T19:49:14Z"
+      },
+      "evidence_state": "OBSERVED",
+      "verification": {
+        "gate_verdict": "SEMANTICALLY_READY",
+        "integration_conflicts_before": 2,
+        "integration_conflicts_after": 0,
+        "integration_status_after": "INTEGRATION_READY",
+        "tests_passed": 37,
+        "tests_failed": 0,
+        "command": "python3 -B -m pytest api/tests/test_recover.py ledger/tests/test_credit_entry.py notifications/tests/test_send_credit_notice.py contracts/test_canon_customer_identity.py -q -p no:cacheprovider --rootdir=."
+      },
+      "replay": {
+        "status": "NOT_EXECUTED",
+        "runtime_state": "PENDING_LIVE_BOB"
+      }
+    },
+    "spec_patch": {
+      "target": "fixtures/failed-payment/BRIEF.md",
+      "op": "append_section",
+      "section": "Adopted Decisions (COLLIDER canon)",
+      "marker": "collider:canon customer_identity=account_id decision=decision-001",
+      "content": "\n---\n\n## Adopted Decisions (COLLIDER canon)\n\nDecisions below were made by a human after COLLIDER classified the concept as SPEC_GAP / UNKNOWN. They are authoritative source from the decision onward.\n\n<!-- collider:canon customer_identity=account_id decision=decision-001 -->\n- **customer_identity** = `account_id` \u2014 binds: api, ledger. Prior state: SPEC_GAP / UNKNOWN. Decision source: human (PRESEEDED). Decision id: `decision-001`.\n",
+      "sha256_before": "0c93b0d0dc7673234d5ee23109a07c68eaacfc3906ba8988b6ed16de7241f61b",
+      "sha256_after": "05b4841b7133275169d510d1e0dd47e7bc6c7f97223595ab83a5e5cd73b49f45",
+      "decision_ref": "canon/decisions/customer_identity.json"
+    },
+    "spec_diff": "--- a/fixtures/failed-payment/BRIEF.md\n+++ b/fixtures/failed-payment/BRIEF.md\n@@ -188,3 +188,12 @@\n up the customer and trigger the credit\" will reasonably consider multiple identity\n strategies \u2014 and whichever it chooses will reflect a real local design decision, not\n a fabricated one.\n+\n+---\n+\n+## Adopted Decisions (COLLIDER canon)\n+\n+Decisions below were made by a human after COLLIDER classified the concept as SPEC_GAP / UNKNOWN. They are authoritative source from the decision onward.\n+\n+<!-- collider:canon customer_identity=account_id decision=decision-001 -->\n+- **customer_identity** = `account_id` \u2014 binds: api, ledger. Prior state: SPEC_GAP / UNKNOWN. Decision source: human (PRESEEDED). Decision id: `decision-001`.\n",
+    "repair_patch": "--- a/api/handlers/recover.py\n+++ b/api/handlers/recover.py\n@@ -19,7 +19,7 @@\n   Epistemic state: INFERRED \u2014 the stub says integer type; unit is not specified.\n \"\"\"\n \n-CUSTOMER_IDENTITY_FIELD = \"email\"  # LOCAL CHOICE \u2014 not specified by brief\n+CUSTOMER_IDENTITY_FIELD = \"account_id\"  # CANON customer_identity \u2014 decision decision-001 (canon/decision-memory.json)\n \n \n def process_recovery(charge_id: str, refund_amount: int, notification_contact: str,\n--- a/ledger/credit_entry.py\n+++ b/ledger/credit_entry.py\n@@ -20,7 +20,7 @@\n \"\"\"\n \n CUSTOMER_IDENTITY_FIELD = \"account_id\"  # LOCAL CHOICE \u2014 not specified by brief\n-CREDIT_FIELD_NAME = \"credit_amount\"     # AGENT DRIFT vs source stub's 'refund_amount'\n+CREDIT_FIELD_NAME = \"refund_amount\"  # SOURCE EXPLICIT \u2014 BRIEF.md API contract stub (AGENT_DRIFT repaired)\n \n \n def post_credit_entry(account_id: str, credit_amount: int) -> dict:\n",
+    "contract": "\"\"\"\nCOLLIDER regression contract \u2014 customer_identity = account_id\n\nGenerated by collider.decision_compiler for decision decision-001.\nDo not edit by hand; recompile the decision instead. This protects the resolved\ncanon: any workstream that drifts back to a non-canonical identity fails here.\n\"\"\"\n\nimport json\nimport sys\nimport unittest\nfrom pathlib import Path\n\nROOT = Path(__file__).resolve().parents[1]\nsys.path.insert(0, str(ROOT))\n\nfrom api.handlers import recover as api  # noqa: E402\nfrom ledger import credit_entry as ledger  # noqa: E402\n\nCONCEPT = 'customer_identity'\nCANONICAL_VALUE = 'account_id'\nDECISION_ID = 'decision-001'\nIDENTITY_KWARGS = {'account_id': 'customer_account_id', 'email': 'customer_email'}\nSAMPLES = {'account_id': 'acct_42', 'email': 'user@example.com'}\n\n\ndef recover(**identity):\n    return api.process_recovery(\n        charge_id=\"ch_contract\",\n        refund_amount=100,\n        notification_contact=\"user@example.com\",\n        **identity,\n    )\n\n\nclass TestCanonCustomerIdentity(unittest.TestCase):\n\n    def test_decision_memory_records_canon(self):\n        memory = json.loads((ROOT / \"canon/decision-memory.json\").read_text())\n        record = next(d for d in memory[\"decisions\"] if d[\"concept\"] == CONCEPT)\n        self.assertEqual(record[\"canonical_value\"], CANONICAL_VALUE)\n        self.assertEqual(record[\"decision_state\"], \"CANONICAL\")\n        self.assertEqual(record[\"decision_id\"], DECISION_ID)\n\n    def test_spec_carries_canon_marker(self):\n        brief = (ROOT / \"fixtures/failed-payment/BRIEF.md\").read_text()\n        self.assertIn(\n            f\"collider:canon {CONCEPT}={CANONICAL_VALUE} decision={DECISION_ID}\",\n            brief,\n        )\n\n    def test_api_identity_field_is_canonical(self):\n        self.assertEqual(api.CUSTOMER_IDENTITY_FIELD, CANONICAL_VALUE)\n\n    def test_ledger_identity_field_is_canonical(self):\n        self.assertEqual(ledger.CUSTOMER_IDENTITY_FIELD, CANONICAL_VALUE)\n\n    def test_api_resolves_customer_by_canonical_identity_alone(self):\n        kw = IDENTITY_KWARGS[CANONICAL_VALUE]\n        result = recover(**{kw: SAMPLES[CANONICAL_VALUE]})\n        self.assertEqual(result[\"customer_field\"], CANONICAL_VALUE)\n        self.assertEqual(result[\"customer_value\"], SAMPLES[CANONICAL_VALUE])\n\n    def test_api_rejects_non_canonical_identity_alone(self):\n        for other, kw in IDENTITY_KWARGS.items():\n            if other == CANONICAL_VALUE:\n                continue\n            with self.assertRaises(ValueError):\n                recover(**{kw: SAMPLES[other]})\n\n    def test_api_identity_hands_off_to_ledger_key(self):\n        result = recover(**{kw: SAMPLES[v] for v, kw in IDENTITY_KWARGS.items()})\n        entry = ledger.post_credit_entry(result[\"customer_value\"], result[\"refund_amount\"])\n        self.assertEqual(entry[\"customer_field\"], result[\"customer_field\"])\n        self.assertEqual(entry[\"customer_value\"], result[\"customer_value\"])\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n",
+    "gate_before": {
+      "gate": "collider-semantic-ci",
+      "verdict": "DECISION_REQUIRED",
+      "passed": false,
+      "findings": [
+        {
+          "kind": "AGENT_DRIFT",
+          "concept": "field_name",
+          "authority": "EXPLICIT_SOURCE",
+          "expected": "refund_amount",
+          "violations": {
+            "ledger": "credit_amount"
+          },
+          "source_evidence": "BRIEF.md \u00a7Source Document: API Contract Stub \u2014 request_body.refund_amount: integer"
+        },
+        {
+          "kind": "SPEC_GAP",
+          "concept": "customer_identity",
+          "authority": "NONE",
+          "epistemic_state": "UNKNOWN",
+          "candidates": {
+            "api": "email",
+            "ledger": "account_id"
+          },
+          "question": "Which field should identify the customer at the API/Ledger boundary for credit operations \u2014 account_id (stable internal key) or email (portable but mutable)?"
+        }
+      ],
+      "facts": {
+        "api_customer_identity_field": "email",
+        "ledger_customer_identity_field": "account_id",
+        "api_money_field": "refund_amount",
+        "ledger_money_field": "credit_amount",
+        "notifications_money_field": "refund_amount"
+      },
+      "integration": {
+        "probe": "executable-interface-compatibility",
+        "conflicts": [
+          {
+            "conflict_id": "customer-identity-interface-mismatch",
+            "api_value": "email",
+            "ledger_value": "account_id"
+          },
+          {
+            "conflict_id": "money-field-interface-mismatch",
+            "api_value": "refund_amount",
+            "ledger_value": "credit_amount"
+          }
+        ],
+        "conflict_count": 2,
+        "status": "INTEGRATION_BLOCKED"
+      },
+      "canon_resolved": [],
+      "verification": null
+    },
+    "gate_after": {
+      "gate": "collider-semantic-ci",
+      "verdict": "SEMANTICALLY_READY",
+      "passed": true,
+      "findings": [],
+      "facts": {
+        "api_customer_identity_field": "account_id",
+        "ledger_customer_identity_field": "account_id",
+        "api_money_field": "refund_amount",
+        "ledger_money_field": "refund_amount",
+        "notifications_money_field": "refund_amount"
+      },
+      "integration": {
+        "probe": "executable-interface-compatibility",
+        "conflicts": [],
+        "conflict_count": 0,
+        "status": "INTEGRATION_READY"
+      },
+      "canon_resolved": [
+        "customer_identity"
+      ],
+      "verification": {
+        "command": "python3 -B -m pytest api/tests/test_recover.py ledger/tests/test_credit_entry.py notifications/tests/test_send_credit_notice.py contracts/test_canon_customer_identity.py -q -p no:cacheprovider --rootdir=.",
+        "cwd": "/home/user/collider-bob/.collider/workspaces/decision-001",
+        "exit_code": 0,
+        "passed": true,
+        "passed_count": 37,
+        "failed_count": 0,
+        "error_count": 0,
+        "contract_files": [
+          "contracts/test_canon_customer_identity.py"
+        ]
+      }
+    },
+    "replay": {
+      "replay": "fresh-agent",
+      "concept": "customer_identity",
+      "decision_id": "decision-001",
+      "status": "NOT_EXECUTED",
+      "runtime_state": "PENDING_LIVE_BOB",
+      "reason": "Replay requires an independent live agent session. Bob budget is exhausted; no independent execution source exists in this environment. No result is fabricated.",
+      "inputs": {
+        "patched_spec": "fixtures/failed-payment/BRIEF.md",
+        "decision_memory": "canon/decision-memory.json",
+        "withheld": [
+          "repaired implementation files",
+          "repair.patch",
+          "canonical_value (agent must derive it from the patched spec)"
+        ]
+      },
+      "prompt_contract": "Implement the api, ledger workstream(s) from the patched specification. Emit an interpretation object for 'customer_identity' with epistemic_state and evidence_refs.",
+      "acceptance": {
+        "execution_source_in": [
+          "LIVE_BOB_SESSION"
+        ],
+        "emitted_value_equals": "canonical_value from decision memory",
+        "emitted_epistemic_state": "OBSERVED (cites patched spec marker)",
+        "regression_contract": "contracts/test_canon_customer_identity.py",
+        "required_result_fields": [
+          "execution_source",
+          "session_ref",
+          "agent_id",
+          "inputs_sha256",
+          "emitted_value",
+          "tests_passed",
+          "transcript_ref"
+        ]
+      },
+      "result": null
+    }
+  }
 }

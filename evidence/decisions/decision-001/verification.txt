@@ -1,0 +1,5 @@
+command: python3 -B -m pytest api/tests/test_recover.py ledger/tests/test_credit_entry.py notifications/tests/test_send_credit_notice.py contracts/test_canon_customer_identity.py -q -p no:cacheprovider --rootdir=.
+cwd: <workspace>
+
+.....................................                                    [100%]
+37 passed in 0.05s
