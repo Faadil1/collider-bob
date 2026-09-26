@@ -20,8 +20,8 @@ is not a party to this decision.
 
 | Workstream    | Concept claimed         | Interpreted value | Epistemic state |
 |---------------|------------------------|------------------|-----------------|
-| API           | `customer_identity`    | `account_id`     | UNKNOWN         |
-| Ledger        | `customer_identity`    | `email`          | UNKNOWN         |
+| API           | `customer_identity`    | `email`          | UNKNOWN         |
+| Ledger        | `customer_identity`    | `account_id`     | UNKNOWN         |
 | Notifications | *(does not claim this concept)* | N/A    | —               |
 
 ### Expected COLLIDER Verdict

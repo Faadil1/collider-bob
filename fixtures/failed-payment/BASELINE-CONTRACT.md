@@ -9,6 +9,12 @@ design contract.
 
 ---
 
+> **Observed-runtime note (2026-09-26):** The architecture below describes the
+> intended full COLLIDER loop. Comparative claims for the current build are
+> constrained by `evidence/BASELINE-COMPARISON-SCOPE.md`. In particular,
+> executable automatic repair of the Ledger `credit_amount` drift is not yet
+> an observed capability and must not be claimed as one.
+
 ## Part 1 — Run Definitions
 
 ### Baseline Run
@@ -108,14 +114,14 @@ concept in its own scope. The reconciler will not group Notifications under the
   "claims": [
     {
       "concept": "customer_identity",
-      "value": "account_id",
+      "value": "email",
       "epistemic_state": "UNKNOWN",
       "evidence_refs": [
         "BRIEF.md §Product Brief: 'credit the customer' — does not specify identity field",
         "BRIEF.md §Source Document: API Contract Stub — no customer identity field named"
       ],
       "evidence_relation": "UNAVAILABLE",
-      "consumed_by": ["ledger"],
+      "consumed_by": ["api", "ledger"],
       "artifact_refs": ["api/handlers/recover.py — customer lookup field"]
     }
   ]
@@ -126,7 +132,7 @@ concept in its own scope. The reconciler will not group Notifications under the
 It has no source guidance on which field identifies the customer. It defaults to
 `email` as a plausible portable identifier. Epistemic state is `UNKNOWN`
 because two plausible alternatives exist with no source evidence to distinguish
-them. `consumed_by` is `["ledger"]` — Notifications is not a consumer of this
+them. `consumed_by` is `["api", "ledger"]` — Notifications is not a consumer of this
 decision.
 
 ---
@@ -140,14 +146,14 @@ decision.
   "claims": [
     {
       "concept": "customer_identity",
-      "value": "email",
+      "value": "account_id",
       "epistemic_state": "UNKNOWN",
       "evidence_refs": [
         "BRIEF.md §Product Brief: 'credit the customer' — no identity field specified",
         "BRIEF.md §Source Document: API Contract Stub — notification_contact present but not a credit key"
       ],
       "evidence_relation": "UNAVAILABLE",
-      "consumed_by": ["api"],
+      "consumed_by": ["ledger", "api"],
       "artifact_refs": ["ledger/credit_entry.py — customer lookup key"]
     }
   ]
