@@ -1,0 +1,44 @@
+COLLIDER behavioral workstream tests — BEFORE repair
+timestamp: 2026-09-26T08:15:06Z
+test_command: python3 -m pytest api/tests/test_recover.py ledger/tests/test_credit_entry.py notifications/tests/test_send_credit_notice.py -v --tb=short
+exit_code: 0
+
+============================= test session starts ==============================
+platform linux -- Python 3.14.2, pytest-9.1.1, pluggy-1.6.0 -- /home/codespace/.python/current/bin/python3
+cachedir: .pytest_cache
+rootdir: /workspaces/collider-bob
+plugins: anyio-4.15.1
+collecting ... collected 30 items
+
+api/tests/test_recover.py::TestProcessRecovery::test_customer_identity_field_used_in_response PASSED [  3%]
+api/tests/test_recover.py::TestProcessRecovery::test_customer_identity_resolves_to_correct_value PASSED [  6%]
+api/tests/test_recover.py::TestProcessRecovery::test_field_name_is_refund_amount PASSED [ 10%]
+api/tests/test_recover.py::TestProcessRecovery::test_missing_charge_id_raises PASSED [ 13%]
+api/tests/test_recover.py::TestProcessRecovery::test_missing_notification_contact_raises PASSED [ 16%]
+api/tests/test_recover.py::TestProcessRecovery::test_negative_refund_amount_raises PASSED [ 20%]
+api/tests/test_recover.py::TestProcessRecovery::test_refund_amount_preserved_in_response PASSED [ 23%]
+api/tests/test_recover.py::TestProcessRecovery::test_successful_recovery_returns_credited_status PASSED [ 26%]
+api/tests/test_recover.py::TestProcessRecovery::test_zero_refund_amount_is_valid PASSED [ 30%]
+ledger/tests/test_credit_entry.py::TestPostCreditEntry::test_credit_amount_preserved_in_response PASSED [ 33%]
+ledger/tests/test_credit_entry.py::TestPostCreditEntry::test_credit_field_name_in_response PASSED [ 36%]
+ledger/tests/test_credit_entry.py::TestPostCreditEntry::test_customer_identity_field_is_account_id PASSED [ 40%]
+ledger/tests/test_credit_entry.py::TestPostCreditEntry::test_empty_account_id_raises PASSED [ 43%]
+ledger/tests/test_credit_entry.py::TestPostCreditEntry::test_entry_type_is_credit PASSED [ 46%]
+ledger/tests/test_credit_entry.py::TestPostCreditEntry::test_negative_credit_amount_raises PASSED [ 50%]
+ledger/tests/test_credit_entry.py::TestPostCreditEntry::test_successful_credit_returns_posted_status PASSED [ 53%]
+ledger/tests/test_credit_entry.py::TestPostCreditEntry::test_zero_credit_amount_is_valid PASSED [ 56%]
+notifications/tests/test_send_credit_notice.py::TestFormatAmount::test_format_0_cents PASSED [ 60%]
+notifications/tests/test_send_credit_notice.py::TestFormatAmount::test_format_1000_cents_as_10_dollars PASSED [ 63%]
+notifications/tests/test_send_credit_notice.py::TestFormatAmount::test_format_2550_cents PASSED [ 66%]
+notifications/tests/test_send_credit_notice.py::TestSendCreditNotice::test_contact_type_is_notification_contact_type PASSED [ 70%]
+notifications/tests/test_send_credit_notice.py::TestSendCreditNotice::test_empty_charge_id_raises PASSED [ 73%]
+notifications/tests/test_send_credit_notice.py::TestSendCreditNotice::test_empty_notification_contact_raises PASSED [ 76%]
+notifications/tests/test_send_credit_notice.py::TestSendCreditNotice::test_message_preview_contains_charge_id PASSED [ 80%]
+notifications/tests/test_send_credit_notice.py::TestSendCreditNotice::test_message_preview_contains_display_amount PASSED [ 83%]
+notifications/tests/test_send_credit_notice.py::TestSendCreditNotice::test_negative_refund_amount_raises PASSED [ 86%]
+notifications/tests/test_send_credit_notice.py::TestSendCreditNotice::test_notification_contact_preserved PASSED [ 90%]
+notifications/tests/test_send_credit_notice.py::TestSendCreditNotice::test_refund_amount_preserved PASSED [ 93%]
+notifications/tests/test_send_credit_notice.py::TestSendCreditNotice::test_successful_send_returns_ok PASSED [ 96%]
+notifications/tests/test_send_credit_notice.py::TestSendCreditNotice::test_zero_refund_amount_is_valid PASSED [100%]
+
+============================== 30 passed in 0.06s ==============================

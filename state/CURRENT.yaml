@@ -1,6 +1,6 @@
 project: collider-bob
 date: 2026-09-26
-stage: DESIGN_COMPLETE
+stage: RUNTIME_EVIDENCE_COMPLETE
 concept_lock:
   name: COLLIDER
   descriptor: Disagreement-Driven Specification Repair for Parallel AI Agents
@@ -38,20 +38,53 @@ novelty:
   status: PROVISIONAL_PASS
   monitoring_required: true
 runtime:
-  status: NOT_IMPLEMENTED
+  status: COMPLETE
+  runs:
+    - run_id: local-abstain-001
+      type: abstain
+      result: ALL_CLAIMS_PASS
+      evidence_state: OBSERVED
+      generation_mode: LOCAL
+      execution_environment: LOCAL
+      interpretation_source: PRESEEDED
+      human_decision_source: NONE
+      human_decisions: {}
+      claims_verified: [A, B, C, D, E, F]
+      artifacts: evidence/runs/local-abstain-001/
+    - run_id: local-resolved-001
+      type: resolved
+      result: ALL_CLAIMS_PASS
+      evidence_state: OBSERVED
+      generation_mode: LOCAL
+      execution_environment: LOCAL
+      interpretation_source: PRESEEDED
+      human_decision_source: PRESEEDED
+      human_decisions:
+        customer_identity: account_id
+      claims_verified: [A, B, C, D, E, F]
+      artifacts: evidence/runs/local-resolved-001/
+      repair_applied: true
+      files_repaired: [api/handlers/recover.py]
+      files_preserved: [ledger/credit_entry.py, notifications/send_credit_notice.py]
 evidence_run:
-  status: NOT_RUN
+  status: COMPLETE
+  runs_committed: [local-abstain-001, local-resolved-001]
+  tests:
+    command: python3 -m pytest tests/test_fixture.py api/tests/ ledger/tests/ notifications/tests/ -v
+    count: 90
+    passed: 90
+    failed: 0
+    subtests: 6
 submission:
   status: NOT_EARNED
+known_limitations:
+  - Interpretation objects are PRESEEDED — not produced by live Bob parallel subagents
+  - All Bob capability claims remain INFERRED until a LIVE_BOB session run exists
+  - human_decision for customer_identity was pre-supplied (PRESEEDED), not interactive
+  - classifier_judgment_used=false for all fixture concepts (deterministic exact-match resolver)
 next:
-  - implement reconciler script (concept grouping + value comparison)
-  - implement classifier (5-step algorithm, rule-based for fixture)
-  - implement evidence resolver (text search over BRIEF.md)
-  - implement canon patch writer (schema-conforming JSON)
-  - implement impact router (affected workstream lookup)
-  - author prompt-isolated workstream agents in Bob
-  - run baseline (no COLLIDER) and commit evidence/runs/baseline-001/
-  - run COLLIDER path and commit evidence/runs/collider-001/
-  - verify all 6 fixture claims pass EXPECTED-TRUTH.md scoring
-  - bind both runs to exact git commits
-  - update submission/ artifacts only after canonical run exists
+  - commit all evidence artifacts to git
+  - record git commit SHA in evidence run manifests (currently SHA of last commit before runs)
+  - if pursuing LIVE_BOB: run prompt-isolated workstream agents in a live Bob session
+  - verify LIVE_BOB interpretations match PRESEEDED fixture before claiming OBSERVED
+  - update submission/ artifacts only after a canonical LIVE_BOB run exists

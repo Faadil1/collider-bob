@@ -1,0 +1,61 @@
+{
+  "agent_id": "agent-api-001",
+  "workstream": "api",
+  "generation_mode": "PRESEEDED",
+  "interpretation_source": "PRESEEDED",
+  "execution_environment": "LOCAL",
+  "run_id": "fixture-v1",
+  "git_commit": "4d4430f",
+  "timestamp": "2026-09-26T00:00:00Z",
+  "claims": [
+    {
+      "concept": "customer_identity",
+      "value": "email",
+      "epistemic_state": "UNKNOWN",
+      "evidence_refs": [
+        "BRIEF.md \u00a7Product Brief: 'credit the customer' \u2014 no identity field specified",
+        "BRIEF.md \u00a7Source Document: API Contract Stub \u2014 request_body contains no customer identity field"
+      ],
+      "evidence_relation": "UNAVAILABLE",
+      "consumed_by": [
+        "ledger"
+      ],
+      "artifact_refs": [
+        "api/handlers/recover.py \u2014 customer lookup field selection"
+      ]
+    },
+    {
+      "concept": "field_name",
+      "value": "refund_amount",
+      "epistemic_state": "OBSERVED",
+      "evidence_refs": [
+        "BRIEF.md \u00a7Source Document: API Contract Stub \u2014 request_body.refund_amount: integer"
+      ],
+      "evidence_relation": "EXPLICIT",
+      "consumed_by": [
+        "ledger",
+        "notifications"
+      ],
+      "artifact_refs": [
+        "api/handlers/recover.py \u2014 request body field refund_amount"
+      ]
+    },
+    {
+      "concept": "money_representation",
+      "value": "integer_cents",
+      "epistemic_state": "INFERRED",
+      "evidence_refs": [
+        "BRIEF.md \u00a7Source Document: API Contract Stub \u2014 refund_amount type is integer (unit unspecified)",
+        "Industry convention: monetary APIs commonly represent amounts as integer minor units to avoid floating-point errors"
+      ],
+      "evidence_relation": "INFERRED",
+      "consumed_by": [
+        "ledger",
+        "notifications"
+      ],
+      "artifact_refs": [
+        "api/handlers/recover.py \u2014 refund_amount validated as non-negative integer"
+      ]
+    }
+  ]
+}

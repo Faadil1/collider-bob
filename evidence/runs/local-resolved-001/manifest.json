@@ -1,0 +1,18 @@
+{
+  "run_id": "local-resolved-001",
+  "fixture_version": "v1",
+  "git_commit": "4d4430f88536deec5babd04552f31f1ce78e016f",
+  "timestamp": "2026-09-26T08:14:51Z",
+  "run_type": "collider",
+  "generation_mode": "LOCAL",
+  "execution_environment": "LOCAL",
+  "interpretation_source": "PRESEEDED",
+  "human_decision_source": "PRESEEDED",
+  "bob_session_ref": null,
+  "test_command": "python3 -m pytest api/tests/ ledger/tests/ notifications/tests/ -v",
+  "known_limitations": [
+    "Interpretation objects are PRESEEDED fixtures, not live Bob agent output.",
+    "Human clarification for customer_identity SPEC_GAP is pre-supplied via human_decisions parameter.",
+    "classifier_judgment_used=false for all fixture concepts (deterministic exact-match resolver)."
+  ]
+}
