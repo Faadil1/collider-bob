@@ -72,8 +72,8 @@ evidence_run:
   runs_committed: [local-abstain-001, local-resolved-001]
   tests:
     command: python3 -m pytest tests/test_fixture.py api/tests/ ledger/tests/ notifications/tests/ -v
-    count: 90
-    passed: 90
+    count: 92
+    passed: 92
     failed: 0
     subtests: 6
 canonical_local_evidence:
@@ -121,8 +121,8 @@ known_limitations:
   - human_decision for customer_identity was pre-supplied (PRESEEDED), not interactive
   - classifier_judgment_used=false for all fixture concepts (deterministic exact-match resolver)
 next:
-  - commit all evidence artifacts to git
-  - record git commit SHA in evidence run manifests (currently SHA of last commit before runs)
-  - if pursuing LIVE_BOB: run prompt-isolated workstream agents in a live Bob session
-  - verify LIVE_BOB interpretations match PRESEEDED fixture before claiming OBSERVED
-  - update submission/ artifacts only after a canonical LIVE_BOB run exists
+  - run fair baseline-vs-COLLIDER comparative evidence
+  - keep comparison limited to capabilities actually implemented and observed
+  - implement executable AGENT_DRIFT repair before claiming automatic drift repair
+  - pursue LIVE_BOB only if additional Bob budget becomes available
+  - package deterministic demo and submission evidence

@@ -124,7 +124,7 @@ concept in its own scope. The reconciler will not group Notifications under the
 
 **Rationale:** The API workstream must look up the customer to trigger the credit.
 It has no source guidance on which field identifies the customer. It defaults to
-`account_id` as a plausible stable identifier. Epistemic state is `UNKNOWN`
+`email` as a plausible portable identifier. Epistemic state is `UNKNOWN`
 because two plausible alternatives exist with no source evidence to distinguish
 them. `consumed_by` is `["ledger"]` — Notifications is not a consumer of this
 decision.
@@ -155,8 +155,8 @@ decision.
 ```
 
 **Rationale:** The Ledger workstream keys credit entries to customers and must
-choose an identity field. It defaults to `email` as the commonly available
-customer attribute. Epistemic state is `UNKNOWN` — no source evidence decides
+choose an identity field. It defaults to `account_id` as a plausible stable internal
+customer identifier. Epistemic state is `UNKNOWN` — no source evidence decides
 this. Note: a poorly scoped Ledger agent might infer `email` from `notification_contact`,
 but this is itself an inference error (confusing delivery address with credit
 identity). The fixture does not require Ledger to make this error — only that it

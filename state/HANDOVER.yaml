@@ -8,7 +8,7 @@ do_not_forget:
   - competitive novelty must continue to be monitored
   - x402 and other external gateways are conditional, never silently omitted
   - no completion claim without verification-before-completion
-  - stage is DESIGN_COMPLETE — do not advance to DELIVER until a real run is committed
+  - stage is LOCAL_RUNTIME_EVIDENCE_COMPLETE — canonical local runs are committed; LIVE_BOB remains pending
   - all Bob capability claims are INFERRED until session evidence exists; "Bob-native architecture designed; runtime proof pending"
   - correct abstention (UNKNOWN) is a first-class product success, not a failure state
   - the classifier must be rule-based for the demo; model-based classification introduces variability at the trust boundary
