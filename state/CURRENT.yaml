@@ -1,6 +1,6 @@
 project: collider-bob
 date: 2026-09-26
-stage: RUNTIME_EVIDENCE_PROVISIONAL
+stage: LOCAL_RUNTIME_EVIDENCE_COMPLETE
 concept_lock:
   name: COLLIDER
   descriptor: Disagreement-Driven Specification Repair for Parallel AI Agents
@@ -38,7 +38,7 @@ novelty:
   status: PROVISIONAL_PASS
   monitoring_required: true
 runtime:
-  status: PROVISIONAL
+  status: LOCAL_COMPLETE
   runs:
     - run_id: local-abstain-001
       type: abstain
@@ -68,7 +68,7 @@ runtime:
       files_preserved: [ledger/credit_entry.py]
       files_not_applicable: [notifications/send_credit_notice.py]
 evidence_run:
-  status: PROVISIONAL
+  status: LOCAL_COMPLETE
   runs_committed: [local-abstain-001, local-resolved-001]
   tests:
     command: python3 -m pytest tests/test_fixture.py api/tests/ ledger/tests/ notifications/tests/ -v
@@ -76,6 +76,43 @@ evidence_run:
     passed: 90
     failed: 0
     subtests: 6
+canonical_local_evidence:
+  runtime_input_commit: f581c332782bc4945110b8ea1fdcb155dc00b502
+  working_tree_clean_at_start: true
+  runs:
+    - run_id: local-abstain-002
+      type: abstain
+      execution_environment: LOCAL
+      interpretation_source: PRESEEDED
+      human_decision_source: NONE
+      applicable_result: PASS
+      claim_D: NOT_APPLICABLE
+      canon_patch_written: false
+      repair_applied: false
+      artifacts: evidence/runs/local-abstain-002/
+    - run_id: local-resolved-002
+      type: resolved
+      execution_environment: LOCAL
+      interpretation_source: PRESEEDED
+      human_decision_source: PRESEEDED
+      applicable_result: PASS
+      canon_patch_written: true
+      repair_applied: true
+      repaired: [api/handlers/recover.py]
+      preserved: [ledger/credit_entry.py]
+      not_applicable: [notifications/send_credit_notice.py]
+      baseline_restored: true
+      artifacts: evidence/runs/local-resolved-002/
+  cryptographic_receipt:
+    api_changed_during_repair: true
+    api_restored_to_input: true
+    ledger_changed_during_repair: false
+    notifications_changed_during_repair: false
+  gate: PASS
+  limitation: >
+    Interpretation objects and the human decision are PRESEEDED.
+    This proves the COLLIDER mechanism locally, not Bob-native live generation.
+
 submission:
   status: NOT_EARNED
 known_limitations:

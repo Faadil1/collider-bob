@@ -51,3 +51,26 @@ current_signature:
 blocking_unknowns:
   - whether Bob parallel subagents reliably produce divergent interpretations without prompt isolation (UNKNOWN — requires a live session)
   - whether Bob Plan mode decomposition names workstream tasks in a form compatible with the interpretation schema vocabulary (UNKNOWN — requires a live session)
+
+local_runtime_evidence_gate:
+  status: PASS
+  runtime_input_commit: f581c332782bc4945110b8ea1fdcb155dc00b502
+  canonical_runs:
+    abstain: evidence/runs/local-abstain-002/
+    resolved: evidence/runs/local-resolved-002/
+  truth_boundary:
+    interpretation_source: PRESEEDED
+    human_decision_source_resolved: PRESEEDED
+    live_bob_proof: PENDING
+  observed:
+    - SPEC_GAP preserves UNKNOWN without human decision
+    - no canon patch is emitted on abstention path
+    - API is actually repaired after canonical decision
+    - Ledger remains byte-identical
+    - Notifications remains byte-identical and not applicable to customer_identity
+    - repaired API is restored to baseline after evidence capture
+  next:
+    - LIVE_BOB evidence if additional Bob budget becomes available
+    - baseline-vs-COLLIDER comparison
+    - deterministic demo packaging
+    - submission evidence and Bob Task Session Summary capture

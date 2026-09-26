@@ -1,0 +1,34 @@
+{
+  "run_id": "local-abstain-002",
+  "runtime_input_commit": "f581c332782bc4945110b8ea1fdcb155dc00b502",
+  "baseline_restored": true,
+  "artifacts": [
+    {
+      "workstream": "api",
+      "path": "api/handlers/recover.py",
+      "sha256_before": "e72c29d60d4765dd368d8c7ecbfd6f5b2ce8dfdf3146b3880dcde85e9e30c648",
+      "sha256_after": "e72c29d60d4765dd368d8c7ecbfd6f5b2ce8dfdf3146b3880dcde85e9e30c648",
+      "sha256_restored": "e72c29d60d4765dd368d8c7ecbfd6f5b2ce8dfdf3146b3880dcde85e9e30c648",
+      "changed_during_repair": false,
+      "restored_to_input": true
+    },
+    {
+      "workstream": "ledger",
+      "path": "ledger/credit_entry.py",
+      "sha256_before": "174a827bb6171375b11a612f2243d45e6197823327bb0f04f08b040de6f95ba8",
+      "sha256_after": "174a827bb6171375b11a612f2243d45e6197823327bb0f04f08b040de6f95ba8",
+      "sha256_restored": "174a827bb6171375b11a612f2243d45e6197823327bb0f04f08b040de6f95ba8",
+      "changed_during_repair": false,
+      "restored_to_input": true
+    },
+    {
+      "workstream": "notifications",
+      "path": "notifications/send_credit_notice.py",
+      "sha256_before": "b6aa312aa024ac0a08c6d474c5b090a00215e47a8554a37e7f5dbfccb4841243",
+      "sha256_after": "b6aa312aa024ac0a08c6d474c5b090a00215e47a8554a37e7f5dbfccb4841243",
+      "sha256_restored": "b6aa312aa024ac0a08c6d474c5b090a00215e47a8554a37e7f5dbfccb4841243",
+      "changed_during_repair": false,
+      "restored_to_input": true
+    }
+  ]
+}

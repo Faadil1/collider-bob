@@ -1,0 +1,35 @@
+[
+  {
+    "concept": "customer_identity",
+    "canonical_value": "account_id",
+    "workstream_impacts": [
+      {
+        "workstream": "api",
+        "consumed_concept": true,
+        "prior_value": "email",
+        "matches_canon": false,
+        "action": "repair",
+        "action_rationale": "Declared consumer uses 'email'; canon is 'account_id'. Repair required."
+      },
+      {
+        "workstream": "ledger",
+        "consumed_concept": true,
+        "prior_value": "account_id",
+        "matches_canon": true,
+        "action": "preserve",
+        "action_rationale": "Declared consumer already uses canonical value 'account_id'."
+      },
+      {
+        "workstream": "notifications",
+        "consumed_concept": false,
+        "prior_value": null,
+        "matches_canon": null,
+        "action": "not_applicable",
+        "action_rationale": "Workstream holds no 'customer_identity' claim."
+      }
+    ],
+    "run_id": "local-resolved-002",
+    "timestamp": "2026-09-26T08:51:36Z",
+    "canon_patch_commit": "f581c332782bc4945110b8ea1fdcb155dc00b502"
+  }
+]

@@ -1,0 +1,130 @@
+[
+  {
+    "concept": "internal_response_body",
+    "classification": "OUT_OF_SCOPE",
+    "classification_subtype": "NEGATIVE_CONTROL",
+    "scope_rule_applied": "field not in stub-defined cross-boundary concepts",
+    "workstream_values": {
+      "api": {
+        "status": "credited"
+      },
+      "notifications": {
+        "ok": true
+      }
+    },
+    "normalized_values": {},
+    "agent_drift_workstreams": [],
+    "source_evidence": null,
+    "classifier_step_reached": 0,
+    "classifier_judgment_used": false,
+    "notes": "Internal or non-stub field; excluded from cross-boundary classification.",
+    "run_id": "local-resolved-002",
+    "timestamp": "2026-09-26T08:51:36Z"
+  },
+  {
+    "concept": "customer_identity",
+    "classification": "SPEC_GAP",
+    "classification_subtype": null,
+    "epistemic_state": "UNKNOWN",
+    "evidence_state": "INSUFFICIENT",
+    "scope": [
+      "api",
+      "ledger"
+    ],
+    "workstream_values": {
+      "api": "email",
+      "ledger": "account_id"
+    },
+    "normalized_values": {
+      "api": "email",
+      "ledger": "account_id"
+    },
+    "agent_drift_workstreams": [],
+    "source_evidence": {
+      "document": "fixtures/failed-payment/BRIEF.md",
+      "excerpt": null,
+      "evidence_state": "INSUFFICIENT"
+    },
+    "classifier_step_reached": 4,
+    "classifier_judgment_used": false,
+    "auto_resolve": false,
+    "minimal_question": "Which field should identify the customer at the API/Ledger boundary for credit operations \u2014 account_id (stable internal key) or email (portable but mutable)?",
+    "notes": "Source is silent on this concept. Multiple plausible values remain. UNKNOWN state preserved. Human decision required before canon patch is emitted.",
+    "run_id": "local-resolved-002",
+    "timestamp": "2026-09-26T08:51:36Z"
+  },
+  {
+    "concept": "field_name",
+    "classification": "AGENT_DRIFT",
+    "classification_subtype": null,
+    "drifted_workstreams": [
+      "ledger"
+    ],
+    "authoritative_value": "refund_amount",
+    "workstream_values": {
+      "api": "refund_amount",
+      "ledger": "credit_amount",
+      "notifications": "refund_amount"
+    },
+    "normalized_values": {
+      "api": "refund_amount",
+      "ledger": "credit_amount",
+      "notifications": "refund_amount"
+    },
+    "agent_drift_workstreams": [
+      "ledger"
+    ],
+    "source_evidence": {
+      "document": "fixtures/failed-payment/BRIEF.md",
+      "excerpt": "BRIEF.md \u00a7Source Document: API Contract Stub \u2014 request_body.refund_amount: integer",
+      "evidence_state": "OBSERVED"
+    },
+    "classifier_step_reached": 3,
+    "classifier_judgment_used": false,
+    "human_question_needed": false,
+    "notes": "Source explicitly specifies 'refund_amount'. Drifted workstreams: ['ledger'].",
+    "run_id": "local-resolved-002",
+    "timestamp": "2026-09-26T08:51:36Z"
+  },
+  {
+    "concept": "money_representation",
+    "classification": "NO_DISAGREEMENT",
+    "classification_subtype": "SHARED_INFERRED",
+    "consensus": true,
+    "upgrades_to_fact": false,
+    "workstream_values": {
+      "api": "integer_cents",
+      "ledger": "integer_cents",
+      "notifications": "integer_cents"
+    },
+    "normalized_values": {
+      "api": "integer_cents",
+      "ledger": "integer_cents",
+      "notifications": "integer_cents"
+    },
+    "agent_drift_workstreams": [],
+    "source_evidence": null,
+    "classifier_step_reached": 2,
+    "classifier_judgment_used": false,
+    "notes": "All workstreams agree. Epistemic state preserved from claims. Consensus does not upgrade INFERRED to OBSERVED.",
+    "run_id": "local-resolved-002",
+    "timestamp": "2026-09-26T08:51:36Z"
+  },
+  {
+    "concept": "notification_contact",
+    "classification": "OUT_OF_SCOPE",
+    "classification_subtype": "NEGATIVE_CONTROL",
+    "scope_rule_applied": "field not in stub-defined cross-boundary concepts",
+    "workstream_values": {
+      "notifications": "email_address"
+    },
+    "normalized_values": {},
+    "agent_drift_workstreams": [],
+    "source_evidence": null,
+    "classifier_step_reached": 0,
+    "classifier_judgment_used": false,
+    "notes": "Internal or non-stub field; excluded from cross-boundary classification.",
+    "run_id": "local-resolved-002",
+    "timestamp": "2026-09-26T08:51:36Z"
+  }
+]

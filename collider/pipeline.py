@@ -1233,7 +1233,10 @@ if __name__ == "__main__":
             status = "✓ PASS" if verdict.get("pass") is True else "✗ FAIL"
         print(f"  Claim {claim_id}: {status} — {verdict['detail']}")
 
-    print(f"\n=== Overall: {'ALL CLAIMS PASS' if verification['all_pass'] else 'FIXTURE FAILURES PRESENT'} ===")
+    print(
+        f"\n=== Overall: "
+        f"{'ALL APPLICABLE CLAIMS PASS' if verification['all_pass'] else 'FIXTURE FAILURES PRESENT'} ==="
+    )
 
     if result["failures"]:
         print(f"\n=== Failures recorded ({len(result['failures'])}) ===")
