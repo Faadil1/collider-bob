@@ -9,13 +9,17 @@ COLLIDER using observed evidence only.
 
 ## Canonical runtime input
 
-COLLIDER runtime-input commit:
+Current comparative COLLIDER runtime-input commit:
 
-`f581c332782bc4945110b8ea1fdcb155dc00b502`
+`289415b06f69a9ea346606c07c4cb388f127c1bf`
 
-Canonical local evidence commit:
+Canonical baseline evidence commit:
 
-`3719d1bc1f37558c61ce6458cfd09472f076c515`
+`27676adbb0cd2df6702d3cf6cb07f26a6d08d779`
+
+Canonical comparative run:
+
+`evidence/runs/local-resolved-004/`
 
 ## Implemented and eligible for comparison
 
@@ -32,6 +36,9 @@ The current COLLIDER runtime has observed evidence for:
 - preserving Ledger when already canonical
 - excluding Notifications from the identity repair
 - identifying `field_name` as `AGENT_DRIFT`
+- automatically repairing Ledger `credit_amount` -> `refund_amount` from explicit source evidence
+- producing an executable post-repair integration receipt with zero conflicts
+- restoring all transiently repaired workstream source and Python module state
 - preserving `money_representation` as `SHARED_INFERRED`
 - filtering the internal-response-body negative control as `OUT_OF_SCOPE`
 
@@ -39,7 +46,6 @@ The current COLLIDER runtime has observed evidence for:
 
 The current runtime does NOT yet have executable observed evidence that it:
 
-- automatically repairs Ledger `credit_amount` -> `refund_amount`
 - runs live Bob parallel subagents for the canonical comparison
 - reduces wall-clock time in a live agent execution
 - achieves any percentage improvement over baseline

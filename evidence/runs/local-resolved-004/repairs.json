@@ -1,0 +1,64 @@
+[
+  {
+    "workstream": "api",
+    "action": "preserve",
+    "file_modified": null,
+    "repair_source": "AGENT_DRIFT_EVIDENCE",
+    "prior_value": "refund_amount",
+    "canonical_value": "refund_amount",
+    "timestamp": "2026-09-26T13:04:43Z",
+    "concept": "field_name"
+  },
+  {
+    "workstream": "ledger",
+    "action": "repaired",
+    "file_modified": "ledger/credit_entry.py",
+    "constant_modified": "CREDIT_FIELD_NAME",
+    "repair_source": "AGENT_DRIFT_EVIDENCE",
+    "prior_value": "credit_amount",
+    "canonical_value": "refund_amount",
+    "timestamp": "2026-09-26T13:04:43Z",
+    "concept": "field_name"
+  },
+  {
+    "workstream": "notifications",
+    "action": "preserve",
+    "file_modified": null,
+    "repair_source": "AGENT_DRIFT_EVIDENCE",
+    "prior_value": "refund_amount",
+    "canonical_value": "refund_amount",
+    "timestamp": "2026-09-26T13:04:43Z",
+    "concept": "field_name"
+  },
+  {
+    "workstream": "api",
+    "action": "repaired",
+    "file_modified": "api/handlers/recover.py",
+    "constant_modified": "CUSTOMER_IDENTITY_FIELD",
+    "repair_source": "CANON_PATCH",
+    "prior_value": "email",
+    "canonical_value": "account_id",
+    "timestamp": "2026-09-26T13:04:43Z",
+    "concept": "customer_identity"
+  },
+  {
+    "workstream": "ledger",
+    "action": "preserve",
+    "file_modified": null,
+    "repair_source": "CANON_PATCH",
+    "prior_value": "account_id",
+    "canonical_value": "account_id",
+    "timestamp": "2026-09-26T13:04:43Z",
+    "concept": "customer_identity"
+  },
+  {
+    "workstream": "notifications",
+    "action": "not_applicable",
+    "file_modified": null,
+    "repair_source": "CANON_PATCH",
+    "prior_value": null,
+    "canonical_value": "account_id",
+    "timestamp": "2026-09-26T13:04:43Z",
+    "concept": "customer_identity"
+  }
+]

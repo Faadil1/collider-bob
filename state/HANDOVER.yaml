@@ -8,7 +8,7 @@ do_not_forget:
   - competitive novelty must continue to be monitored
   - x402 and other external gateways are conditional, never silently omitted
   - no completion claim without verification-before-completion
-  - stage is LOCAL_RUNTIME_EVIDENCE_COMPLETE — canonical local runs are committed; LIVE_BOB remains pending
+  - stage is LOCAL_COMPARATIVE_EVIDENCE_COMPLETE — baseline and COLLIDER comparative evidence passed; LIVE_BOB remains pending
   - all Bob capability claims are INFERRED until session evidence exists; "Bob-native architecture designed; runtime proof pending"
   - correct abstention (UNKNOWN) is a first-class product success, not a failure state
   - the classifier must be rule-based for the demo; model-based classification introduces variability at the trust boundary
@@ -74,3 +74,45 @@ local_runtime_evidence_gate:
     - baseline-vs-COLLIDER comparison
     - deterministic demo packaging
     - submission evidence and Bob Task Session Summary capture
+
+comparative_evidence_gate:
+  status: PASS
+  baseline:
+    run: evidence/runs/baseline-001/
+    evidence_commit: 27676adbb0cd2df6702d3cf6cb07f26a6d08d779
+    observed:
+      - 30 local workstream tests pass
+      - 3 of 3 workstreams are locally green
+      - 2 incompatibilities are discovered at integration
+      - result is INTEGRATION_BLOCKED
+      - no root-cause classification is performed
+  collider:
+    run: evidence/runs/local-resolved-004/
+    runtime_input_commit: 289415b06f69a9ea346606c07c4cb388f127c1bf
+    observed:
+      - customer_identity is SPEC_GAP with UNKNOWN preserved
+      - one PRESEEDED human decision resolves customer_identity
+      - API is repaired from email to account_id
+      - field_name is AGENT_DRIFT against explicit source evidence
+      - Ledger is repaired from credit_amount to refund_amount
+      - Notifications remains unchanged
+      - final executable integration has zero conflicts
+      - result is INTEGRATION_READY
+      - transient source and Python module state are restored afterward
+  fairness:
+    starting_workstream_artifacts_byte_identical: true
+  receipt:
+    - evidence/comparisons/baseline-001-vs-local-resolved-004.json
+    - evidence/comparisons/baseline-001-vs-local-resolved-004.md
+  truth_boundary:
+    execution: LOCAL
+    interpretations: PRESEEDED
+    human_decision: PRESEEDED
+    live_bob: PENDING
+    wall_clock_improvement: UNKNOWN
+    percentage_improvement: NOT_CLAIMED
+  next:
+    - deterministic demo compression
+    - submission packaging
+    - Bob Task Session Summary screenshots
+    - LIVE_BOB evidence only if budget becomes available

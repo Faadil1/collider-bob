@@ -1,0 +1,22 @@
+--- a/api/handlers/recover.py
++++ b/api/handlers/recover.py
+@@ -19,7 +19,7 @@
+   Epistemic state: INFERRED — the stub says integer type; unit is not specified.
+ """
+ 
+-CUSTOMER_IDENTITY_FIELD = "email"  # LOCAL CHOICE — not specified by brief
++CUSTOMER_IDENTITY_FIELD = "account_id"  # LOCAL CHOICE — not specified by brief
+ 
+ 
+ def process_recovery(charge_id: str, refund_amount: int, notification_contact: str,
+--- a/ledger/credit_entry.py
++++ b/ledger/credit_entry.py
+@@ -20,7 +20,7 @@
+ """
+ 
+ CUSTOMER_IDENTITY_FIELD = "account_id"  # LOCAL CHOICE — not specified by brief
+-CREDIT_FIELD_NAME = "credit_amount"     # AGENT DRIFT vs source stub's 'refund_amount'
++CREDIT_FIELD_NAME = "refund_amount"     # AGENT DRIFT vs source stub's 'refund_amount'
+ 
+ 
+ def post_credit_entry(account_id: str, credit_amount: int) -> dict:

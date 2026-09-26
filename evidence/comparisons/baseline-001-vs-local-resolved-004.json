@@ -1,0 +1,81 @@
+{
+  "comparison_id": "baseline-001-vs-local-resolved-004",
+  "date": "2026-09-26",
+  "evidence_state": "OBSERVED",
+  "baseline": {
+    "run_id": "baseline-001",
+    "runtime_input_commit": "45fd342c6322178ee505456d2b95d301744d198f",
+    "interpretation_source": "PRESEEDED_FIXTURE",
+    "local_workstream_tests_passed": 30,
+    "all_workstreams_locally_green": true,
+    "contradictions_surfaced_pre_integration": 0,
+    "integration_conflicts": 2,
+    "integration_status": "INTEGRATION_BLOCKED",
+    "root_cause_classification": false
+  },
+  "collider": {
+    "run_id": "local-resolved-004",
+    "runtime_input_commit": "289415b06f69a9ea346606c07c4cb388f127c1bf",
+    "execution_environment": "LOCAL",
+    "interpretation_source": "PRESEEDED",
+    "human_decision_source": "PRESEEDED",
+    "spec_gaps_detected": 1,
+    "agent_drifts_detected": 1,
+    "agent_drifts_repaired": 1,
+    "human_clarifications_required": 1,
+    "targeted_repairs": 2,
+    "integration_conflicts_after_repairs": 0,
+    "integration_status_after_repairs": "INTEGRATION_READY",
+    "baseline_restored_after_capture": true,
+    "repairs": [
+      {
+        "concept": "field_name",
+        "workstream": "ledger",
+        "prior_value": "credit_amount",
+        "canonical_value": "refund_amount",
+        "repair_source": "AGENT_DRIFT_EVIDENCE"
+      },
+      {
+        "concept": "customer_identity",
+        "workstream": "api",
+        "prior_value": "email",
+        "canonical_value": "account_id",
+        "repair_source": "CANON_PATCH"
+      }
+    ]
+  },
+  "classifications": {
+    "customer_identity": {
+      "classification": "SPEC_GAP",
+      "epistemic_state": "UNKNOWN",
+      "auto_resolve": false
+    },
+    "field_name": {
+      "classification": "AGENT_DRIFT",
+      "authoritative_value": "refund_amount"
+    },
+    "money_representation": {
+      "classification": "NO_DISAGREEMENT",
+      "classification_subtype": "SHARED_INFERRED",
+      "upgrades_to_fact": false
+    }
+  },
+  "fairness": {
+    "starting_workstream_artifacts_byte_identical": true,
+    "per_workstream_hash_match": {
+      "api": true,
+      "ledger": true,
+      "notifications": true
+    },
+    "note": "Repository commits differ because COLLIDER runtime/test code evolved. The API, Ledger, and Notifications implementation artifacts were byte-identical at the start of both measured conditions."
+  },
+  "truth_boundary": {
+    "live_bob": false,
+    "interpretations": "PRESEEDED",
+    "human_decision": "PRESEEDED",
+    "wall_clock_improvement": "NOT_MEASURED",
+    "percentage_improvement": "NOT_CLAIMED",
+    "baseline_rework_cycles": "UNKNOWN",
+    "production_generalization": "NOT_ESTABLISHED"
+  }
+}
