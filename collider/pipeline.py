@@ -131,6 +131,90 @@ EVIDENCE_ARTIFACT_FILES = {
 }
 
 
+def purge_workstream_bytecode() -> None:
+    """
+    Remove cached bytecode for transiently mutated workstream modules.
+
+    Repair evidence rewrites source files and restores them within a very short
+    interval. Same-size edits can otherwise leave Python module/bytecode state
+    inconsistent with the restored source during an in-process test session.
+    """
+    for path in EVIDENCE_ARTIFACT_FILES.values():
+        source = Path(path)
+        cache_dir = source.parent / "__pycache__"
+
+        if not cache_dir.exists():
+            continue
+
+        for pyc in cache_dir.glob(f"{source.stem}.*.pyc"):
+            pyc.unlink(missing_ok=True)
+
+    importlib.invalidate_caches()
+
+
+WORKSTREAM_MODULE_NAMES = {
+    "api": "api.handlers.recover",
+    "ledger": "ledger.credit_entry",
+    "notifications": "notifications.send_credit_notice",
+}
+
+
+def restore_loaded_workstream_modules_from_source() -> None:
+    """
+    Synchronize any already-loaded workstream module objects with the
+    restored source files WITHOUT importlib.reload() and WITHOUT .pyc use.
+
+    Why this exists:
+    deleting bytecode protects future imports, but it does not repair an
+    existing module object whose globals were populated while the transient
+    repaired source was active.
+
+    Executing the restored source directly into the existing module namespace
+    also repairs the globals used by previously imported function objects.
+    """
+    for ws, module_name in WORKSTREAM_MODULE_NAMES.items():
+        module = sys.modules.get(module_name)
+
+        if module is None:
+            continue
+
+        path = EVIDENCE_ARTIFACT_FILES[ws]
+        source = Path(path).read_text()
+
+        # Preserve Python import metadata.
+        metadata = {
+            key: module.__dict__.get(key)
+            for key in [
+                "__name__",
+                "__file__",
+                "__package__",
+                "__loader__",
+                "__spec__",
+                "__cached__",
+                "__builtins__",
+            ]
+            if key in module.__dict__
+        }
+
+        module.__dict__.clear()
+        module.__dict__.update(metadata)
+
+        module.__dict__.setdefault("__name__", module_name)
+        module.__dict__.setdefault("__file__", path)
+        module.__dict__.setdefault(
+            "__package__",
+            module_name.rpartition(".")[0],
+        )
+        module.__dict__.setdefault("__builtins__", __builtins__)
+
+        exec(
+            compile(source, path, "exec"),
+            module.__dict__,
+        )
+
+    importlib.invalidate_caches()
+
+
 # ---------------------------------------------------------------------------
 # Step 0 — Scope filter
 # ---------------------------------------------------------------------------
@@ -672,6 +756,8 @@ def run_behavioral_tests(label: str) -> tuple[str, bool]:
     test_paths = [t[1] for t in WORKSTREAM_TEST_MODULES]
     cmd = ["python3", "-m", "pytest"] + test_paths + ["-v", "--tb=short"]
 
+    purge_workstream_bytecode()
+
     result = subprocess.run(
         cmd,
         capture_output=True,
@@ -689,39 +775,55 @@ def run_behavioral_tests(label: str) -> tuple[str, bool]:
     return combined, passed
 
 
-def reload_workstream_modules():
-    """Reload executable workstream modules from their current files."""
-    import api.handlers.recover as api
-    import ledger.credit_entry as ledger
-    import notifications.send_credit_notice as notifications
+def load_workstream_source_namespaces() -> dict:
+    """
+    Execute each current workstream source file in an isolated namespace.
 
-    return (
-        importlib.reload(api),
-        importlib.reload(ledger),
-        importlib.reload(notifications),
-    )
+    This observes the exact source state without importing/reloading transient
+    repaired modules into the shared Python process.
+    """
+    namespaces = {}
+
+    for ws, path in EVIDENCE_ARTIFACT_FILES.items():
+        source = Path(path).read_text()
+        namespace = {
+            "__name__": f"_collider_probe_{ws}",
+            "__file__": path,
+        }
+
+        exec(
+            compile(source, path, "exec"),
+            namespace,
+        )
+        namespaces[ws] = namespace
+
+    return namespaces
 
 
 def probe_integration_compatibility() -> dict:
     """
-    Verify executable cross-workstream compatibility.
+    Verify executable cross-workstream compatibility from current source.
 
     This is a compatibility receipt, not a root-cause classifier.
     """
-    api, ledger, notifications = reload_workstream_modules()
+    modules = load_workstream_source_namespaces()
 
-    api_params = inspect.signature(api.process_recovery).parameters
+    api = modules["api"]
+    ledger = modules["ledger"]
+    notifications = modules["notifications"]
+
+    api_params = inspect.signature(api["process_recovery"]).parameters
     notification_params = inspect.signature(
-        notifications.send_credit_notice
+        notifications["send_credit_notice"]
     ).parameters
 
     facts = {
-        "api_customer_identity_field": api.CUSTOMER_IDENTITY_FIELD,
-        "ledger_customer_identity_field": ledger.CUSTOMER_IDENTITY_FIELD,
+        "api_customer_identity_field": api["CUSTOMER_IDENTITY_FIELD"],
+        "ledger_customer_identity_field": ledger["CUSTOMER_IDENTITY_FIELD"],
         "api_money_field": (
             "refund_amount" if "refund_amount" in api_params else None
         ),
-        "ledger_money_field": ledger.CREDIT_FIELD_NAME,
+        "ledger_money_field": ledger["CREDIT_FIELD_NAME"],
         "notifications_money_field": (
             "refund_amount"
             if "refund_amount" in notification_params
@@ -1119,8 +1221,14 @@ def run_pipeline(
         if Path(path).read_text() != baseline_sources[ws]:
             Path(path).write_text(baseline_sources[ws])
 
-    # Keep the current Python process consistent with restored files.
-    reload_workstream_modules()
+    # Tests executed against transient repaired source may have emitted .pyc
+    # files. Remove them after source restoration so future imports observe
+    # the restored baseline.
+    purge_workstream_bytecode()
+
+    # A .pyc purge does not repair modules already resident in sys.modules.
+    # Rehydrate those module objects directly from the restored source.
+    restore_loaded_workstream_modules_from_source()
 
     hashes_restored = {
         ws: sha256_file(path)

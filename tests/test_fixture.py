@@ -489,6 +489,39 @@ class TestFullPipeline(unittest.TestCase):
         patch = Path(patch_path).read_text()
         self.assertIn('CUSTOMER_IDENTITY_FIELD = "account_id"', patch)
 
+    def test_in_process_ledger_state_not_contaminated(self):
+        """
+        A transient Ledger repair must not leak into the parent pytest process.
+        """
+        import ledger.credit_entry as ledger
+
+        self.assertEqual(
+            ledger.CREDIT_FIELD_NAME,
+            "credit_amount",
+        )
+
+        result = ledger.post_credit_entry(
+            account_id="acct_cache_guard",
+            credit_amount=123,
+        )
+
+        self.assertIn("credit_amount", result)
+        self.assertNotIn("refund_amount", result)
+
+    def test_baseline_probe_still_observes_two_conflicts(self):
+        """
+        Running COLLIDER must not mutate the later no-COLLIDER control condition.
+        """
+        import baseline.run_baseline as baseline
+
+        result = baseline.probe_integration()
+
+        self.assertEqual(
+            result["status"],
+            "INTEGRATION_BLOCKED",
+        )
+        self.assertEqual(result["conflict_count"], 2)
+
     def test_baseline_restored_after_evidence_capture(self):
         """The pipeline must not leave the repo in its transient repaired state."""
         self.assertTrue(self.result["baseline_restored"])
