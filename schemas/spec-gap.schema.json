@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Collider Disagreement",
+  "type": "object",
+  "required": ["concept", "classification", "interpretations", "evidence_state"],
+  "properties": {
+    "concept": {"type": "string"},
+    "classification": {"enum": ["AGENT_DRIFT", "SPEC_GAP", "UNKNOWN"]},
+    "interpretations": {"type": "array"},
+    "evidence_state": {"enum": ["SUFFICIENT", "INSUFFICIENT", "CONFLICTING", "UNAVAILABLE"]},
+    "minimal_question": {"type": ["string", "null"]},
+    "affected_workstreams": {"type": "array", "items": {"type": "string"}}
+  }
+}
