@@ -1,5 +1,5 @@
 project: collider-bob
-handover_version: 1
+handover_version: 3
 source_of_truth: state/CURRENT.yaml
 do_not_forget:
   - Real failure > fake success
@@ -8,7 +8,46 @@ do_not_forget:
   - competitive novelty must continue to be monitored
   - x402 and other external gateways are conditional, never silently omitted
   - no completion claim without verification-before-completion
+  - stage is DESIGN_COMPLETE — do not advance to DELIVER until a real run is committed
+  - all Bob capability claims are INFERRED until session evidence exists; "Bob-native architecture designed; runtime proof pending"
+  - correct abstention (UNKNOWN) is a first-class product success, not a failure state
+  - the classifier must be rule-based for the demo; model-based classification introduces variability at the trust boundary
+  - customer_identity is scoped to API and Ledger ONLY — Notifications holds notification_contact as a separate concept
+  - Notifications is structurally unaffected because it never held a customer_identity claim (dependency-graph result, not a special rule)
+  - the negative control uses a scope filter (Step 0) — only stub-defined fields are cross-boundary candidates; no synonym table; no model judgment
+  - generation_mode must be present and truthful on all run artifacts (LIVE_BOB / PRESEEDED / SIMULATED / LOCAL / LOCAL_STUB)
+  - PRESEEDED interpretation objects must never be narrated as LIVE_BOB; disclose in manifest.json known_limitations
+  - prompt isolation: workstream prompts must NOT specify which value to choose; brief genuinely permits divergence
+  - EXPECTED-TRUTH.md is the oracle; all 6 claims must pass before a run can be called a success
+  - "green locally" not "all tests pass" — the demo shows local tests pass but cross-boundary semantic conflict is invisible to them
+accomplished_this_session:
+  - product/TECHNICAL-REALITY-CHECK.md — 15 questions answered with epistemic labels
+  - product/DEMO-FIRST-ARCHITECTURE.md — classifier (with Step 0 scope filter), canon routing, impact routing, 15-step demo sequence
+  - product/FAILURE-MODES.md — 7 failure modes catalogued with severity and mitigation
+  - product/BOB-NATIVE-INTEGRATION.md — designed load-bearing roles; downgraded to INFERRED pending runtime proof
+  - fixtures/failed-payment/BRIEF.md — canonical fixture brief; notification_target → notification_contact; prompt isolation design
+  - fixtures/failed-payment/EXPECTED-TRUTH.md — ground-truth oracle for all 6 fixture claims; Notifications scope fixed
+  - fixtures/failed-payment/BASELINE-CONTRACT.md — interpretation objects fixed; negative control scope rule applied
+  - evidence/EVIDENCE-SCHEMA.md — generation_mode, evidence_relation, artifact_refs; fixture tables corrected
+  - schemas/interpretation.schema.json — updated with all required fields including evidence_relation, artifact_refs, generation_mode
+  - product/GATEWAY-REGISTRY.md — updated with new COMPLETE gates and clarified conditions
+  - state/CURRENT.yaml — corrected stage; added demo_architecture block; updated next steps
+  adversarial_corrections:
+  - ADV-1: Notifications separated from customer_identity; holds notification_contact independently
+  - ADV-2: Bob-native claims downgraded to INFERRED/PENDING_RUNTIME_PROOF
+  - ADV-3: generation_mode (LIVE_BOB/PRESEEDED/SIMULATED/LOCAL/LOCAL_STUB) added to all evidence artifacts
+  - ADV-4: Prompt isolation design documented in BRIEF.md; no forced divergence
+  - ADV-5: Synonym table replaced with deterministic Step 0 scope filter (stub field lookup)
+  - ADV-6: Green claim corrected to "green locally" throughout; removed "all tests pass" language
+  - ADV-7: Interpretation schema updated with evidence_relation, artifact_refs, generation_mode, no-confidence rule
 current_signature:
   judge_memory_sentence: "Three agents can be individually right and still reveal that the specification forgot to decide."
   signature_behavior: "Independent agent disagreements become probes for missing specification decisions."
   signature_moment: "Everything looks locally valid; COLLIDER classifies the disagreement as SPEC_GAP and asks one minimal question."
+  demo_emotional_arc:
+    beat_1: "Everything was green — but the agents were building different realities."
+    beat_2: "The specification never decided."
+    beat_3: "One question repairs only what actually depended on it."
+blocking_unknowns:
+  - whether Bob parallel subagents reliably produce divergent interpretations without prompt isolation (UNKNOWN — requires a live session)
+  - whether Bob Plan mode decomposition names workstream tasks in a form compatible with the interpretation schema vocabulary (UNKNOWN — requires a live session)

@@ -1,0 +1,168 @@
+# COLLIDER — Bob-Native Integration
+
+**Status:** INFERRED — architecture designed; runtime proof pending. No Bob capability is
+claimed as load-bearing until a canonical session provides session evidence. All statements
+below describe the designed role of each capability, not a proven role.
+
+## The question
+
+> "If Bob were replaced by a generic single coding assistant, what capability would be lost?"
+
+The designed answer: the core loop of COLLIDER cannot be constructed from a single-context
+assistant at all — because the independence guarantee and targeted repair require capabilities
+that a single-context assistant does not provide. This is the architectural claim. It remains
+**INFERRED** until a real Bob session produces the required evidence artifacts.
+
+---
+
+## Capability map
+
+### Plan mode — workstream decomposition with explicit interpretation boundaries
+
+**What it does:** Bob Plan decomposes the brief into independent workstreams with explicit
+scope boundaries. Each workstream gets a task definition that is isolated from the others.
+No shared context. No coordination signals. The decomposition is the product of a planning
+step, not a side effect of sequential execution.
+
+**Why it is load-bearing:** COLLIDER's core claim is that *independent* agents, given the
+same underspecified brief, will make *incompatible but locally plausible* interpretations.
+This requires genuine independence at decomposition time, not simulated independence.
+
+If Bob Plan were replaced by a human manually writing three prompts, the independence would
+be engineered by hand and would depend entirely on the human's discipline in not cross-
+contaminating the prompts. The system would lose the property that the decomposition itself
+is a traceable, auditable artifact.
+
+A generic single assistant cannot decompose a task into genuinely independent parallel
+workstreams. It can describe what such workstreams might look like, but it cannot execute
+them as independent agents.
+
+---
+
+### Agent mode — workstream execution with full repository capability
+
+**What it does:** Each workstream runs as a Bob Agent subagent that can create files,
+edit files, run tests, read repository context, and repair its own output within its
+workstream scope.
+
+**Why it is load-bearing:** The structured interpretation objects that COLLIDER classifies
+are not answers to survey questions — they are the side effects of real implementation
+decisions made by agents building real code. The `field_name: "credit_amount"` disagreement
+is not a stated preference; it is what Ledger's agent actually named the field when it
+implemented the ledger record. The evidence is executable.
+
+A generic single assistant in a single context window can produce a description of three
+workstreams. It cannot execute them as agents that produce independently verifiable artifacts.
+If the "interpretations" are not grounded in actual code, the COLLIDER demo is a mock-up,
+not a demonstration.
+
+---
+
+### Parallel subagents — genuinely concurrent independent interpretations
+
+**What it does:** Bob's parallel subagent capability allows all three workstreams to execute
+concurrently. Each agent produces its interpretation independently, without observing the
+others' work in progress.
+
+**Why it is load-bearing:** The independence of interpretation is the mechanism by which
+COLLIDER surfaces hidden disagreements. If workstream agents execute sequentially in the
+same context, each agent can observe what the previous one decided. The second and third
+agents may conform to the first agent's interpretation, suppressing the disagreement that
+COLLIDER needs to classify.
+
+Concurrency is not just a performance optimization here. It is an architectural isolation
+guarantee. Without it, COLLIDER would need to artificially blind sequential agents from each
+other's outputs — which is possible but fragile and harder to verify.
+
+A generic single assistant executes sequentially in one context. It cannot guarantee that
+the "third workstream" has not been influenced by the first two.
+
+---
+
+### Repository context — source evidence lookup during classification
+
+**What it does:** Bob agents can read repository files during execution. The classifier uses
+this capability to retrieve source evidence — the brief text, spec documents, ADRs — and
+locate the passage that either confirms or contradicts a workstream's interpretation.
+
+**Why it is load-bearing:** The AGENT_DRIFT / SPEC_GAP distinction depends entirely on
+whether the source material explicitly decides the question. This is not a lookup in the
+agent's training data; it is a lookup in the specific documents that constitute the
+specification for this project. The classifier must be able to retrieve and cite the exact
+passage, at a specific location in a specific document, that was in scope when the agents
+were running.
+
+Without repository context, the classifier is operating on the agent's interpreted memory of
+the brief, which is not auditable and not binding. The evidence reference that makes a
+classification auditable requires access to the actual source document.
+
+A generic single assistant with the brief in its context window has a version of this
+capability, but only for content explicitly included in the conversation. It cannot retrieve
+from a repository, cannot cite line numbers, and cannot guarantee that the evidence it
+references is the same version the agents saw.
+
+---
+
+### Document understanding — reading the product brief and spec documents as evidence sources
+
+**What it does:** Bob agents read and interpret documents in the repository — product briefs,
+architecture decision records, API specs — as inputs to their implementation decisions and
+as sources for the classifier's evidence lookup.
+
+**Why it is load-bearing:** The classification of `field_name` as `AGENT_DRIFT` depends on
+the classifier reading the brief and finding the word "refund_amount" as the explicitly
+specified term. This is a document reading act, not a code analysis act. The brief is the
+authoritative source. The classifier's authority to call `AGENT_DRIFT` comes from its ability
+to point at the source document and show the contradiction.
+
+Without document understanding as a first-class capability (not just prompt injection), the
+classifier cannot distinguish between "the source said X" and "the source probably said X."
+That distinction is the foundation of COLLIDER's truth boundary.
+
+---
+
+### Targeted repair — only rerun affected workstreams after canon patch
+
+**What it does:** After the canon patch is written, the impact router identifies which
+workstreams consumed the resolved concept. Bob's agent architecture allows COLLIDER to
+rerun only those workstreams, leaving unaffected workstreams untouched.
+
+**Why it is load-bearing:** The property being demonstrated is *minimal intervention*. The
+claim is: "One question repairs only what actually depended on it." If rerunning required
+rerunning all workstreams, the claim would be false. If targeted rerun is not possible,
+the canon patch reduces to "restart from scratch with better context."
+
+Targeted repair is only possible when workstreams are independent, addressable agents that
+can be reinvoked with a specific context injection (the canon patch). A generic single
+assistant, which builds all workstreams in one context, cannot rerun one without rerunning
+the others — the context is not partitioned.
+
+---
+
+## Substitution test
+
+| Bob capability | Generic single assistant substitute | What breaks |
+|---------------|-------------------------------------|-------------|
+| Plan mode | Human writes three isolated prompts | Decomposition is not traceable; independence depends on human discipline |
+| Agent mode | Assistant describes what code might look like | Interpretations are not grounded in executable artifacts |
+| Parallel subagents | Sequential runs with blinded context | Fragile; hard to verify; likely to suppress disagreements through context contamination |
+| Repository context | Paste brief into conversation | Cannot cite line numbers; no version binding; not auditable |
+| Document understanding | Rely on assistant's memory of pasted text | "Source said X" becomes "I believe the source said X" — not auditable |
+| Targeted repair | Re-run everything | Loses the minimal-intervention property; demo claim becomes false |
+
+---
+
+## Summary
+
+**Epistemic state: INFERRED — pending runtime proof.**
+
+The architecture assigns Bob's specific properties — parallel independent agents, Plan mode
+decomposition, repository context, targeted repair — as the mechanism by which disagreements
+are surfaced, classified, and resolved with minimal intervention. Each property has a designed
+load-bearing role. None of those roles is replicated by a generic single-context assistant.
+
+This is the architectural design claim. The runtime claim — that a real Bob session confirms
+each capability is actually load-bearing in the working product — is PENDING. It becomes
+OBSERVED when a canonical session produces evidence artifacts that demonstrate each property.
+
+Until then: Bob-native architecture designed; runtime proof pending.

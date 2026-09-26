@@ -1,10 +1,27 @@
 project: collider-bob
 date: 2026-09-26
-stage: TECHNICAL_REALITY_CHECK
+stage: DESIGN_COMPLETE
 concept_lock:
   name: COLLIDER
   descriptor: Disagreement-Driven Specification Repair for Parallel AI Agents
-  status: LOCKED_FOR_TECHNICAL_REALITY_CHECK
+  status: LOCKED
+technical_reality_check:
+  status: COMPLETE
+  artifact: product/TECHNICAL-REALITY-CHECK.md
+  key_findings:
+    - reconciler_and_classifier_must_be_deterministic_for_demo
+    - agent_divergence_requires_prompt_isolation_or_pre_authored_fixtures
+    - document_only_resolver_is_unsound_for_code_heavy_specs
+    - model_consensus_is_not_evidence
+    - correct_abstention_is_first_class_product_success
+    - all_bob_capability_claims_remain_INFERRED_until_session_evidence
+demo_architecture:
+  status: COMPLETE
+  artifact: product/DEMO-FIRST-ARCHITECTURE.md
+  fixture: fixtures/failed-payment/
+  evidence_schema: evidence/EVIDENCE-SCHEMA.md
+  bob_integration: product/BOB-NATIVE-INTEGRATION.md
+  failure_modes: product/FAILURE-MODES.md
 thesis: >
   Independent parallel coding agents can make different locally valid choices
   because a specification never decided a cross-boundary question. Their disagreement
@@ -27,9 +44,14 @@ evidence_run:
 submission:
   status: NOT_EARNED
 next:
-  - finalize demo-first architecture
-  - implement interpretation schema
-  - build deterministic failed-payment fixture
-  - run baseline without COLLIDER
-  - run COLLIDER path with negative/UNKNOWN branch
-  - bind evidence to exact commit
+  - implement reconciler script (concept grouping + value comparison)
+  - implement classifier (5-step algorithm, rule-based for fixture)
+  - implement evidence resolver (text search over BRIEF.md)
+  - implement canon patch writer (schema-conforming JSON)
+  - implement impact router (affected workstream lookup)
+  - author prompt-isolated workstream agents in Bob
+  - run baseline (no COLLIDER) and commit evidence/runs/baseline-001/
+  - run COLLIDER path and commit evidence/runs/collider-001/
+  - verify all 6 fixture claims pass EXPECTED-TRUTH.md scoring
+  - bind both runs to exact git commits
+  - update submission/ artifacts only after canonical run exists

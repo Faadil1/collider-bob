@@ -1,22 +1,60 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Collider Interpretation",
+  "description": "Structured declaration of a workstream agent's interpretation of a cross-boundary concept.",
   "type": "object",
-  "required": ["agent_id", "workstream", "claims"],
+  "required": ["agent_id", "workstream", "generation_mode", "claims"],
   "properties": {
     "agent_id": {"type": "string"},
     "workstream": {"type": "string"},
+    "generation_mode": {
+      "enum": ["LIVE_BOB", "PRESEEDED", "SIMULATED", "LOCAL", "LOCAL_STUB"],
+      "description": "How this interpretation was produced. LIVE_BOB = real Bob session. PRESEEDED = authored fixture. Must never be LIVE_BOB unless a real session produced it."
+    },
+    "run_id": {"type": "string"},
+    "git_commit": {"type": "string"},
+    "timestamp": {"type": "string", "format": "date-time"},
     "claims": {
       "type": "array",
+      "minItems": 1,
       "items": {
         "type": "object",
-        "required": ["concept", "value", "epistemic_state", "evidence_refs", "consumed_by"],
+        "required": ["concept", "value", "epistemic_state", "evidence_refs", "evidence_relation", "consumed_by", "artifact_refs"],
         "properties": {
-          "concept": {"type": "string"},
-          "value": {},
-          "epistemic_state": {"enum": ["OBSERVED", "INFERRED", "UNKNOWN"]},
-          "evidence_refs": {"type": "array", "items": {"type": "string"}},
-          "consumed_by": {"type": "array", "items": {"type": "string"}}
+          "concept": {
+            "type": "string",
+            "description": "The cross-boundary concept this claim is about (e.g. customer_identity, field_name, money_representation, notification_contact)."
+          },
+          "value": {
+            "description": "The value the workstream chose for this concept."
+          },
+          "epistemic_state": {
+            "enum": ["OBSERVED", "INFERRED", "UNKNOWN"],
+            "description": "OBSERVED requires a cited source passage. INFERRED = plausible but not explicitly specified. UNKNOWN = no basis determined."
+          },
+          "evidence_refs": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "Source document citations supporting this interpretation. Empty only when epistemic_state is UNKNOWN."
+          },
+          "evidence_relation": {
+            "enum": ["EXPLICIT", "INFERRED", "UNAVAILABLE", "CONFLICTING"],
+            "description": "EXPLICIT = source names this exact value. INFERRED = source is consistent but does not name it. UNAVAILABLE = no source found. CONFLICTING = sources disagree."
+          },
+          "consumed_by": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "Workstream IDs whose implementation genuinely depends on this value. Used by impact router. Do not include workstreams that do not consume this concept."
+          },
+          "artifact_refs": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "File/function references in this workstream's implementation where this decision is embodied."
+          }
+        },
+        "not": {
+          "description": "Confidence must not be used as a substitute for evidence. Do not add a confidence field.",
+          "required": ["confidence"]
         }
       }
     }
