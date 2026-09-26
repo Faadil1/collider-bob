@@ -100,7 +100,7 @@
 
           <div class="claim">
             <span>customer_identity</span>
-            <strong>account_id</strong>
+            <strong id="ledger-identity">account_id</strong>
           </div>
 
           <div class="claim">
@@ -188,10 +188,28 @@
         <span class="question-kicker">MINIMAL CLARIFICATION</span>
         <p id="canonical-question"></p>
 
-        <div class="decision-row">
-          <span>CANONICAL DECISION</span>
-          <strong>account_id</strong>
-          <small>PRESEEDED HUMAN DECISION — LOCAL EVIDENCE</small>
+        <div class="decision-control" id="decision-control">
+          <div class="decision-control-head">
+            <span>HUMAN DECISION · customer_identity</span>
+            <small id="action-mode">checking for local action server…</small>
+          </div>
+
+          <div class="decision-options">
+            <button type="button" class="decision-option" data-value="account_id">
+              <strong>account_id</strong>
+              <span>chosen by Ledger · canonical demo choice</span>
+            </button>
+            <button type="button" class="decision-option" data-value="email">
+              <strong>email</strong>
+              <span>chosen by API</span>
+            </button>
+          </div>
+
+          <div class="decision-row" id="decision-row">
+            <span>STATE</span>
+            <strong id="decision-state">UNDECIDED · UNKNOWN</strong>
+            <small id="decision-note">No canon exists. COLLIDER will not pick for you.</small>
+          </div>
         </div>
       </div>
 
@@ -208,10 +226,87 @@
       </div>
     </section>
 
+    <section class="loop" id="loop" aria-label="Semantic CI decision loop">
+      <div class="stage-header">
+        <div>
+          <span class="section-index">02</span>
+          <h2>Semantic CI — decide, compile, guard</h2>
+        </div>
+        <span class="receipt-state" id="loop-source">NO DECISION YET</span>
+      </div>
+
+      <ol class="loop-strip" id="loop-strip">
+        <li data-node="DETECT"><b>DETECT</b><span data-out="DETECT">—</span></li>
+        <li data-node="DECIDE"><b>DECIDE</b><span data-out="DECIDE">awaiting human</span></li>
+        <li data-node="COMPILE"><b>COMPILE</b><span data-out="COMPILE">—</span></li>
+        <li data-node="PATCH"><b>PATCH</b><span data-out="PATCH">—</span></li>
+        <li data-node="VERIFY"><b>VERIFY</b><span data-out="VERIFY">—</span></li>
+        <li data-node="REMEMBER"><b>REMEMBER</b><span data-out="REMEMBER">—</span></li>
+        <li data-node="GUARD"><b>GUARD</b><span data-out="GUARD">—</span></li>
+        <li data-node="REPLAY" class="pending-node"><b>REPLAY</b><span data-out="REPLAY">NOT_EXECUTED</span></li>
+      </ol>
+
+      <div class="gate-row">
+        <div class="gate-verdict" id="gate-verdict" data-verdict="">
+          <span>SEMANTIC CI GATE</span>
+          <strong id="gate-verdict-value">—</strong>
+          <small id="gate-verdict-note">python3 -m collider.gate</small>
+        </div>
+        <ul class="gate-findings" id="gate-findings"></ul>
+      </div>
+
+      <div class="compiled hidden" id="compiled">
+        <div class="artifact-list">
+          <span class="panel-kicker">COMPILED ARTIFACTS</span>
+          <dl id="artifact-list"></dl>
+        </div>
+
+        <div class="diff-panel">
+          <div class="diff-tabs" role="tablist">
+            <button type="button" class="active" data-diff="repair">code repair · repair.patch</button>
+            <button type="button" data-diff="spec">spec patch · spec.diff</button>
+            <button type="button" data-diff="contract">regression contract</button>
+          </div>
+          <pre class="diff" id="diff-view"></pre>
+        </div>
+
+        <div class="verify-grid">
+          <div class="verify-box" id="verify-box">
+            <span class="panel-kicker">VERIFY · executed after repair</span>
+            <strong id="verify-counts">—</strong>
+            <code id="verify-command"></code>
+          </div>
+          <div class="verify-box" id="integration-box">
+            <span class="panel-kicker">INTEGRATION PROBE</span>
+            <strong id="integration-counts">—</strong>
+            <small id="integration-status"></small>
+          </div>
+          <div class="verify-box">
+            <span class="panel-kicker">WORKSTREAM STATE</span>
+            <ul class="ws-state" id="ws-state"></ul>
+          </div>
+        </div>
+
+        <div class="memory-replay">
+          <div class="memory">
+            <span class="panel-kicker">DECISION MEMORY · canon/decision-memory.json</span>
+            <dl id="memory-view"></dl>
+          </div>
+          <div class="replay">
+            <span class="panel-kicker">FRESH-AGENT REPLAY</span>
+            <strong id="replay-status">NOT_EXECUTED</strong>
+            <small id="replay-runtime">PENDING_LIVE_BOB</small>
+            <p id="replay-reason"></p>
+            <div class="replay-contract" id="replay-contract"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section class="receipt">
       <div class="receipt-header">
         <div>
-          <span class="section-index">02</span>
+          <span class="section-index">03</span>
           <h2>Claim → demonstration → receipt</h2>
         </div>
 

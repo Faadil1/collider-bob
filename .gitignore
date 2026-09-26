@@ -12,3 +12,6 @@ coverage/
 *.log
 tmp/
 .cache/
+
+# COLLIDER decision-compiler workspaces and interactive (UI) receipts
+.collider/
