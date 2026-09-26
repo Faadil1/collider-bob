@@ -1,0 +1,135 @@
+{
+  "project": "COLLIDER",
+  "fixture": "failed-payment",
+  "truthBoundary": "LOCAL / PRESEEDED",
+  "baseline": {
+    "runId": "baseline-001",
+    "commit": "45fd342c6322178ee505456d2b95d301744d198f",
+    "testsPassed": 30,
+    "suitesGreen": 3,
+    "conflicts": 2,
+    "status": "INTEGRATION_BLOCKED",
+    "conflictList": [
+      {
+        "conflict_id": "customer-identity-interface-mismatch",
+        "type": "INTERFACE_MISMATCH",
+        "involved_workstreams": [
+          "api",
+          "ledger"
+        ],
+        "api_value": "email",
+        "ledger_value": "account_id",
+        "detected_stage": "INTEGRATION",
+        "classification": null,
+        "notes": "Baseline detects incompatible identity fields only when workstream interfaces are compared. No root-cause classification is attempted."
+      },
+      {
+        "conflict_id": "money-field-interface-mismatch",
+        "type": "INTERFACE_MISMATCH",
+        "involved_workstreams": [
+          "api",
+          "ledger"
+        ],
+        "api_value": "refund_amount",
+        "ledger_value": "credit_amount",
+        "detected_stage": "INTEGRATION",
+        "classification": null,
+        "notes": "Baseline observes incompatible field names at integration. It does not determine whether this is specification ambiguity or implementation drift."
+      }
+    ]
+  },
+  "classifications": {
+    "customerIdentity": {
+      "concept": "customer_identity",
+      "classification": "SPEC_GAP",
+      "epistemicState": "UNKNOWN",
+      "autoResolve": false,
+      "question": "Which field should identify the customer at the API/Ledger boundary for credit operations \u2014 account_id (stable internal key) or email (portable but mutable)?",
+      "values": {
+        "api": "email",
+        "ledger": "account_id"
+      }
+    },
+    "fieldName": {
+      "concept": "field_name",
+      "classification": "AGENT_DRIFT",
+      "authoritativeValue": "refund_amount",
+      "values": {
+        "api": "refund_amount",
+        "ledger": "credit_amount",
+        "notifications": "refund_amount"
+      },
+      "source": "BRIEF.md \u00a7Source Document: API Contract Stub \u2014 request_body.refund_amount: integer"
+    },
+    "moneyRepresentation": {
+      "concept": "money_representation",
+      "classification": "NO_DISAGREEMENT",
+      "subtype": "SHARED_INFERRED",
+      "upgradesToFact": false
+    }
+  },
+  "repairs": [
+    {
+      "concept": "field_name",
+      "workstream": "ledger",
+      "before": "credit_amount",
+      "after": "refund_amount",
+      "source": "AGENT_DRIFT_EVIDENCE"
+    },
+    {
+      "concept": "customer_identity",
+      "workstream": "api",
+      "before": "email",
+      "after": "account_id",
+      "source": "CANON_PATCH"
+    }
+  ],
+  "result": {
+    "runId": "local-resolved-004",
+    "commit": "289415b06f69a9ea346606c07c4cb388f127c1bf",
+    "conflicts": 0,
+    "status": "INTEGRATION_READY",
+    "facts": {
+      "api_customer_identity_field": "account_id",
+      "ledger_customer_identity_field": "account_id",
+      "api_money_field": "refund_amount",
+      "ledger_money_field": "refund_amount",
+      "notifications_money_field": "refund_amount",
+      "notifications_customer_identity_dependency": false
+    },
+    "baselineRestored": true
+  },
+  "hashes": {
+    "api": {
+      "before": "e72c29d60d4765dd368d8c7ecbfd6f5b2ce8dfdf3146b3880dcde85e9e30c648",
+      "after": "121262efd8b701547c007a4d46f8ca1f533d8288387a8371f8f6c0ea20ffb296",
+      "restored": "e72c29d60d4765dd368d8c7ecbfd6f5b2ce8dfdf3146b3880dcde85e9e30c648",
+      "changed": true,
+      "restored_to_input": true
+    },
+    "ledger": {
+      "before": "174a827bb6171375b11a612f2243d45e6197823327bb0f04f08b040de6f95ba8",
+      "after": "75aa5107e20bc9935d837becfd53fd46f882a524cc949538233af559f14a3e33",
+      "restored": "174a827bb6171375b11a612f2243d45e6197823327bb0f04f08b040de6f95ba8",
+      "changed": true,
+      "restored_to_input": true
+    },
+    "notifications": {
+      "before": "b6aa312aa024ac0a08c6d474c5b090a00215e47a8554a37e7f5dbfccb4841243",
+      "after": "b6aa312aa024ac0a08c6d474c5b090a00215e47a8554a37e7f5dbfccb4841243",
+      "restored": "b6aa312aa024ac0a08c6d474c5b090a00215e47a8554a37e7f5dbfccb4841243",
+      "changed": false,
+      "restored_to_input": true
+    }
+  },
+  "fairness": {
+    "starting_workstream_artifacts_byte_identical": true,
+    "per_workstream_hash_match": {
+      "api": true,
+      "ledger": true,
+      "notifications": true
+    },
+    "note": "Repository commits differ because COLLIDER runtime/test code evolved. The API, Ledger, and Notifications implementation artifacts were byte-identical at the start of both measured conditions."
+  },
+  "evidenceCommit": "49d59a6c48aae5dce5ebad9f36909b5c71e77bb6"
+}
