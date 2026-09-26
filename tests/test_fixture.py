@@ -248,6 +248,17 @@ class TestClaimD(unittest.TestCase):
         ws_impacts = {w["workstream"]: w for w in impact["workstream_impacts"]}
         self.assertEqual(ws_impacts["ledger"]["action"], "preserve")
 
+    def test_router_uses_declared_consumer_dependency(self):
+        interps = load_interpretations()
+        api = next(i for i in interps if i["workstream"] == "api")
+        claim = next(c for c in api["claims"] if c["concept"] == "customer_identity")
+        self.assertIn("api", claim["consumed_by"])
+
+        impact = route_impact("customer_identity", "account_id", interps)
+        ws_impacts = {w["workstream"]: w for w in impact["workstream_impacts"]}
+        self.assertTrue(ws_impacts["api"]["consumed_concept"])
+        self.assertEqual(ws_impacts["api"]["action"], "repair")
+
 
 class TestClaimE(unittest.TestCase):
     """Claim E — UNKNOWN PATH: correct abstention"""
@@ -284,6 +295,13 @@ class TestClaimE(unittest.TestCase):
         self.assertIsNotNone(impact_entry)
         self.assertIsNone(impact_entry.get("canonical_value"))
         self.assertEqual(impact_entry.get("status"), "PENDING_HUMAN_DECISION")
+
+        verification = verify_fixture(result)
+        self.assertEqual(
+            verification["verdicts"]["D"]["status"],
+            "NOT_APPLICABLE",
+        )
+        self.assertIsNone(verification["verdicts"]["D"]["pass"])
 
 
 class TestClaimF(unittest.TestCase):
@@ -351,6 +369,7 @@ class TestFullPipeline(unittest.TestCase):
             interpretation_source="PRESEEDED",
             human_decision_source="PRESEEDED",
             apply_repair=True,
+            force=True,
         )
         cls.verification = verify_fixture(cls.result)
 
@@ -420,18 +439,51 @@ class TestFullPipeline(unittest.TestCase):
     def test_canon_patch_decision_source_is_human_clarification(self):
         """Canon patch must carry decision_source_detail=HUMAN_CLARIFICATION (requirement 8)."""
         patch = load_json(os.path.join(RUN_DIR, "canon-patches", "customer_identity.json"))
-        self.assertEqual(patch["decision_source_detail"], "HUMAN_CLARIFICATION")
+        self.assertEqual(
+            patch["decision_source_detail"],
+            "PRESEEDED_HUMAN_DECISION",
+        )
 
     def test_api_implementation_repaired(self):
         """
-        Targeted repair must actually change api/handlers/recover.py.
-        After repair, CUSTOMER_IDENTITY_FIELD must be 'account_id'.
+        Targeted repair must actually change api/handlers/recover.py DURING
+        evidence capture, then restore the committed baseline afterward.
+
+        The proof is the cryptographic before/after receipt plus repair.patch,
+        not the transient post-repair state of the working tree.
         """
+        hashes_path = os.path.join(RUN_DIR, "artifact-hashes.json")
+        self.assertTrue(os.path.exists(hashes_path))
+
+        hashes = load_json(hashes_path)
+        api = next(
+            a for a in hashes["artifacts"]
+            if a["workstream"] == "api"
+        )
+
+        self.assertTrue(api["changed_during_repair"])
+        self.assertNotEqual(api["sha256_before"], api["sha256_after"])
+        self.assertTrue(api["restored_to_input"])
+        self.assertEqual(api["sha256_before"], api["sha256_restored"])
+
+        patch_path = os.path.join(RUN_DIR, "repair.patch")
+        self.assertTrue(os.path.exists(patch_path))
+        patch = Path(patch_path).read_text()
+        self.assertIn('CUSTOMER_IDENTITY_FIELD = "account_id"', patch)
+
+    def test_baseline_restored_after_evidence_capture(self):
+        """The pipeline must not leave the repo in its transient repaired state."""
+        self.assertTrue(self.result["baseline_restored"])
+
         from api.handlers import recover
         import importlib
         importlib.reload(recover)
-        self.assertEqual(recover.CUSTOMER_IDENTITY_FIELD, "account_id",
-                         "API CUSTOMER_IDENTITY_FIELD must be 'account_id' after repair")
+
+        self.assertEqual(
+            recover.CUSTOMER_IDENTITY_FIELD,
+            "email",
+            "Baseline API implementation must be restored after evidence capture",
+        )
 
     def test_repairs_json_records_api_changed(self):
         """repairs.json must record that api/handlers/recover.py was modified."""
@@ -491,6 +543,12 @@ class TestFullPipeline(unittest.TestCase):
         self.assertIn("canon_patches_written", metric_names)
         self.assertIn("tests_before_passed", metric_names)
         self.assertIn("tests_after_passed", metric_names)
+        self.assertIn("workstreams_not_applicable", metric_names)
+
+        values = {m["metric"]: m["value"] for m in metrics["metrics"]}
+        self.assertEqual(values["workstreams_repaired"], 1)
+        self.assertEqual(values["workstreams_preserved"], 1)
+        self.assertEqual(values["workstreams_not_applicable"], 1)
 
     def test_classifier_judgment_never_used(self):
         metrics = load_json(os.path.join(RUN_DIR, "metrics.json"))

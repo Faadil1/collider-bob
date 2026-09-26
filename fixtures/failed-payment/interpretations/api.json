@@ -17,7 +17,7 @@
         "BRIEF.md §Source Document: API Contract Stub — request_body contains no customer identity field"
       ],
       "evidence_relation": "UNAVAILABLE",
-      "consumed_by": ["ledger"],
+      "consumed_by": ["api", "ledger"],
       "artifact_refs": ["api/handlers/recover.py — customer lookup field selection"]
     },
     {

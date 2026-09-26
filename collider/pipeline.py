@@ -33,6 +33,8 @@ import sys
 import datetime
 import subprocess
 import importlib
+import hashlib
+import difflib
 from pathlib import Path
 from typing import Any
 
@@ -99,6 +101,30 @@ def write_json(path: str, obj: Any) -> None:
     with open(path, "w") as f:
         json.dump(obj, f, indent=2)
     print(f"  wrote {path}")
+
+
+def sha256_file(path: str) -> str:
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(65536), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def git_worktree_clean() -> bool:
+    result = subprocess.run(
+        ["git", "status", "--porcelain"],
+        capture_output=True,
+        text=True,
+    )
+    return result.returncode == 0 and result.stdout.strip() == ""
+
+
+EVIDENCE_ARTIFACT_FILES = {
+    "api": "api/handlers/recover.py",
+    "ledger": "ledger/credit_entry.py",
+    "notifications": "notifications/send_credit_notice.py",
+}
 
 
 # ---------------------------------------------------------------------------
@@ -406,6 +432,23 @@ def route_impact(
             })
         else:
             claim = claims_for_concept[0]
+            declared_consumers = claim.get("consumed_by", [])
+            consumes_concept = ws in declared_consumers
+
+            if not consumes_concept:
+                impacts.append({
+                    "workstream": ws,
+                    "consumed_concept": False,
+                    "prior_value": claim["value"],
+                    "matches_canon": None,
+                    "action": "not_applicable",
+                    "action_rationale": (
+                        f"Workstream declares '{concept}' but does not list itself "
+                        "as an implementation consumer."
+                    ),
+                })
+                continue
+
             prior = claim["value"]
             matches = normalize(prior) == normalize(canonical_value)
             impacts.append({
@@ -415,9 +458,12 @@ def route_impact(
                 "matches_canon": matches,
                 "action": "preserve" if matches else "repair",
                 "action_rationale": (
-                    f"Already uses canonical value '{canonical_value}'."
+                    f"Declared consumer already uses canonical value '{canonical_value}'."
                     if matches
-                    else f"Uses '{prior}'; canon is '{canonical_value}'. Repair required."
+                    else (
+                        f"Declared consumer uses '{prior}'; canon is "
+                        f"'{canonical_value}'. Repair required."
+                    )
                 ),
             })
     return {
@@ -577,18 +623,38 @@ def run_pipeline(
     interpretation_source: str = "PRESEEDED",
     human_decision_source: str = "PRESEEDED",
     apply_repair: bool = True,            # False for abstain run (no canon patch → no repair)
+    force: bool = False,                  # test-only escape hatch; NEVER for canonical runs
 ) -> dict:
     """
     Execute the full COLLIDER pipeline and write all evidence artifacts.
     Returns a summary dict with pass/fail for each claim A–F.
     """
+    run_path = Path(run_dir)
+    if run_path.exists() and any(run_path.iterdir()) and not force:
+        raise FileExistsError(
+            f"REFUSE: evidence run directory already exists and is non-empty: {run_dir}. "
+            "Use a new run id. --force is forbidden for canonical evidence runs."
+        )
+
+    runtime_input_commit = git_head()
+    working_tree_clean_at_start = git_worktree_clean()
+
     os.makedirs(run_dir, exist_ok=True)
     os.makedirs(os.path.join(run_dir, "interpretations"), exist_ok=True)
     os.makedirs(os.path.join(run_dir, "canon-patches"), exist_ok=True)
 
-    git_commit = git_head()
+    git_commit = runtime_input_commit
     timestamp = now_iso()
     failures = []
+
+    baseline_sources = {
+        ws: Path(path).read_text()
+        for ws, path in EVIDENCE_ARTIFACT_FILES.items()
+    }
+    hashes_before = {
+        ws: sha256_file(path)
+        for ws, path in EVIDENCE_ARTIFACT_FILES.items()
+    }
 
     print(f"\n=== COLLIDER pipeline — run {run_id} ===")
     print(f"  git commit             : {git_commit}")
@@ -618,6 +684,8 @@ def run_pipeline(
         "run_id": run_id,
         "fixture_version": "v1",
         "git_commit": git_commit,
+        "runtime_input_commit": runtime_input_commit,
+        "working_tree_clean_at_start": working_tree_clean_at_start,
         "timestamp": timestamp,
         "run_type": "collider",
         "generation_mode": generation_mode,
@@ -663,26 +731,33 @@ def run_pipeline(
     # --- Classify ---
     classifications = []
 
-    # Negative control (Claim F): demonstrate scope filter on internal response body
-    out_of_scope_demo = {
-        "concept": "internal_response_body",
-        "classification": "OUT_OF_SCOPE",
-        "classification_subtype": "NEGATIVE_CONTROL",
-        "scope_rule_applied": "field not in stub-defined cross-boundary concepts",
-        "workstream_values": {
-            "api": {"status": "credited"},
-            "notifications": {"ok": True},
+    # Negative control (Claim F): pass the differing local body values through
+    # the SAME classifier entry point used by real concepts.
+    negative_control_values = {
+        "api": {
+            "value": {"status": "credited"},
+            "epistemic_state": "OBSERVED",
+            "evidence_refs": [],
+            "evidence_relation": "EXPLICIT",
+            "consumed_by": [],
+            "artifact_refs": [],
         },
-        "normalized_values": {},
-        "agent_drift_workstreams": [],
-        "source_evidence": None,
-        "classifier_step_reached": 0,
-        "classifier_judgment_used": False,
-        "notes": (
-            "Internal response body keys are not stub-defined cross-boundary fields. "
-            "Scope filter (Step 0) eliminates this before classification. No SPEC_GAP raised."
-        ),
+        "notifications": {
+            "value": {"ok": True},
+            "epistemic_state": "OBSERVED",
+            "evidence_refs": [],
+            "evidence_relation": "EXPLICIT",
+            "consumed_by": [],
+            "artifact_refs": [],
+        },
     }
+    out_of_scope_demo = classify_concept(
+        "internal_response_body",
+        negative_control_values,
+        brief_text,
+    )
+    out_of_scope_demo["run_id"] = run_id
+    out_of_scope_demo["timestamp"] = now_iso()
     classifications.append(out_of_scope_demo)
 
     for concept, ws_map in groups.items():
@@ -727,7 +802,13 @@ def run_pipeline(
                 run_dir=run_dir,
                 concept=concept,
                 canonical_value=canon_value,
-                decision_source="HUMAN_CLARIFICATION",
+                decision_source=(
+                    "PRESEEDED_HUMAN_DECISION"
+                    if human_decision_source == "PRESEEDED"
+                    else "LIVE_HUMAN_CLARIFICATION"
+                    if human_decision_source == "INTERACTIVE"
+                    else "HUMAN_CLARIFICATION"
+                ),
                 decided_by="fixture-script (pre-supplied for LOCAL run)",
                 prior_classification="SPEC_GAP",
                 prior_epistemic_state="UNKNOWN",
@@ -790,6 +871,72 @@ def run_pipeline(
             "resolution_notes": "Post-repair tests must pass.",
         })
 
+    # --- Cryptographic before/after evidence ---
+    hashes_after = {
+        ws: sha256_file(path)
+        for ws, path in EVIDENCE_ARTIFACT_FILES.items()
+    }
+    sources_after = {
+        ws: Path(path).read_text()
+        for ws, path in EVIDENCE_ARTIFACT_FILES.items()
+    }
+
+    repair_patch = "".join(
+        difflib.unified_diff(
+            baseline_sources["api"].splitlines(keepends=True),
+            sources_after["api"].splitlines(keepends=True),
+            fromfile="a/api/handlers/recover.py",
+            tofile="b/api/handlers/recover.py",
+        )
+    )
+    if repair_patch:
+        Path(os.path.join(run_dir, "repair.patch")).write_text(repair_patch)
+
+    # Restore the repository baseline after evidence capture.
+    for ws, path in EVIDENCE_ARTIFACT_FILES.items():
+        if Path(path).read_text() != baseline_sources[ws]:
+            Path(path).write_text(baseline_sources[ws])
+
+    hashes_restored = {
+        ws: sha256_file(path)
+        for ws, path in EVIDENCE_ARTIFACT_FILES.items()
+    }
+    baseline_restored = all(
+        hashes_restored[ws] == hashes_before[ws]
+        for ws in EVIDENCE_ARTIFACT_FILES
+    )
+
+    artifact_hashes = {
+        "run_id": run_id,
+        "runtime_input_commit": runtime_input_commit,
+        "baseline_restored": baseline_restored,
+        "artifacts": [
+            {
+                "workstream": ws,
+                "path": path,
+                "sha256_before": hashes_before[ws],
+                "sha256_after": hashes_after[ws],
+                "sha256_restored": hashes_restored[ws],
+                "changed_during_repair": hashes_before[ws] != hashes_after[ws],
+                "restored_to_input": hashes_before[ws] == hashes_restored[ws],
+            }
+            for ws, path in EVIDENCE_ARTIFACT_FILES.items()
+        ],
+    }
+    write_json(os.path.join(run_dir, "artifact-hashes.json"), artifact_hashes)
+
+    if not baseline_restored:
+        failures.append({
+            "failure_type": "repair_failure",
+            "workstream": "all",
+            "concept": "customer_identity",
+            "timestamp": now_iso(),
+            "description": "Repository baseline was not restored after evidence capture",
+            "severity": "critical",
+            "resolution": "unresolved",
+            "resolution_notes": "",
+        })
+
     # --- Failures ---
     failures_obj = {"run_id": run_id, "failures": failures}
     write_json(os.path.join(run_dir, "failures.json"), failures_obj)
@@ -804,19 +951,11 @@ def run_pipeline(
     patches_written = len(
         [e for e in impact_set_entries if e.get("canonical_value") is not None]
     )
-    repaired = sum(
-        1
-        for entry in impact_set_entries
-        if entry.get("canonical_value") is not None
-        for impact in entry.get("workstream_impacts", [])
-        if impact["action"] == "repair"
-    )
-    preserved = sum(
-        1
-        for entry in impact_set_entries
-        if entry.get("canonical_value") is not None
-        for impact in entry.get("workstream_impacts", [])
-        if impact["action"] in ("preserve", "not_applicable")
+    # Count observed repair outcomes, not merely routing intentions.
+    repaired = sum(1 for r in repair_records if r.get("action") == "repaired")
+    preserved = sum(1 for r in repair_records if r.get("action") == "preserve")
+    not_applicable = sum(
+        1 for r in repair_records if r.get("action") == "not_applicable"
     )
     human_clarifications = len(human_decisions)
 
@@ -831,6 +970,7 @@ def run_pipeline(
             {"metric": "canon_patches_written", "value": patches_written, "unit": "count", "evidence_state": "OBSERVED"},
             {"metric": "workstreams_repaired", "value": repaired, "unit": "count", "evidence_state": "OBSERVED"},
             {"metric": "workstreams_preserved", "value": preserved, "unit": "count", "evidence_state": "OBSERVED"},
+            {"metric": "workstreams_not_applicable", "value": not_applicable, "unit": "count", "evidence_state": "OBSERVED"},
             {"metric": "human_clarifications_required", "value": human_clarifications, "unit": "count", "evidence_state": "OBSERVED"},
             {"metric": "classifier_judgment_used_count", "value": 0, "unit": "count", "evidence_state": "OBSERVED",
              "notes": "All fixture classifications are deterministic (exact-match resolver)."},
@@ -849,6 +989,8 @@ def run_pipeline(
         "metrics": metrics_obj["metrics"],
         "tests_before_passed": tests_before_passed,
         "tests_after_passed": tests_after_passed,
+        "artifact_hashes": artifact_hashes,
+        "baseline_restored": baseline_restored,
     }
 
 
@@ -939,15 +1081,17 @@ def verify_fixture(result: dict) -> dict:
     notif_impact = next((w for w in ws_impacts if w["workstream"] == "notifications"), None)
 
     if impact.get("status") == "PENDING_HUMAN_DECISION":
-        # Abstain run: no canon patch → no routing → Notifications correctly unaffected
+        # Abstain run: Claim D is not yet testable because no canon exists and
+        # dependency routing has correctly not occurred.
         verdicts["D"] = {
             "claim": "UNAFFECTED WORKSTREAM: Notifications structural independence",
-            "pass": True,
+            "pass": None,
+            "status": "NOT_APPLICABLE",
             "notifications_action": "not_routed (PENDING_HUMAN_DECISION)",
             "consumed_concept": False,
             "detail": (
-                "PASS: No canon patch emitted; no routing occurred. "
-                "Notifications correctly unaffected — dependency graph not invoked."
+                "NOT_APPLICABLE: No canon patch exists, so dependency routing "
+                "has not occurred. Claim D is evaluated only on the resolved path."
             ),
         }
     else:
@@ -959,6 +1103,7 @@ def verify_fixture(result: dict) -> dict:
         verdicts["D"] = {
             "claim": "UNAFFECTED WORKSTREAM: Notifications structural independence",
             "pass": d_pass,
+            "status": "PASS" if d_pass else "FAIL",
             "notifications_action": notif_impact["action"] if notif_impact else "MISSING",
             "consumed_concept": notif_impact["consumed_concept"] if notif_impact else "MISSING",
             "detail": "PASS" if d_pass else (
@@ -1008,7 +1153,10 @@ def verify_fixture(result: dict) -> dict:
         ),
     }
 
-    all_pass = all(v["pass"] for v in verdicts.values())
+    all_pass = all(
+        v.get("status") == "NOT_APPLICABLE" or v.get("pass") is True
+        for v in verdicts.values()
+    )
     return {"verdicts": verdicts, "all_pass": all_pass}
 
 
@@ -1024,6 +1172,11 @@ if __name__ == "__main__":
     parser.add_argument("--fixture-dir", default="fixtures/failed-payment")
     parser.add_argument("--brief", default="fixtures/failed-payment/BRIEF.md")
     parser.add_argument("--run-dir", default=None)
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Allow overwrite of an existing non-empty run directory. TEST USE ONLY.",
+    )
     parser.add_argument(
         "--human-decision",
         action="append",
@@ -1068,12 +1221,16 @@ if __name__ == "__main__":
         interpretation_source=args.interpretation_source,
         human_decision_source=args.human_decision_source if human_decisions else "NONE",
         apply_repair=bool(human_decisions),
+        force=args.force,
     )
 
     print("\n=== Fixture verification A–F ===")
     verification = verify_fixture(result)
     for claim_id, verdict in verification["verdicts"].items():
-        status = "✓ PASS" if verdict["pass"] else "✗ FAIL"
+        if verdict.get("status") == "NOT_APPLICABLE":
+            status = "— NOT_APPLICABLE"
+        else:
+            status = "✓ PASS" if verdict.get("pass") is True else "✗ FAIL"
         print(f"  Claim {claim_id}: {status} — {verdict['detail']}")
 
     print(f"\n=== Overall: {'ALL CLAIMS PASS' if verification['all_pass'] else 'FIXTURE FAILURES PRESENT'} ===")

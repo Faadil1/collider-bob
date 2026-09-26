@@ -26,6 +26,8 @@ evidence/runs/<run-id>/
   tests-after.txt
   failures.json
   metrics.json
+  artifact-hashes.json
+  repair.patch              # resolved runs when an implementation changed
 ```
 
 ---
@@ -345,7 +347,8 @@ preset improvement claims. No before/after comparisons that were not actually ru
 | `shared_inferred_detected` | `1` | count | `money_representation` |
 | `negative_controls_correct` | `1` | count | `success_response` → NO_DISAGREEMENT |
 | `workstreams_repaired` | `1` | count | API only |
-| `workstreams_preserved` | `2` | count | Ledger + Notifications |
+| `workstreams_preserved` | `1` | count | Ledger only |
+| `workstreams_not_applicable` | `1` | count | Notifications has no `customer_identity` dependency |
 | `canon_patches_written` | `1` | count | `customer_identity` |
 | `unknown_returned` | `0` | count | All resolvable in this run |
 

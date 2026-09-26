@@ -17,7 +17,7 @@
         "BRIEF.md §Source Document: API Contract Stub — no credit identity field named"
       ],
       "evidence_relation": "UNAVAILABLE",
-      "consumed_by": ["api"],
+      "consumed_by": ["ledger", "api"],
       "artifact_refs": ["ledger/credit_entry.py — customer lookup key used for credit record"]
     },
     {

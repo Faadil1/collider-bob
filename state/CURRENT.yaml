@@ -1,6 +1,6 @@
 project: collider-bob
 date: 2026-09-26
-stage: RUNTIME_EVIDENCE_COMPLETE
+stage: RUNTIME_EVIDENCE_PROVISIONAL
 concept_lock:
   name: COLLIDER
   descriptor: Disagreement-Driven Specification Repair for Parallel AI Agents
@@ -38,7 +38,7 @@ novelty:
   status: PROVISIONAL_PASS
   monitoring_required: true
 runtime:
-  status: COMPLETE
+  status: PROVISIONAL
   runs:
     - run_id: local-abstain-001
       type: abstain
@@ -65,9 +65,10 @@ runtime:
       artifacts: evidence/runs/local-resolved-001/
       repair_applied: true
       files_repaired: [api/handlers/recover.py]
-      files_preserved: [ledger/credit_entry.py, notifications/send_credit_notice.py]
+      files_preserved: [ledger/credit_entry.py]
+      files_not_applicable: [notifications/send_credit_notice.py]
 evidence_run:
-  status: COMPLETE
+  status: PROVISIONAL
   runs_committed: [local-abstain-001, local-resolved-001]
   tests:
     command: python3 -m pytest tests/test_fixture.py api/tests/ ledger/tests/ notifications/tests/ -v
