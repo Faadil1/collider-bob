@@ -1,0 +1,14 @@
+project: collider-bob
+handover_version: 1
+source_of_truth: state/CURRENT.yaml
+do_not_forget:
+  - Real failure > fake success
+  - agents are not read-only by default
+  - preserve UNKNOWN rather than inventing canon
+  - competitive novelty must continue to be monitored
+  - x402 and other external gateways are conditional, never silently omitted
+  - no completion claim without verification-before-completion
+current_signature:
+  judge_memory_sentence: "Three agents can be individually right and still reveal that the specification forgot to decide."
+  signature_behavior: "Independent agent disagreements become probes for missing specification decisions."
+  signature_moment: "Everything looks locally valid; COLLIDER classifies the disagreement as SPEC_GAP and asks one minimal question."
