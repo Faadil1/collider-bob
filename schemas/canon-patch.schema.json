@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Collider Canon Patch",
+  "type": "object",
+  "required": ["decision_id", "concept", "value", "source", "affected_workstreams"],
+  "properties": {
+    "decision_id": {"type": "string"},
+    "concept": {"type": "string"},
+    "value": {},
+    "source": {"enum": ["EXPLICIT_SPEC", "HUMAN_CLARIFICATION"]},
+    "evidence_refs": {"type": "array", "items": {"type": "string"}},
+    "affected_workstreams": {"type": "array", "items": {"type": "string"}},
+    "created_at": {"type": "string"}
+  }
+}
