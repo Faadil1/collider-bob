@@ -97,6 +97,51 @@ data = {
     "evidenceCommit": "49d59a6c48aae5dce5ebad9f36909b5c71e77bb6",
 }
 
+# --- Decision receipt (DECIDE → COMPILE → PATCH → VERIFY → REMEMBER → GUARD) ---
+# Shown in static mode, labelled as a committed receipt. The live local action
+# server (demo-ui/server.py) returns the same shape from a real compile.
+decision_dir = ROOT / "evidence/decisions/decision-001"
+
+
+def dj(name):
+    return json.loads((decision_dir / name).read_text())
+
+
+decision_manifest = dj("manifest.json")
+decision_memory = dj("decision-memory.json")["decisions"][0]
+
+data["decisionReceipt"] = {
+    "receipt_dir": "evidence/decisions/decision-001",
+    "manifest": decision_manifest,
+    "decision": dj("decision.json"),
+    "memory": decision_memory,
+    "spec_patch": dj("spec-patch.json"),
+    "spec_diff": (decision_dir / "spec.diff").read_text(),
+    "repair_patch": (decision_dir / "repair.patch").read_text(),
+    "contract": (decision_dir / "test_canon_customer_identity.py").read_text(),
+    "gate_before": dj("gate-before.json"),
+    "gate_after": dj("gate-after.json"),
+    "replay": dj("replay-contract.json"),
+}
+
+R = data["decisionReceipt"]
+assert R["gate_before"]["verdict"] == "DECISION_REQUIRED"
+assert R["gate_after"]["verdict"] == "SEMANTICALLY_READY"
+assert decision_manifest["integration_conflicts_before"] == 2
+assert decision_manifest["integration_conflicts_after"] == 0
+assert decision_manifest["integration_status_after"] == "INTEGRATION_READY"
+assert decision_manifest["source_tree_untouched"] is True
+assert {w["workstream"]: w["changed"] for w in decision_manifest["workstreams"]} == {
+    "api": True, "ledger": True, "notifications": False,
+}
+assert decision_memory["canonical_value"] == "account_id"
+assert decision_memory["human_decision_source"] == "PRESEEDED"
+assert decision_memory["evidence_state"] == "OBSERVED"
+assert decision_memory["verification"]["tests_failed"] == 0
+assert R["replay"]["status"] == "NOT_EXECUTED"
+assert R["replay"]["runtime_state"] == "PENDING_LIVE_BOB"
+assert R["replay"]["result"] is None
+
 assert data["baseline"]["testsPassed"] == 30
 assert data["baseline"]["conflicts"] == 2
 assert data["classifications"]["customerIdentity"]["classification"] == "SPEC_GAP"
