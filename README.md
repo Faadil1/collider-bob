@@ -82,10 +82,24 @@ if their key invariants no longer hold.
 
 ```bash
 python3 -m collider.gate                       # committed tree → DECISION_REQUIRED (exit 1)
-python3 demo-ui/server.py                      # UI with a real decision control at :4173
+python3 demo-ui/server.py                      # ACTIVE MODE UI at 127.0.0.1:4173
 python3 -m collider.decision_compiler \
-  --value account_id --decision-id my-decision # CLI equivalent
+  --value account_id --decision-id my-decision # CLI equivalent of USE account_id
+python3 -m collider.guard_probe \
+  --workspace .collider/workspaces/my-decision \
+  --out-dir .collider/runs/my-decision          # CLI equivalent of the guard probe
 ```
+
+The SPEC_GAP panel offers exactly two choices:
+
+- **KEEP UNKNOWN**: correct abstention. No canon, decision memory or spec patch is
+  written, nothing is repaired, and the gate stays `DECISION_REQUIRED`. Only a
+  bounded local action receipt (`abstention.json`) is recorded. It is not a
+  canonical decision receipt.
+- **USE account_id**: compiles the decision (below).
+
+`email` is not offered as a decision. In the canonical demo it is the value a
+future agent tries to reintroduce, and the guard blocks it.
 
 Choosing `customer_identity = account_id` compiles one human decision into:
 
@@ -112,6 +126,21 @@ dependents conform, verification passes) · `VERIFICATION_FAILED`.
 Committed receipt: `evidence/decisions/decision-001/` (human decision source
 PRESEEDED). UI-triggered compiles record `INTERACTIVE_LOCAL_UI` and write only to
 `.collider/runs/`.
+
+GUARD is a second action. After `SEMANTICALLY_READY`, **TEST A FUTURE AGENT CHANGE**
+runs `collider/guard_probe.py` in the compiled workspace. It reads the decision memory,
+rewrites `api/handlers/recover.py` `CUSTOMER_IDENTITY_FIELD` from `account_id` to
+`email`, runs the gate (`AGENT_DRIFT` vs `RESOLVED_CANON` → `MERGE_BLOCKED`), runs the
+regression contract (fails), restores the exact prior bytes, and re-runs the gate
+(`SEMANTICALLY_READY`, 0 conflicts, contract passing). The receipt is
+`.collider/runs/<id>/guard-probe.json`. GUARD is shown as complete only after this
+probe has run. The guard is not the fresh-agent replay.
+
+Modes: **ACTIVE MODE** (default; truth label `LOCAL ACTIVE DEMO · PRESEEDED
+INTERPRETATIONS · INTERACTIVE HUMAN DECISION`) needs the local action server. If the
+server is unreachable, the UI says `ACTIVE MODE UNAVAILABLE` and never substitutes
+receipts. **EVIDENCE MODE** (`COMMITTED EVIDENCE · LOCAL / PRESEEDED`) shows baseline-001,
+local-resolved-004 and decision-001 as committed receipts.
 
 Fresh-agent replay: the interface and acceptance contract exist
 (`collider/replay.py`), but execution is **NOT_EXECUTED / PENDING_LIVE_BOB**. It only
@@ -218,10 +247,11 @@ python3 -m pytest \
   ledger/tests/ \
   notifications/tests/ \
   tests/test_semantic_ci.py \
+  tests/test_active_repair.py \
   -q
 
 Current result:
-140 passed, 6 subtests passed
+175 passed, 6 subtests passed
 
 Project status
 Gate	Status

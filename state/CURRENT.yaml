@@ -160,6 +160,16 @@ semantic_ci_loop:
   integration_conflicts: {before: 2, after: 0}
   verification_in_compiled_tree: {passed: 37, failed: 0}
   mutation_scope: workspace copy; committed tree hashes verified unchanged
+  decision_choices: [USE_ACCOUNT_ID, KEEP_UNKNOWN]
+  keep_unknown: abstention receipt only; no canon, no repair; gate stays DECISION_REQUIRED
+  guard_probe:
+    module: collider/guard_probe.py
+    endpoint: POST /api/guard
+    probe: customer_identity account_id → email (api/handlers/recover.py)
+    verdict: MERGE_BLOCKED (AGENT_DRIFT vs RESOLVED_CANON)
+    restoration: exact bytes; gate SEMANTICALLY_READY; 0 conflicts; contract passing
+    receipt: .collider/runs/<id>/guard-probe.json (runtime, not committed evidence)
+  modes: {ACTIVE: LOCAL ACTIVE DEMO, EVIDENCE: COMMITTED EVIDENCE}
   fresh_agent_replay: NOT_EXECUTED / PENDING_LIVE_BOB
   canonical_evidence_modified: false
 

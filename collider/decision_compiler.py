@@ -558,6 +558,77 @@ def compile_decision(
     }
 
 
+def record_abstention(
+    concept: str,
+    *,
+    human_decision_source: str,
+    action_id: str,
+    source_root: Path = ROOT,
+    out_dir: Path | None = None,
+) -> dict:
+    """
+    KEEP UNKNOWN — the human declines to decide. Correct abstention.
+
+    Writes NO canon, NO decision memory, NO spec patch, and repairs nothing.
+    Only a bounded local action receipt (abstention.json) is recorded; it is
+    not a canonical decision receipt. The gate must still say DECISION_REQUIRED.
+    """
+    source_root = Path(source_root).resolve()
+    out_dir = Path(out_dir or source_root / ".collider/runs" / action_id).resolve()
+
+    if concept not in COMPILABLE_CONCEPTS:
+        raise ValueError(f"concept {concept!r} is not decidable in this slice")
+    if human_decision_source not in HUMAN_DECISION_SOURCES:
+        raise ValueError(f"human_decision_source must be one of {HUMAN_DECISION_SOURCES}")
+    if out_dir.exists() and any(out_dir.iterdir()):
+        raise FileExistsError(f"REFUSE: receipt directory already exists and is non-empty: {out_dir}")
+
+    before = tracked_files(source_root)
+    gate = gate_mod.evaluate_gate(source_root)
+    gap = next(
+        (f for f in gate["findings"] if f["kind"] == "SPEC_GAP" and f["concept"] == concept),
+        None,
+    )
+    if gap is None:
+        raise RuntimeError(
+            f"REFUSE: no unresolved SPEC_GAP for {concept!r}; gate verdict is {gate['verdict']}"
+        )
+    after = tracked_files(source_root)
+
+    receipt = {
+        "action_id": action_id,
+        "action": "keep_unknown",
+        "receipt_kind": "LOCAL_ACTION_RECEIPT (abstention; not a canonical decision receipt)",
+        "concept": concept,
+        "human_choice": "KEEP_UNKNOWN",
+        "human_decision_source": human_decision_source,
+        "canonical_value": None,
+        "epistemic_state": "UNKNOWN",
+        "candidates": gap["candidates"],
+        "question": gap["question"],
+        "canon_written": False,
+        "decision_memory_written": False,
+        "spec_patch_written": False,
+        "repairs_applied": [],
+        "message": "No canon written. No dependent work repaired.",
+        "gate_verdict": gate["verdict"],
+        "gate_findings": gate["findings"],
+        "integration": gate["integration"],
+        "source_sha256": {k: sha256_text(v) for k, v in before.items()},
+        "source_tree_untouched": before == after,
+        "recorded_at": now_iso(),
+        "input_commit": git_head(source_root),
+        "truth_boundary": {
+            "execution": "LOCAL",
+            "interpretations": "PRESEEDED",
+            "human_decision": f"{human_decision_source} (abstained)",
+        },
+    }
+    write_json(out_dir / "abstention.json", receipt)
+    receipt["out_dir"] = str(out_dir)
+    return receipt
+
+
 if __name__ == "__main__":
     import argparse
     import sys

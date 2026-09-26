@@ -133,6 +133,7 @@
   },
   "evidenceCommit": "49d59a6c48aae5dce5ebad9f36909b5c71e77bb6",
   "decisionReceipt": {
+    "provenance_mode": "EVIDENCE",
     "receipt_dir": "evidence/decisions/decision-001",
     "manifest": {
       "decision_id": "decision-001",

@@ -451,7 +451,7 @@ class TestActionServer(unittest.TestCase):
         self.assertEqual(body["gate"]["verdict"], "DECISION_REQUIRED")
 
     def test_decide_compiles_for_real(self):
-        status, body = self.call("/api/decide", {"concept": "customer_identity", "value": "account_id"})
+        status, body = self.call("/api/decide", {"choice": "USE_ACCOUNT_ID"})
         self.assertEqual(status, 200)
         self.assertEqual(body["decision"]["human_decision_source"], "INTERACTIVE_LOCAL_UI")
         self.assertEqual(body["gate_after"]["verdict"], "SEMANTICALLY_READY")
@@ -461,10 +461,12 @@ class TestActionServer(unittest.TestCase):
         status, g = self.call(f"/api/gate?decision={decision_id}")
         self.assertEqual((status, g["verdict"]), (200, "SEMANTICALLY_READY"))
 
-    def test_decide_rejects_non_candidate(self):
-        status, body = self.call("/api/decide", {"value": "phone"})
-        self.assertEqual(status, 400)
-        self.assertIn("REFUSE", body["error"])
+    def test_decide_rejects_arbitrary_values(self):
+        for payload in ({"value": "phone"}, {"value": "email"},
+                        {"choice": "email"}, {"choice": "USE_EMAIL"}):
+            status, body = self.call("/api/decide", payload)
+            self.assertEqual(status, 400, payload)
+            self.assertIn("REFUSE", body["error"])
 
     def test_gate_rejects_path_escape(self):
         status, _ = self.call("/api/gate?decision=../../etc")

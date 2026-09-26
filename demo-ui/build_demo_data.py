@@ -111,6 +111,8 @@ decision_manifest = dj("manifest.json")
 decision_memory = dj("decision-memory.json")["decisions"][0]
 
 data["decisionReceipt"] = {
+    # EVIDENCE MODE provenance: committed receipt, never executed by the browser.
+    "provenance_mode": "EVIDENCE",
     "receipt_dir": "evidence/decisions/decision-001",
     "manifest": decision_manifest,
     "decision": dj("decision.json"),
@@ -141,6 +143,9 @@ assert decision_memory["verification"]["tests_failed"] == 0
 assert R["replay"]["status"] == "NOT_EXECUTED"
 assert R["replay"]["runtime_state"] == "PENDING_LIVE_BOB"
 assert R["replay"]["result"] is None
+assert R["provenance_mode"] == "EVIDENCE"
+# No guard probe is part of committed evidence; GUARD runs only in ACTIVE MODE.
+assert not (decision_dir / "guard-probe.json").exists()
 
 assert data["baseline"]["testsPassed"] == 30
 assert data["baseline"]["conflicts"] == 2

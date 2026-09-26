@@ -151,15 +151,9 @@ def _count(pattern: str, text: str) -> int:
     return int(found[-1]) if found else 0
 
 
-def run_verification(root: Path) -> dict:
-    """Run workstream behavioral tests + regression contracts inside `root`."""
+def run_pytest(root: Path, targets: list) -> dict:
+    """Run pytest on `targets` (paths relative to `root`) with cwd=root."""
     root = Path(root)
-    targets = list(WORKSTREAM_TESTS)
-    contracts_dir = root / CONTRACTS_RELDIR
-    contract_files = sorted(
-        str(p.relative_to(root)) for p in contracts_dir.glob("test_*.py")
-    ) if contracts_dir.exists() else []
-    targets += contract_files
     cmd = [
         sys.executable, "-B", "-m", "pytest", *targets, "-q",
         "-p", "no:cacheprovider", "--rootdir=.",
@@ -174,9 +168,23 @@ def run_verification(root: Path) -> dict:
         "passed_count": _count(r"(\d+) passed", output),
         "failed_count": _count(r"(\d+) failed", output),
         "error_count": _count(r"(\d+) errors?", output),
-        "contract_files": contract_files,
         "output": output,
     }
+
+
+def contract_files_in(root: Path) -> list:
+    contracts_dir = Path(root) / CONTRACTS_RELDIR
+    if not contracts_dir.exists():
+        return []
+    return sorted(str(p.relative_to(root)) for p in contracts_dir.glob("test_*.py"))
+
+
+def run_verification(root: Path) -> dict:
+    """Run workstream behavioral tests + regression contracts inside `root`."""
+    contract_files = contract_files_in(root)
+    result = run_pytest(root, list(WORKSTREAM_TESTS) + contract_files)
+    result["contract_files"] = contract_files
+    return result
 
 
 # ---------------------------------------------------------------------------

@@ -20,9 +20,12 @@
         <span>COLLIDER</span>
       </div>
 
-      <div class="provenance">
-        <span>FAILED-PAYMENT / CANONICAL RUN</span>
-        <span class="truth-badge">LOCAL / PRESEEDED</span>
+      <div class="mode-bar">
+        <div class="mode-switch" role="radiogroup" aria-label="Demo mode">
+          <button type="button" role="radio" data-mode="ACTIVE" aria-checked="true">ACTIVE MODE</button>
+          <button type="button" role="radio" data-mode="EVIDENCE" aria-checked="false">EVIDENCE MODE</button>
+        </div>
+        <span class="truth-badge" id="truth-badge">—</span>
       </div>
     </header>
 
@@ -191,18 +194,24 @@
         <div class="decision-control" id="decision-control">
           <div class="decision-control-head">
             <span>HUMAN DECISION · customer_identity</span>
-            <small id="action-mode">checking for local action server…</small>
+            <small id="action-mode">—</small>
           </div>
 
-          <div class="decision-options">
-            <button type="button" class="decision-option" data-value="account_id">
-              <strong>account_id</strong>
-              <span>chosen by Ledger · canonical demo choice</span>
+          <div class="decision-options" id="decision-options">
+            <button type="button" class="decision-option" data-choice="USE_ACCOUNT_ID">
+              <strong>USE account_id</strong>
+              <span>write canon · patch spec · repair dependents · verify</span>
             </button>
-            <button type="button" class="decision-option" data-value="email">
-              <strong>email</strong>
-              <span>chosen by API</span>
+            <button type="button" class="decision-option keep-unknown" data-choice="KEEP_UNKNOWN">
+              <strong>KEEP UNKNOWN</strong>
+              <span>correct abstention · no canon · nothing repaired</span>
             </button>
+          </div>
+
+          <div class="evidence-decision hidden" id="evidence-decision">
+            <span>COMMITTED DECISION RECEIPT</span>
+            <strong id="evidence-decision-value">—</strong>
+            <small id="evidence-decision-note">—</small>
           </div>
 
           <div class="decision-row" id="decision-row">
@@ -243,7 +252,7 @@
         <li data-node="VERIFY"><b>VERIFY</b><span data-out="VERIFY">—</span></li>
         <li data-node="REMEMBER"><b>REMEMBER</b><span data-out="REMEMBER">—</span></li>
         <li data-node="GUARD"><b>GUARD</b><span data-out="GUARD">—</span></li>
-        <li data-node="REPLAY" class="pending-node"><b>REPLAY</b><span data-out="REPLAY">NOT_EXECUTED</span></li>
+        <li data-node="REPLAY"><b>REPLAY</b><span data-out="REPLAY">NOT_EXECUTED</span></li>
       </ol>
 
       <div class="gate-row">
@@ -253,6 +262,46 @@
           <small id="gate-verdict-note">python3 -m collider.gate</small>
         </div>
         <ul class="gate-findings" id="gate-findings"></ul>
+      </div>
+
+      <div class="abstained hidden" id="abstained">
+        <span class="panel-kicker">KEEP UNKNOWN · correct abstention</span>
+        <strong>No canon written. No dependent work repaired.</strong>
+        <dl id="abstained-view"></dl>
+      </div>
+
+      <div class="guard hidden" id="guard" data-phase="ready">
+        <div class="guard-head">
+          <div>
+            <span class="panel-kicker">GUARD · future-agent change against persisted canon</span>
+            <strong class="guard-ready" id="guard-ready">SEMANTICALLY READY</strong>
+            <small id="guard-memory">Decision Memory: —</small>
+          </div>
+          <button type="button" id="guard-run">TEST A FUTURE AGENT CHANGE</button>
+        </div>
+
+        <ol class="guard-phases" id="guard-phases">
+          <li data-phase="attempt">
+            <span class="phase-kicker">FUTURE AGENT ATTEMPT</span>
+            <pre class="diff guard-diff" id="guard-attempt"></pre>
+            <small id="guard-attempt-file"></small>
+          </li>
+          <li data-phase="blocked">
+            <span class="phase-kicker">CANON VIOLATION</span>
+            <strong class="guard-blocked" id="guard-verdict">—</strong>
+            <p id="guard-rule"></p>
+            <dl id="guard-blocked-view"></dl>
+          </li>
+          <li data-phase="restoring">
+            <span class="phase-kicker" id="guard-restoring">RESTORING VERIFIED STATE…</span>
+            <dl id="guard-restore-view"></dl>
+          </li>
+          <li data-phase="restored">
+            <strong class="guard-final" id="guard-final-1">—</strong>
+            <strong class="guard-final" id="guard-final-2">—</strong>
+            <small id="guard-receipt"></small>
+          </li>
+        </ol>
       </div>
 
       <div class="compiled hidden" id="compiled">
@@ -355,8 +404,8 @@
       </div>
 
       <p class="truth-line">
-        LOCAL / PRESEEDED evidence.
-        LIVE_BOB generation is not claimed.
+        COMMITTED EVIDENCE · LOCAL / PRESEEDED.
+        LIVE_BOB generation is not claimed. This section is never produced by the browser.
       </p>
     </section>
 
@@ -369,6 +418,7 @@
     </footer>
   </main>
 
+  <script src="./loop-state.js"></script>
   <script src="./app.js"></script>
 </body>
 </html>
