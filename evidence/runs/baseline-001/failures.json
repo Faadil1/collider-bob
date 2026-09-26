@@ -1,0 +1,29 @@
+{
+  "run_id": "baseline-001",
+  "failures": [
+    {
+      "failure_type": "integration_contract_mismatch",
+      "workstreams": [
+        "api",
+        "ledger"
+      ],
+      "timestamp": "2026-09-26T09:10:23Z",
+      "description": "customer-identity-interface-mismatch: email != account_id",
+      "severity": "high",
+      "resolution": "unresolved",
+      "resolution_notes": "Baseline records the mismatch and performs no COLLIDER repair."
+    },
+    {
+      "failure_type": "integration_contract_mismatch",
+      "workstreams": [
+        "api",
+        "ledger"
+      ],
+      "timestamp": "2026-09-26T09:10:23Z",
+      "description": "money-field-interface-mismatch: refund_amount != credit_amount",
+      "severity": "high",
+      "resolution": "unresolved",
+      "resolution_notes": "Baseline records the mismatch and performs no COLLIDER repair."
+    }
+  ]
+}

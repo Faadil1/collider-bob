@@ -1,0 +1,43 @@
+{
+  "probe": "executable-interface-compatibility",
+  "facts": {
+    "api_customer_identity_field": "email",
+    "ledger_customer_identity_field": "account_id",
+    "api_money_field": "refund_amount",
+    "ledger_money_field": "credit_amount",
+    "notifications_money_field": "refund_amount",
+    "notifications_customer_identity_dependency": false
+  },
+  "conflicts": [
+    {
+      "conflict_id": "customer-identity-interface-mismatch",
+      "type": "INTERFACE_MISMATCH",
+      "involved_workstreams": [
+        "api",
+        "ledger"
+      ],
+      "api_value": "email",
+      "ledger_value": "account_id",
+      "detected_stage": "INTEGRATION",
+      "classification": null,
+      "notes": "Baseline detects incompatible identity fields only when workstream interfaces are compared. No root-cause classification is attempted."
+    },
+    {
+      "conflict_id": "money-field-interface-mismatch",
+      "type": "INTERFACE_MISMATCH",
+      "involved_workstreams": [
+        "api",
+        "ledger"
+      ],
+      "api_value": "refund_amount",
+      "ledger_value": "credit_amount",
+      "detected_stage": "INTEGRATION",
+      "classification": null,
+      "notes": "Baseline observes incompatible field names at integration. It does not determine whether this is specification ambiguity or implementation drift."
+    }
+  ],
+  "conflict_count": 2,
+  "status": "INTEGRATION_BLOCKED",
+  "run_id": "baseline-001",
+  "timestamp": "2026-09-26T09:10:23Z"
+}

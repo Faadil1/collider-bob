@@ -1,0 +1,17 @@
+{
+  "run_id": "baseline-001",
+  "run_type": "baseline",
+  "execution_environment": "LOCAL",
+  "generation_mode": "LOCAL",
+  "implementation_source": "PRESEEDED_FIXTURE",
+  "baseline_mode": "NO_COLLIDER_RECONCILIATION",
+  "runtime_input_commit": "45fd342c6322178ee505456d2b95d301744d198f",
+  "working_tree_clean_at_start": true,
+  "timestamp": "2026-09-26T09:10:22Z",
+  "known_limitations": [
+    "Implementations are committed fixture artifacts, not live Bob outputs.",
+    "No COLLIDER reconciliation, classifier, canon patch, or repair is used.",
+    "Run stops at the observed integration compatibility result.",
+    "Rework cycles and time-to-integration-ready are not measured because the baseline is intentionally not repaired in this evidence run."
+  ]
+}

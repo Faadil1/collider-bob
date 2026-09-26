@@ -1,0 +1,18 @@
+{
+  "run_id": "baseline-001",
+  "runtime_input_commit": "45fd342c6322178ee505456d2b95d301744d198f",
+  "artifacts": {
+    "api": {
+      "path": "api/handlers/recover.py",
+      "sha256": "e72c29d60d4765dd368d8c7ecbfd6f5b2ce8dfdf3146b3880dcde85e9e30c648"
+    },
+    "ledger": {
+      "path": "ledger/credit_entry.py",
+      "sha256": "174a827bb6171375b11a612f2243d45e6197823327bb0f04f08b040de6f95ba8"
+    },
+    "notifications": {
+      "path": "notifications/send_credit_notice.py",
+      "sha256": "b6aa312aa024ac0a08c6d474c5b090a00215e47a8554a37e7f5dbfccb4841243"
+    }
+  }
+}
