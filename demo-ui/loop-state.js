@@ -20,6 +20,14 @@
       label: "LOCAL ACTIVE DEMO",
       detail: Object.freeze(["PRESEEDED INTERPRETATIONS", "INTERACTIVE HUMAN DECISION"])
     }),
+    // ACTIVE MODE executed by the Cloudflare Container runtime
+    // (execution_environment = CLOUDFLARE_CONTAINER, human decision INTERACTIVE_WEB).
+    ACTIVE_CLOUDFLARE: Object.freeze({
+      mode: "ACTIVE",
+      title: "ACTIVE MODE",
+      label: "CLOUDFLARE CONTAINER ACTIVE DEMO",
+      detail: Object.freeze(["PRESEEDED INTERPRETATIONS", "INTERACTIVE WEB DECISION"])
+    }),
     EVIDENCE: Object.freeze({
       mode: "EVIDENCE",
       title: "EVIDENCE MODE",
@@ -28,9 +36,15 @@
     })
   });
 
-  function provenance(mode) {
+  // executionEnvironment is what the action server reports (/api/state);
+  // it only refines ACTIVE MODE. EVIDENCE MODE is always committed evidence.
+  function provenance(mode, executionEnvironment) {
+    if (mode === "ACTIVE" && executionEnvironment !== undefined && executionEnvironment !== "LOCAL") {
+      if (executionEnvironment === "CLOUDFLARE_CONTAINER") return PROVENANCE.ACTIVE_CLOUDFLARE;
+      throw new Error(`unknown execution environment: ${executionEnvironment}`);
+    }
     const p = PROVENANCE[mode];
-    if (!p) throw new Error(`unknown provenance mode: ${mode}`);
+    if (!p || mode === "ACTIVE_CLOUDFLARE") throw new Error(`unknown provenance mode: ${mode}`);
     return p;
   }
 

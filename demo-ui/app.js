@@ -246,10 +246,24 @@ function findingRows(findings) {
 // Top bar + mode
 // ---------------------------------------------------------------------------
 
+// Truth label for ACTIVE MODE comes from the action server that actually
+// answered (LOCAL or CLOUDFLARE_CONTAINER); nothing is claimed before that.
+function activeProvenance() {
+  return L.provenance("ACTIVE", server ? server.execution_environment : undefined);
+}
+
+function activeLabel() {
+  return activeProvenance().label;
+}
+
 function renderChrome() {
-  const p = L.provenance(mode);
   document.body.dataset.mode = mode;
-  $("truth-badge").textContent = [p.label, ...p.detail].join(" · ");
+  if (mode === "ACTIVE" && !server) {
+    $("truth-badge").textContent = serverChecked ? "ACTIVE MODE UNAVAILABLE" : "ACTIVE MODE · CONNECTING…";
+  } else {
+    const p = mode === "ACTIVE" ? activeProvenance() : L.provenance("EVIDENCE");
+    $("truth-badge").textContent = [p.label, ...p.detail].join(" · ");
+  }
 
   document.querySelectorAll(".mode-switch button").forEach((b) => {
     b.setAttribute("aria-checked", String(b.dataset.mode === mode));
@@ -447,7 +461,7 @@ function renderCompile() {
     $("m-check").textContent = mem.evidence_state === "OBSERVED" ? "✓" : "";
     $("m-value").textContent = `${mem.concept} = ${mem.canonical_value}`;
     $("m-source").textContent =
-      mem.human_decision_source === "INTERACTIVE_LOCAL_UI"
+      mem.human_decision_source === "INTERACTIVE_LOCAL_UI" || mem.human_decision_source === "INTERACTIVE_WEB"
         ? "source: interactive human decision"
         : `source: human · ${mem.human_decision_source}`;
     $("m-protected").textContent = ready
@@ -563,8 +577,8 @@ function renderDrawer() {
   const a = active.abstention;
   const g = active.guard;
   $("drawer-source").textContent = d
-    ? `LOCAL ACTIVE DEMO · ${d.receipt_dir}`
-    : a ? `LOCAL ACTIVE DEMO · ${a.receipt_dir}` : "no action taken yet";
+    ? `${activeLabel()} · ${d.receipt_dir}`
+    : a ? `${activeLabel()} · ${a.receipt_dir}` : "no action taken yet";
 
   const none = (msg) => `<p class="muted">${esc(msg)}</p>`;
   let body = "";
@@ -622,11 +636,11 @@ function renderDrawer() {
           : none("No hashes yet.");
       break;
     case "PROVENANCE": {
-      const p = L.provenance("ACTIVE");
+      const p = activeProvenance();
       const r = d ? d.replay : null;
       body = section("truth label", `<p class="truth">${esc([p.label, ...p.detail].join(" · "))}</p>`) +
         section("run", `<dl class="facts">${dl([
-          ["execution", "LOCAL"],
+          ["execution", server ? server.execution_environment : "—"],
           ["interpretations", "PRESEEDED"],
           ["human decision", d ? d.decision.human_decision_source : a ? `${a.human_decision_source} (abstained)` : "none yet"],
           ["input commit", d ? d.manifest.input_commit : a ? a.input_commit : "—"],
@@ -641,7 +655,7 @@ function renderDrawer() {
             ["withheld", r.inputs.withheld.join(" · ")],
             ["accepts only", r.acceptance.execution_source_in.join(", ")]
           ] : []),
-          ["not the guard", "The guard probe is a controlled local change against persisted canon, not an independent agent."]
+          ["not the guard", "The guard probe is a controlled change against persisted canon in this session's runtime, not an independent agent."]
         ])}</dl>`);
       break;
     }

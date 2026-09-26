@@ -15,3 +15,6 @@ tmp/
 
 # COLLIDER decision-compiler workspaces and interactive (UI) receipts
 .collider/
+
+# Wrangler local state and dry-run output
+.wrangler/

@@ -1,0 +1,44 @@
+// COLLIDER Semantic CI — Cloudflare deployment.
+//
+//   Worker (src/index.ts)
+//   + Workers Static Assets (demo-ui/, see demo-ui/.assetsignore)
+//   + one Cloudflare Container per browser session (Dockerfile)
+//
+// Deploy (Workers Builds from GitHub): npx wrangler deploy
+// No secrets are required or stored in this repository.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "collider-semantic-ci",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-09-01",
+
+  "assets": {
+    "directory": "./demo-ui",
+    "binding": "ASSETS",
+    // Only the API reaches the Worker first; everything else is served
+    // straight from Static Assets.
+    "run_worker_first": ["/api/*"]
+  },
+
+  "containers": [
+    {
+      "class_name": "ColliderContainer",
+      "image": "./Dockerfile",
+      "instance_type": "basic",
+      // One instance per active browser session.
+      "max_instances": 20
+    }
+  ],
+
+  "durable_objects": {
+    "bindings": [
+      { "name": "COLLIDER", "class_name": "ColliderContainer" }
+    ]
+  },
+
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["ColliderContainer"] }
+  ],
+
+  "observability": { "enabled": true }
+}

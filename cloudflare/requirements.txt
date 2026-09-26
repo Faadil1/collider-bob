@@ -1,0 +1,2 @@
+# Container runtime dependencies (behavioral verification runs pytest).
+pytest==9.1.1

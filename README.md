@@ -146,6 +146,14 @@ Fresh-agent replay: the interface and acceptance contract exist
 (`collider/replay.py`), but execution is **NOT_EXECUTED / PENDING_LIVE_BOB**. It only
 accepts results from an independent `LIVE_BOB_SESSION`.
 
+## Hosted demo (Cloudflare)
+
+A Worker serves `demo-ui/` from Workers Static Assets and routes `/api/*` to one
+Cloudflare Container per browser session (same Python runtime, provenance
+`CLOUDFLARE_CONTAINER` / `INTERACTIVE_WEB`). The container filesystem is
+ephemeral. Deploy with `npx wrangler deploy` via Workers Builds; see
+`cloudflare/README.md`.
+
 Evidence
 Canonical baseline
 evidence/runs/baseline-001/
@@ -248,10 +256,11 @@ python3 -m pytest \
   notifications/tests/ \
   tests/test_semantic_ci.py \
   tests/test_active_repair.py \
+  tests/test_cloudflare_adapter.py \
   -q
 
 Current result:
-175 passed, 6 subtests passed
+212 passed, 6 subtests passed
 
 Project status
 Gate	Status

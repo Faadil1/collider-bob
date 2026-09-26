@@ -24,7 +24,12 @@ import re
 from pathlib import Path
 
 from collider import gate as gate_mod
-from collider.decision_compiler import now_iso, tracked_files, write_json
+from collider.decision_compiler import (
+    EXECUTION_ENVIRONMENTS,
+    now_iso,
+    tracked_files,
+    write_json,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -55,7 +60,10 @@ def summarize_run(v: dict) -> dict:
     )}
 
 
-def run_guard_probe(workspace: Path, out_dir: Path, source_root: Path = ROOT) -> dict:
+def run_guard_probe(workspace: Path, out_dir: Path, source_root: Path = ROOT,
+                    execution_environment: str = "LOCAL") -> dict:
+    if execution_environment not in EXECUTION_ENVIRONMENTS:
+        raise ValueError(f"execution_environment must be one of {EXECUTION_ENVIRONMENTS}")
     workspace = Path(workspace).resolve()
     out_dir = Path(out_dir).resolve()
     source_root = Path(source_root).resolve()
@@ -195,8 +203,8 @@ def run_guard_probe(workspace: Path, out_dir: Path, source_root: Path = ROOT) ->
         "source_tree_untouched": source_untouched,
         "executed_at": now_iso(),
         "truth_boundary": {
-            "execution": "LOCAL",
-            "kind": "controlled local future-change probe against persisted canon",
+            "execution": execution_environment,
+            "kind": "controlled future-change probe against persisted canon",
             "fresh_agent_replay": "NOT_EXECUTED / PENDING_LIVE_BOB",
         },
     }

@@ -50,6 +50,31 @@ RUNS_DIR = ROOT / ".collider/runs"
 WORKSPACES_DIR = ROOT / ".collider/workspaces"
 
 PROVENANCE_MODE = "ACTIVE"
+MAX_BODY_BYTES = 4096
+
+# Fixed runtime provenance profiles. The profile is chosen by the process that
+# starts the server (never by HTTP input): LOCAL for this file's main(),
+# CLOUDFLARE_CONTAINER for cloudflare/container_server.py. No profile is LIVE_BOB.
+RUNTIME_PROFILES = {
+    "LOCAL": {
+        "execution_environment": "LOCAL",
+        "human_decision_source": "INTERACTIVE_LOCAL_UI",
+    },
+    "CLOUDFLARE_CONTAINER": {
+        "execution_environment": "CLOUDFLARE_CONTAINER",
+        "human_decision_source": "INTERACTIVE_WEB",
+    },
+}
+RUNTIME = dict(RUNTIME_PROFILES["LOCAL"])
+
+
+def configure(profile: str) -> None:
+    if profile not in RUNTIME_PROFILES:
+        raise ValueError(f"unknown runtime profile {profile!r}")
+    RUNTIME.clear()
+    RUNTIME.update(RUNTIME_PROFILES[profile])
+
+
 SESSION_ID_RE = re.compile(r"^ui-\d{8}T\d{12}Z$")
 
 # The only decisions the judge-facing UI can make.
@@ -95,6 +120,8 @@ class Handler(SimpleHTTPRequestHandler):
 
     def _payload(self) -> dict:
         length = int(self.headers.get("Content-Length", "0"))
+        if length < 0 or length > MAX_BODY_BYTES:
+            raise ValueError("REFUSE: request body too large")
         payload = json.loads(self.rfile.read(length) or b"{}")
         if not isinstance(payload, dict):
             raise ValueError("payload must be a JSON object")
@@ -106,7 +133,10 @@ class Handler(SimpleHTTPRequestHandler):
             return self._json(200, {
                 "server": "collider-local-action",
                 "provenance_mode": PROVENANCE_MODE,
-                "execution": "LOCAL",
+                "execution": RUNTIME["execution_environment"],
+                "execution_environment": RUNTIME["execution_environment"],
+                "human_decision_source": RUNTIME["human_decision_source"],
+                "interpretation_source": "PRESEEDED",
                 "gate": strip(gate_mod.evaluate_gate(ROOT)),
             })
         if url.path == "/api/gate":
@@ -134,18 +164,20 @@ class Handler(SimpleHTTPRequestHandler):
             if value is None:
                 result = record_abstention(
                     concept,
-                    human_decision_source="INTERACTIVE_LOCAL_UI",
+                    human_decision_source=RUNTIME["human_decision_source"],
                     action_id=session_id,
                     out_dir=RUNS_DIR / session_id,
+                    execution_environment=RUNTIME["execution_environment"],
                 )
                 result["kind"] = "abstention"
             else:
                 result = compile_decision(
                     concept, value,
-                    human_decision_source="INTERACTIVE_LOCAL_UI",
+                    human_decision_source=RUNTIME["human_decision_source"],
                     decision_id=session_id,
                     workspace=WORKSPACES_DIR / session_id,
                     out_dir=RUNS_DIR / session_id,
+                    execution_environment=RUNTIME["execution_environment"],
                 )
                 result["kind"] = "decision"
                 result.pop("workspace")
@@ -153,6 +185,7 @@ class Handler(SimpleHTTPRequestHandler):
             return self._json(400, {"error": str(e)})
         result["choice"] = choice
         result["provenance_mode"] = PROVENANCE_MODE
+        result["execution_environment"] = RUNTIME["execution_environment"]
         result["receipt_dir"] = display_path(Path(result.pop("out_dir")), ROOT)
         return self._json(200, result)
 
@@ -164,12 +197,16 @@ class Handler(SimpleHTTPRequestHandler):
         if session is None:
             return self._json(404, {"error": "unknown decision session"})
         try:
-            receipt = run_guard_probe(session[0], session[1])
+            receipt = run_guard_probe(
+                session[0], session[1],
+                execution_environment=RUNTIME["execution_environment"],
+            )
         except FileExistsError as e:
             return self._json(409, {"error": str(e)})
         except (ValueError, RuntimeError) as e:
             return self._json(400, {"error": str(e)})
         receipt["provenance_mode"] = PROVENANCE_MODE
+        receipt["execution_environment"] = RUNTIME["execution_environment"]
         receipt["receipt_path"] = display_path(session[1] / "guard-probe.json", ROOT)
         return self._json(200, receipt)
 

@@ -58,7 +58,19 @@ ROOT = Path(__file__).resolve().parents[1]
 WORKSPACE_COPY = ["api", "ledger", "notifications", "fixtures/failed-payment"]
 INTERPRETATIONS_RELDIR = "fixtures/failed-payment/interpretations"
 
-HUMAN_DECISION_SOURCES = ("PRESEEDED", "CLI_OPERATOR", "INTERACTIVE_LOCAL_UI")
+HUMAN_DECISION_SOURCES = (
+    "PRESEEDED", "CLI_OPERATOR", "INTERACTIVE_LOCAL_UI", "INTERACTIVE_WEB",
+)
+
+# Where an action physically executed. Never LIVE_BOB: no Bob session runs here.
+EXECUTION_ENVIRONMENTS = ("LOCAL", "CLOUDFLARE_CONTAINER")
+
+
+def check_provenance(human_decision_source: str, execution_environment: str) -> None:
+    if human_decision_source not in HUMAN_DECISION_SOURCES:
+        raise ValueError(f"human_decision_source must be one of {HUMAN_DECISION_SOURCES}")
+    if execution_environment not in EXECUTION_ENVIRONMENTS:
+        raise ValueError(f"execution_environment must be one of {EXECUTION_ENVIRONMENTS}")
 
 # Only concept compiled in this slice. Keys map the canonical value to the
 # API keyword that carries it, so the contract exercises real behavior.
@@ -284,6 +296,7 @@ def compile_decision(
     workspace: Path | None = None,
     out_dir: Path | None = None,
     rationale: str | None = None,
+    execution_environment: str = "LOCAL",
 ) -> dict:
     source_root = Path(source_root).resolve()
     workspace = Path(workspace or source_root / ".collider/workspaces" / decision_id).resolve()
@@ -291,8 +304,7 @@ def compile_decision(
 
     if concept not in COMPILABLE_CONCEPTS:
         raise ValueError(f"concept {concept!r} is not compilable in this slice")
-    if human_decision_source not in HUMAN_DECISION_SOURCES:
-        raise ValueError(f"human_decision_source must be one of {HUMAN_DECISION_SOURCES}")
+    check_provenance(human_decision_source, execution_environment)
     if out_dir.exists() and any(out_dir.iterdir()):
         raise FileExistsError(f"REFUSE: receipt directory already exists and is non-empty: {out_dir}")
 
@@ -423,7 +435,7 @@ def compile_decision(
             for r in repair_records
         ],
         "provenance": {
-            "execution_environment": "LOCAL",
+            "execution_environment": execution_environment,
             "interpretation_source": "PRESEEDED",
             "human_decision_source": human_decision_source,
             "compiler": "collider.decision_compiler",
@@ -510,7 +522,7 @@ def compile_decision(
         "workstreams": workstreams,
         "source_tree_untouched": source_untouched,
         "truth_boundary": {
-            "execution": "LOCAL",
+            "execution": execution_environment,
             "interpretations": "PRESEEDED",
             "human_decision": human_decision_source,
             "fresh_agent_replay": "NOT_EXECUTED / PENDING_LIVE_BOB",
@@ -565,6 +577,7 @@ def record_abstention(
     action_id: str,
     source_root: Path = ROOT,
     out_dir: Path | None = None,
+    execution_environment: str = "LOCAL",
 ) -> dict:
     """
     KEEP UNKNOWN — the human declines to decide. Correct abstention.
@@ -578,8 +591,7 @@ def record_abstention(
 
     if concept not in COMPILABLE_CONCEPTS:
         raise ValueError(f"concept {concept!r} is not decidable in this slice")
-    if human_decision_source not in HUMAN_DECISION_SOURCES:
-        raise ValueError(f"human_decision_source must be one of {HUMAN_DECISION_SOURCES}")
+    check_provenance(human_decision_source, execution_environment)
     if out_dir.exists() and any(out_dir.iterdir()):
         raise FileExistsError(f"REFUSE: receipt directory already exists and is non-empty: {out_dir}")
 
@@ -619,7 +631,7 @@ def record_abstention(
         "recorded_at": now_iso(),
         "input_commit": git_head(source_root),
         "truth_boundary": {
-            "execution": "LOCAL",
+            "execution": execution_environment,
             "interpretations": "PRESEEDED",
             "human_decision": f"{human_decision_source} (abstained)",
         },

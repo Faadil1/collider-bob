@@ -1,0 +1,13 @@
+# Allowlist: the image contains only the ACTIVE MODE runtime.
+*
+!collider/
+!api/
+!ledger/
+!notifications/
+!fixtures/failed-payment/
+!demo-ui/server.py
+!cloudflare/container_server.py
+!cloudflare/requirements.txt
+**/__pycache__
+**/*.pyc
+.collider/

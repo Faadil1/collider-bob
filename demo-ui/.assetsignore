@@ -1,0 +1,8 @@
+# Files in demo-ui/ that are not browser assets and must not be published
+# by Workers Static Assets.
+server.py
+build_demo_data.py
+README.md
+__pycache__
+*.pyc
+.assetsignore
