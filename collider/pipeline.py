@@ -35,6 +35,7 @@ import subprocess
 import importlib
 import hashlib
 import difflib
+import inspect
 from pathlib import Path
 from typing import Any
 
@@ -70,7 +71,10 @@ REPAIR_TARGETS = {
     # concept → { workstream → (file_path, constant_name) }
     "customer_identity": {
         "api": ("api/handlers/recover.py", "CUSTOMER_IDENTITY_FIELD"),
-    }
+    },
+    "field_name": {
+        "ledger": ("ledger/credit_entry.py", "CREDIT_FIELD_NAME"),
+    },
 }
 
 
@@ -473,6 +477,81 @@ def route_impact(
     }
 
 
+def route_agent_drift(
+    classification: dict,
+    interpretations: list[dict],
+) -> dict:
+    """
+    Route an AGENT_DRIFT directly from explicit source evidence.
+
+    Unlike SPEC_GAP routing, this requires no human decision:
+    the authoritative value already exists in source material.
+    """
+    if classification.get("classification") != "AGENT_DRIFT":
+        raise ValueError("route_agent_drift requires AGENT_DRIFT classification")
+
+    concept = classification["concept"]
+    canonical_value = classification["authoritative_value"]
+    drifted = set(classification.get("agent_drift_workstreams", []))
+
+    impacts = []
+
+    for interp in interpretations:
+        ws = interp["workstream"]
+        claims = [c for c in interp["claims"] if c["concept"] == concept]
+
+        if not claims:
+            impacts.append({
+                "workstream": ws,
+                "consumed_concept": False,
+                "prior_value": None,
+                "matches_canon": None,
+                "action": "not_applicable",
+                "action_rationale": f"Workstream holds no '{concept}' claim.",
+            })
+            continue
+
+        claim = claims[0]
+        prior = claim["value"]
+        matches = normalize(prior) == normalize(canonical_value)
+
+        if ws in drifted:
+            action = "repair"
+            rationale = (
+                f"Workstream uses '{prior}', but explicit source evidence "
+                f"requires '{canonical_value}'."
+            )
+        elif matches:
+            action = "preserve"
+            rationale = (
+                f"Workstream already matches explicit source value "
+                f"'{canonical_value}'."
+            )
+        else:
+            action = "review"
+            rationale = (
+                "Classification and routing disagree about drift membership; "
+                "do not mutate automatically."
+            )
+
+        impacts.append({
+            "workstream": ws,
+            "consumed_concept": True,
+            "prior_value": prior,
+            "matches_canon": matches,
+            "action": action,
+            "action_rationale": rationale,
+        })
+
+    return {
+        "concept": concept,
+        "canonical_value": canonical_value,
+        "resolution_source": "SOURCE_EVIDENCE",
+        "source_evidence": classification.get("source_evidence"),
+        "workstream_impacts": impacts,
+    }
+
+
 # ---------------------------------------------------------------------------
 # Targeted repair — actually modifies the implementation file
 # ---------------------------------------------------------------------------
@@ -574,6 +653,9 @@ def apply_targeted_repair(
         })
         print(f"  REPAIRED {file_path}: {constant_name} = \"{canonical_value}\"")
 
+    for record in repairs:
+        record.setdefault("concept", concept)
+
     return repairs
 
 
@@ -605,6 +687,79 @@ def run_behavioral_tests(label: str) -> tuple[str, bool]:
     combined = header + result.stdout + result.stderr
     passed = result.returncode == 0
     return combined, passed
+
+
+def reload_workstream_modules():
+    """Reload executable workstream modules from their current files."""
+    import api.handlers.recover as api
+    import ledger.credit_entry as ledger
+    import notifications.send_credit_notice as notifications
+
+    return (
+        importlib.reload(api),
+        importlib.reload(ledger),
+        importlib.reload(notifications),
+    )
+
+
+def probe_integration_compatibility() -> dict:
+    """
+    Verify executable cross-workstream compatibility.
+
+    This is a compatibility receipt, not a root-cause classifier.
+    """
+    api, ledger, notifications = reload_workstream_modules()
+
+    api_params = inspect.signature(api.process_recovery).parameters
+    notification_params = inspect.signature(
+        notifications.send_credit_notice
+    ).parameters
+
+    facts = {
+        "api_customer_identity_field": api.CUSTOMER_IDENTITY_FIELD,
+        "ledger_customer_identity_field": ledger.CUSTOMER_IDENTITY_FIELD,
+        "api_money_field": (
+            "refund_amount" if "refund_amount" in api_params else None
+        ),
+        "ledger_money_field": ledger.CREDIT_FIELD_NAME,
+        "notifications_money_field": (
+            "refund_amount"
+            if "refund_amount" in notification_params
+            else None
+        ),
+        "notifications_customer_identity_dependency": False,
+    }
+
+    conflicts = []
+
+    if (
+        facts["api_customer_identity_field"]
+        != facts["ledger_customer_identity_field"]
+    ):
+        conflicts.append({
+            "conflict_id": "customer-identity-interface-mismatch",
+            "api_value": facts["api_customer_identity_field"],
+            "ledger_value": facts["ledger_customer_identity_field"],
+        })
+
+    if facts["api_money_field"] != facts["ledger_money_field"]:
+        conflicts.append({
+            "conflict_id": "money-field-interface-mismatch",
+            "api_value": facts["api_money_field"],
+            "ledger_value": facts["ledger_money_field"],
+        })
+
+    return {
+        "probe": "executable-interface-compatibility",
+        "facts": facts,
+        "conflicts": conflicts,
+        "conflict_count": len(conflicts),
+        "status": (
+            "INTEGRATION_READY"
+            if not conflicts
+            else "INTEGRATION_BLOCKED"
+        ),
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -789,10 +944,33 @@ def run_pipeline(
 
     write_json(os.path.join(run_dir, "classifications.json"), classifications)
 
-    # --- Canon patches (SPEC_GAP concepts only, after human decision) ---
-    spec_gaps = [c for c in classifications if c["classification"] == "SPEC_GAP"]
     impact_set_entries = []
     repair_records = []
+
+    # --- AGENT_DRIFT repairs: source evidence already decides the value ---
+    agent_drifts = [
+        c for c in classifications
+        if c["classification"] == "AGENT_DRIFT"
+    ]
+
+    if apply_repair:
+        for drift in agent_drifts:
+            impact = route_agent_drift(drift, interpretations)
+            impact["run_id"] = run_id
+            impact["timestamp"] = now_iso()
+            impact["evidence_commit"] = git_commit
+            impact_set_entries.append(impact)
+
+            recs = apply_targeted_repair(
+                concept=drift["concept"],
+                canonical_value=drift["authoritative_value"],
+                impact=impact,
+                repair_source="AGENT_DRIFT_EVIDENCE",
+            )
+            repair_records.extend(recs)
+
+    # --- Canon patches (SPEC_GAP concepts only, after human decision) ---
+    spec_gaps = [c for c in classifications if c["classification"] == "SPEC_GAP"]
 
     for sg in spec_gaps:
         concept = sg["concept"]
@@ -871,6 +1049,39 @@ def run_pipeline(
             "resolution_notes": "Post-repair tests must pass.",
         })
 
+    # --- Executable integration compatibility receipt ---
+    integration_after_repair = probe_integration_compatibility()
+    integration_after_repair["run_id"] = run_id
+    integration_after_repair["timestamp"] = now_iso()
+
+    write_json(
+        os.path.join(run_dir, "integration-after.json"),
+        integration_after_repair,
+    )
+
+    # A fully resolved run must actually reach integration-ready state.
+    if (
+        human_decisions
+        and apply_repair
+        and integration_after_repair["status"] != "INTEGRATION_READY"
+    ):
+        failures.append({
+            "failure_type": "integration_contract_mismatch",
+            "workstream": "cross-boundary",
+            "concept": None,
+            "timestamp": now_iso(),
+            "description": (
+                "Resolved COLLIDER run still has executable integration conflicts: "
+                f"{integration_after_repair['conflicts']}"
+            ),
+            "severity": "critical",
+            "resolution": "unresolved",
+            "resolution_notes": (
+                "A resolved canonical run must be integration-ready "
+                "before evidence can pass."
+            ),
+        })
+
     # --- Cryptographic before/after evidence ---
     hashes_after = {
         ws: sha256_file(path)
@@ -881,14 +1092,25 @@ def run_pipeline(
         for ws, path in EVIDENCE_ARTIFACT_FILES.items()
     }
 
-    repair_patch = "".join(
-        difflib.unified_diff(
-            baseline_sources["api"].splitlines(keepends=True),
-            sources_after["api"].splitlines(keepends=True),
-            fromfile="a/api/handlers/recover.py",
-            tofile="b/api/handlers/recover.py",
+    repair_patch_parts = []
+
+    for ws, path in EVIDENCE_ARTIFACT_FILES.items():
+        if baseline_sources[ws] == sources_after[ws]:
+            continue
+
+        repair_patch_parts.append(
+            "".join(
+                difflib.unified_diff(
+                    baseline_sources[ws].splitlines(keepends=True),
+                    sources_after[ws].splitlines(keepends=True),
+                    fromfile=f"a/{path}",
+                    tofile=f"b/{path}",
+                )
+            )
         )
-    )
+
+    repair_patch = "".join(repair_patch_parts)
+
     if repair_patch:
         Path(os.path.join(run_dir, "repair.patch")).write_text(repair_patch)
 
@@ -896,6 +1118,9 @@ def run_pipeline(
     for ws, path in EVIDENCE_ARTIFACT_FILES.items():
         if Path(path).read_text() != baseline_sources[ws]:
             Path(path).write_text(baseline_sources[ws])
+
+    # Keep the current Python process consistent with restored files.
+    reload_workstream_modules()
 
     hashes_restored = {
         ws: sha256_file(path)
@@ -947,9 +1172,15 @@ def run_pipeline(
     shared_inferred = sum(
         1 for c in classifications if c.get("classification_subtype") == "SHARED_INFERRED"
     )
-    out_of_scope = sum(1 for c in classifications if c["classification"] == "OUT_OF_SCOPE")
+    out_of_scope = sum(
+        1
+        for c in classifications
+        if c.get("concept") == "internal_response_body"
+        and c["classification"] == "OUT_OF_SCOPE"
+    )
+
     patches_written = len(
-        [e for e in impact_set_entries if e.get("canonical_value") is not None]
+        list(Path(run_dir, "canon-patches").glob("*.json"))
     )
     # Count observed repair outcomes, not merely routing intentions.
     repaired = sum(1 for r in repair_records if r.get("action") == "repaired")
@@ -959,12 +1190,20 @@ def run_pipeline(
     )
     human_clarifications = len(human_decisions)
 
+    agent_drifts_repaired = sum(
+        1
+        for r in repair_records
+        if r.get("action") == "repaired"
+        and r.get("repair_source") == "AGENT_DRIFT_EVIDENCE"
+    )
+
     metrics_obj = {
         "run_id": run_id,
         "timestamp": now_iso(),
         "metrics": [
             {"metric": "spec_gaps_detected", "value": spec_gap_count, "unit": "count", "evidence_state": "OBSERVED"},
             {"metric": "agent_drifts_detected", "value": drift_count, "unit": "count", "evidence_state": "OBSERVED"},
+            {"metric": "agent_drifts_repaired", "value": agent_drifts_repaired, "unit": "count", "evidence_state": "OBSERVED"},
             {"metric": "shared_inferred_detected", "value": shared_inferred, "unit": "count", "evidence_state": "OBSERVED"},
             {"metric": "negative_controls_correct", "value": out_of_scope, "unit": "count", "evidence_state": "OBSERVED"},
             {"metric": "canon_patches_written", "value": patches_written, "unit": "count", "evidence_state": "OBSERVED"},
@@ -976,6 +1215,8 @@ def run_pipeline(
              "notes": "All fixture classifications are deterministic (exact-match resolver)."},
             {"metric": "tests_before_passed", "value": tests_before_passed, "unit": "bool", "evidence_state": "OBSERVED"},
             {"metric": "tests_after_passed", "value": tests_after_passed, "unit": "bool", "evidence_state": "OBSERVED"},
+            {"metric": "integration_conflicts_after_repairs", "value": integration_after_repair["conflict_count"], "unit": "count", "evidence_state": "OBSERVED"},
+            {"metric": "integration_ready_after_repairs", "value": integration_after_repair["status"] == "INTEGRATION_READY", "unit": "bool", "evidence_state": "OBSERVED"},
         ],
     }
     write_json(os.path.join(run_dir, "metrics.json"), metrics_obj)
@@ -991,6 +1232,7 @@ def run_pipeline(
         "tests_after_passed": tests_after_passed,
         "artifact_hashes": artifact_hashes,
         "baseline_restored": baseline_restored,
+        "integration_after_repair": integration_after_repair,
     }
 
 
@@ -1032,11 +1274,28 @@ def verify_fixture(result: dict) -> dict:
     c = classifications.get("field_name", {})
     b_drifted = c.get("agent_drift_workstreams", [])
     b_has_evidence = bool(c.get("source_evidence") and c["source_evidence"].get("excerpt"))
+    b_repair = next(
+        (
+            r for r in result.get("repair_records", [])
+            if r.get("concept") == "field_name"
+            and r.get("workstream") == "ledger"
+        ),
+        None,
+    )
+
+    b_repair_pass = (
+        b_repair is not None
+        and b_repair.get("action") == "repaired"
+        and b_repair.get("repair_source") == "AGENT_DRIFT_EVIDENCE"
+        and b_repair.get("canonical_value") == "refund_amount"
+    )
+
     b_pass = (
         c.get("classification") == "AGENT_DRIFT"
         and "ledger" in b_drifted
         and b_has_evidence
         and c.get("human_question_needed") is False
+        and b_repair_pass
     )
     verdicts["B"] = {
         "claim": "AGENT_DRIFT: field_name (refund_amount vs credit_amount)",
@@ -1045,10 +1304,12 @@ def verify_fixture(result: dict) -> dict:
         "drifted": b_drifted,
         "has_evidence": b_has_evidence,
         "human_question_needed": c.get("human_question_needed"),
+        "repair_applied": b_repair_pass,
         "detail": "PASS" if b_pass else (
             f"FAIL: classification={c.get('classification')}, "
             f"drifted={b_drifted}, evidence={b_has_evidence}, "
-            f"human_q={c.get('human_question_needed')}"
+            f"human_q={c.get('human_question_needed')}, "
+            f"repair_applied={b_repair_pass}"
         ),
     }
 
@@ -1220,7 +1481,7 @@ if __name__ == "__main__":
         execution_environment=args.execution_environment,
         interpretation_source=args.interpretation_source,
         human_decision_source=args.human_decision_source if human_decisions else "NONE",
-        apply_repair=bool(human_decisions),
+        apply_repair=True,
         force=args.force,
     )
 
@@ -1238,9 +1499,20 @@ if __name__ == "__main__":
         f"{'ALL APPLICABLE CLAIMS PASS' if verification['all_pass'] else 'FIXTURE FAILURES PRESENT'} ==="
     )
 
+    integration = result.get("integration_after_repair", {})
+    print(
+        f"\n=== Integration after repairs: "
+        f"{integration.get('status', 'UNKNOWN')} "
+        f"({integration.get('conflict_count', 'UNKNOWN')} conflicts) ==="
+    )
+
     if result["failures"]:
         print(f"\n=== Failures recorded ({len(result['failures'])}) ===")
         for f in result["failures"]:
             print(f"  [{f['severity'].upper()}] {f['failure_type']}: {f['description']}")
 
-    sys.exit(0 if verification["all_pass"] else 1)
+    sys.exit(
+        0
+        if verification["all_pass"] and not result["failures"]
+        else 1
+    )

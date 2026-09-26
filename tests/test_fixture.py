@@ -25,6 +25,7 @@ from collider.pipeline import (
     reconcile,
     classify_concept,
     route_impact,
+    route_agent_drift,
     scope_filter,
     normalize,
     run_pipeline,
@@ -195,6 +196,23 @@ class TestClaimB(unittest.TestCase):
     def test_not_classified_as_spec_gap(self):
         c = classify_concept("field_name", self.groups["field_name"], self.brief)
         self.assertNotEqual(c["classification"], "SPEC_GAP")
+
+    def test_agent_drift_routes_only_ledger_for_repair(self):
+        interps = load_interpretations()
+        c = classify_concept(
+            "field_name",
+            self.groups["field_name"],
+            self.brief,
+        )
+        impact = route_agent_drift(c, interps)
+        actions = {
+            w["workstream"]: w["action"]
+            for w in impact["workstream_impacts"]
+        }
+
+        self.assertEqual(actions["api"], "preserve")
+        self.assertEqual(actions["ledger"], "repair")
+        self.assertEqual(actions["notifications"], "preserve")
 
 
 class TestClaimC(unittest.TestCase):
@@ -490,7 +508,14 @@ class TestFullPipeline(unittest.TestCase):
         repairs_path = os.path.join(RUN_DIR, "repairs.json")
         self.assertTrue(os.path.exists(repairs_path))
         repairs = load_json(repairs_path)
-        api_repair = next((r for r in repairs if r["workstream"] == "api"), None)
+        api_repair = next(
+            (
+                r for r in repairs
+                if r["workstream"] == "api"
+                and r.get("concept") == "customer_identity"
+            ),
+            None,
+        )
         self.assertIsNotNone(api_repair)
         self.assertEqual(api_repair["action"], "repaired")
         self.assertIsNotNone(api_repair["file_modified"])
@@ -498,7 +523,14 @@ class TestFullPipeline(unittest.TestCase):
     def test_repairs_json_records_ledger_unchanged(self):
         """repairs.json must record that ledger was preserved (not repaired)."""
         repairs = load_json(os.path.join(RUN_DIR, "repairs.json"))
-        ledger_repair = next((r for r in repairs if r["workstream"] == "ledger"), None)
+        ledger_repair = next(
+            (
+                r for r in repairs
+                if r["workstream"] == "ledger"
+                and r.get("concept") == "customer_identity"
+            ),
+            None,
+        )
         self.assertIsNotNone(ledger_repair)
         self.assertEqual(ledger_repair["action"], "preserve")
         self.assertIsNone(ledger_repair.get("file_modified"))
@@ -506,9 +538,74 @@ class TestFullPipeline(unittest.TestCase):
     def test_repairs_json_records_notifications_not_applicable(self):
         """repairs.json must record that notifications was not_applicable (no dependency)."""
         repairs = load_json(os.path.join(RUN_DIR, "repairs.json"))
-        notif_repair = next((r for r in repairs if r["workstream"] == "notifications"), None)
+        notif_repair = next(
+            (
+                r for r in repairs
+                if r["workstream"] == "notifications"
+                and r.get("concept") == "customer_identity"
+            ),
+            None,
+        )
         self.assertIsNotNone(notif_repair)
         self.assertEqual(notif_repair["action"], "not_applicable")
+
+    def test_agent_drift_ledger_repaired_from_source_evidence(self):
+        repairs = load_json(os.path.join(RUN_DIR, "repairs.json"))
+        drift_repair = next(
+            (
+                r for r in repairs
+                if r.get("concept") == "field_name"
+                and r["workstream"] == "ledger"
+            ),
+            None,
+        )
+
+        self.assertIsNotNone(drift_repair)
+        self.assertEqual(drift_repair["action"], "repaired")
+        self.assertEqual(
+            drift_repair["repair_source"],
+            "AGENT_DRIFT_EVIDENCE",
+        )
+        self.assertEqual(
+            drift_repair["canonical_value"],
+            "refund_amount",
+        )
+
+    def test_ledger_cryptographic_repair_and_restore(self):
+        hashes = load_json(
+            os.path.join(RUN_DIR, "artifact-hashes.json")
+        )
+        ledger = next(
+            a for a in hashes["artifacts"]
+            if a["workstream"] == "ledger"
+        )
+
+        self.assertTrue(ledger["changed_during_repair"])
+        self.assertNotEqual(
+            ledger["sha256_before"],
+            ledger["sha256_after"],
+        )
+        self.assertTrue(ledger["restored_to_input"])
+        self.assertEqual(
+            ledger["sha256_before"],
+            ledger["sha256_restored"],
+        )
+
+        patch = Path(
+            os.path.join(RUN_DIR, "repair.patch")
+        ).read_text()
+        self.assertIn(
+            'CREDIT_FIELD_NAME = "refund_amount"',
+            patch,
+        )
+
+    def test_integration_ready_after_all_repairs(self):
+        integration = self.result["integration_after_repair"]
+        self.assertEqual(
+            integration["status"],
+            "INTEGRATION_READY",
+        )
+        self.assertEqual(integration["conflict_count"], 0)
 
     def test_tests_before_contain_workstream_results(self):
         """tests-before.txt must be real pytest behavioral test output."""
@@ -546,9 +643,13 @@ class TestFullPipeline(unittest.TestCase):
         self.assertIn("workstreams_not_applicable", metric_names)
 
         values = {m["metric"]: m["value"] for m in metrics["metrics"]}
-        self.assertEqual(values["workstreams_repaired"], 1)
-        self.assertEqual(values["workstreams_preserved"], 1)
+        self.assertEqual(values["workstreams_repaired"], 2)
+        self.assertEqual(values["workstreams_preserved"], 3)
         self.assertEqual(values["workstreams_not_applicable"], 1)
+        self.assertEqual(values["agent_drifts_repaired"], 1)
+        self.assertEqual(values["negative_controls_correct"], 1)
+        self.assertEqual(values["integration_conflicts_after_repairs"], 0)
+        self.assertTrue(values["integration_ready_after_repairs"])
 
     def test_classifier_judgment_never_used(self):
         metrics = load_json(os.path.join(RUN_DIR, "metrics.json"))
