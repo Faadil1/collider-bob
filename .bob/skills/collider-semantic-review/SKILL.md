@@ -98,8 +98,11 @@ For the canonical failed-payment scenario:
       --output .bob/rules/collider-decision-memory.md
     ```
 
-12. Run the COLLIDER guard. Show the three possible outcomes:
-    `MERGE_ALLOWED`, `MERGE_BLOCKED`, `DECISION_REQUIRED`.
+12. Run the COLLIDER guard against the **compiled workspace**, not the unchanged
+    repository root. Prefer the MCP call `collider_gate` with
+    `root: "<compiled-workspace>"`. A bare root gate is still the pre-decision
+    baseline and must not be narrated as resolved. Show the three possible
+    outcomes: `MERGE_ALLOWED`, `MERGE_BLOCKED`, `DECISION_REQUIRED`.
 
 13. For fresh-agent proof, start a new independent Bob `general` subagent with
     repaired implementation withheld. Evaluate its real result with
