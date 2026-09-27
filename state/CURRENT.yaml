@@ -1,6 +1,6 @@
 project: collider-bob
 date: 2026-09-27
-stage: ESCALATED_BUILD_LIVE_THREE_VERDICT_PROVEN
+stage: PUBLIC_RUNTIME_PROVEN_SHIP_HEADER_CHECK_PENDING
 branch: claude/sharp-planck-vfqz40
 
 north_star:
@@ -106,13 +106,15 @@ semantic_ci_loop:
     public_receipt: evidence/runtime/PUBLIC-THREE-VERDICT-GUARD-2026-09-27.md
 
 public_runtime:
-  status: ACTIVE
+  status: PROVEN
   url: https://collider-semantic-ci.faadil-casecraft.workers.dev/
   topology: Cloudflare Worker + Static Assets + per-browser-session Container
   escalated_build_live: OBSERVED
   escalated_build_public_receipt: evidence/runtime/PUBLIC-THREE-VERDICT-GUARD-2026-09-27.md
-  exact_commit_binding: PENDING
-  reason_binding_pending: x-collider-worker-version has not yet been captured and matched to the Workers Builds commit
+  exact_commit_binding: PROVEN
+  runtime_commit_binding_receipt: evidence/runtime/RUNTIME-COMMIT-BINDING-2026-09-27.md
+  bound_worker_version: 364ad4fd-7eb3-4918-aef8-f9ad049ee20a
+  bound_git_commit: e185e84d9d1cf00dfa1700b6bd2439e57887a291
   provenance:
     execution_environment: CLOUDFLARE_CONTAINER
     interpretation_source: PRESEEDED
@@ -129,8 +131,8 @@ public_runtime:
     - regression contract 7/7
     - proof drawer code diffs and restoration hashes visible
   runtime_commit_binding_mechanism: x-collider-worker-version header on every /api/* response (version_metadata binding)
-  remaining_before_PROVEN:
-    - x-collider-worker-version read live and matched to its Workers Builds commit
+  remaining_before_PROVEN: []
+  ship_assurance_remaining:
     - live page headers show the demo-ui/_headers CSP
 
 verification:
@@ -158,9 +160,9 @@ gateway_status:
   "Negative Path": PROVEN
   "Evidence Integrity": PROVEN
   "Bob-Native Integration": ACTIVE
-  "Runtime / Commit Binding": ACTIVE
-  "Public Runtime / Live Proof": ACTIVE
-  "Deterministic Demo": ACTIVE
+  "Runtime / Commit Binding": PROVEN
+  "Public Runtime / Live Proof": PROVEN
+  "Deterministic Demo": PROVEN
   "Judge Performance Assurance": PENDING
   "Pre-Launch / Ship Assurance": ACTIVE
   "Submission Integrity": PENDING
@@ -182,7 +184,7 @@ submission:
   status: NOT_EARNED
   demo_lock: NOT_EARNED
   pending:
-    - close remaining public runtime checks (version-to-commit binding, live CSP)
+    - close final Pre-Launch / Ship Assurance header/CSP check
     - external Real-User / Outsider Break Test
     - Judge Performance Assurance
     - refresh submission/ copy to the three-verdict Semantic CI truth
@@ -200,4 +202,4 @@ do_not_redo:
   - creative depth passes one and two
 
 next_exact_action: >
-  Match Worker version 364ad4fd-7eb3-4918-aef8-f9ad049ee20a to the Workers Builds commit, then confirm live CSP/headers.
+  Confirm the live page response headers/CSP match demo-ui/_headers. Then run the Outsider Break Test and Judge Performance Assurance.
