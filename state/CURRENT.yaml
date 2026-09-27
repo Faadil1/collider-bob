@@ -1,186 +1,214 @@
 project: collider-bob
-date: 2026-09-26
-stage: LOCAL_COMPARATIVE_EVIDENCE_COMPLETE
-concept_lock:
+date: 2026-09-27
+stage: PUBLIC_RUNTIME_AUDIT_AND_FINAL_GATES
+
+north_star:
   name: COLLIDER
-  descriptor: Disagreement-Driven Specification Repair for Parallel AI Agents
-  status: LOCKED
-technical_reality_check:
-  status: COMPLETE
-  artifact: product/TECHNICAL-REALITY-CHECK.md
-  key_findings:
-    - reconciler_and_classifier_must_be_deterministic_for_demo
-    - agent_divergence_requires_prompt_isolation_or_pre_authored_fixtures
-    - document_only_resolver_is_unsound_for_code_heavy_specs
-    - model_consensus_is_not_evidence
-    - correct_abstention_is_first_class_product_success
-    - all_bob_capability_claims_remain_INFERRED_until_session_evidence
-demo_architecture:
-  status: COMPLETE
-  artifact: product/DEMO-FIRST-ARCHITECTURE.md
-  fixture: fixtures/failed-payment/
-  evidence_schema: evidence/EVIDENCE-SCHEMA.md
-  bob_integration: product/BOB-NATIVE-INTEGRATION.md
-  failure_modes: product/FAILURE-MODES.md
-thesis: >
-  Independent parallel coding agents can make different locally valid choices
-  because a specification never decided a cross-boundary question. Their disagreement
-  can be used as evidence of a specification gap before that gap becomes expensive rework.
+  category: Semantic CI for Agentic Software Development
+  tagline: "Fuzz the specification. Repair the decision. Prove the system understands it."
+  thesis: >
+    Independent implementation agents can become ambiguity probes. Their disagreements can reveal
+    latent decisions that the specification never made. COLLIDER separates source-grounded agent
+    drift from true specification gaps, asks the minimum human clarification, compiles the decision
+    into executable artifacts, and guards future work against semantic regression.
+  product_loop: [PROBE, COLLIDE, ADJUDICATE, DECIDE, COMPILE, PATCH, VERIFY, REMEMBER, GUARD]
+  future_step:
+    name: REPLAY
+    status: NOT_EXECUTED
+    boundary: PENDING_LIVE_BOB
+
+concept_lock:
+  status: LOCKED_AFTER_CREATIVE_DEPTH_GATE
+  wedge: failed-payment cross-boundary identity ambiguity
+  category_not_reduced_to_wedge: true
+  artifact: product/CREATIVE-DEPTH-AND-DISTINCTIVENESS.md
+
+creative_depth_and_product_ambition:
+  status: PROVEN
+  artifact: product/CREATIVE-DEPTH-AND-DISTINCTIVENESS.md
+  conclusions:
+    - agents_are_specification_fuzzers_not_just_parallel_labor
+    - decision_compilation_is_stronger_than_disagreement_detection
+    - semantic_ci_guard_gives_resolved_memory_future_consequence
+    - fresh_agent_replay_remains_north_star_not_fake_demo
+    - no_feature_bloat_required_for_demo_lock
+
+distinctiveness_escalation:
+  status: PROVEN
+  artifact: product/CREATIVE-DEPTH-AND-DISTINCTIVENESS.md
+  checks:
+    read_only_bias: PASS
+    single_shot_bias: PASS
+    memory_without_consequence: PASS
+    happy_path_bias: PASS
+    feature_as_product_bias: PASS
+    implementation_shaped_vision: PASS
+    signature_moment: PASS
+    feature_bloat_guard: PASS
+    sponsor_native_strength: PARTIAL
+
 truth_boundary:
   labels: [OBSERVED, INFERRED, UNKNOWN, AGENT_DRIFT, SPEC_GAP]
   missing_evidence_policy: UNKNOWN
-negative_event:
-  anchor: Mars Climate Orbiter unit-interface mismatch
-  claim_boundary: >
-    Evidence for the class of cross-boundary assumption failure only. Do not claim
-    COLLIDER would have prevented the historical incident.
-novelty:
-  status: PROVISIONAL_PASS
-  monitoring_required: true
-runtime:
-  status: LOCAL_COMPLETE
-  runs:
-    - run_id: local-abstain-001
-      type: abstain
-      result: ALL_CLAIMS_PASS
-      evidence_state: OBSERVED
-      generation_mode: LOCAL
-      execution_environment: LOCAL
-      interpretation_source: PRESEEDED
-      human_decision_source: NONE
-      human_decisions: {}
-      claims_verified: [A, B, C, D, E, F]
-      artifacts: evidence/runs/local-abstain-001/
-    - run_id: local-resolved-001
-      type: resolved
-      result: ALL_CLAIMS_PASS
-      evidence_state: OBSERVED
-      generation_mode: LOCAL
-      execution_environment: LOCAL
-      interpretation_source: PRESEEDED
-      human_decision_source: PRESEEDED
-      human_decisions:
-        customer_identity: account_id
-      claims_verified: [A, B, C, D, E, F]
-      artifacts: evidence/runs/local-resolved-001/
-      repair_applied: true
-      files_repaired: [api/handlers/recover.py]
-      files_preserved: [ledger/credit_entry.py]
-      files_not_applicable: [notifications/send_credit_notice.py]
-evidence_run:
-  status: LOCAL_COMPLETE
-  runs_committed: [local-abstain-001, local-resolved-001]
-  tests:
-    command: python3 -m pytest tests/test_fixture.py api/tests/ ledger/tests/ notifications/tests/ -v
-    count: 92
-    passed: 92
-    failed: 0
-    subtests: 6
-canonical_local_evidence:
-  runtime_input_commit: f581c332782bc4945110b8ea1fdcb155dc00b502
-  working_tree_clean_at_start: true
-  runs:
-    - run_id: local-abstain-002
-      type: abstain
-      execution_environment: LOCAL
-      interpretation_source: PRESEEDED
-      human_decision_source: NONE
-      applicable_result: PASS
-      claim_D: NOT_APPLICABLE
-      canon_patch_written: false
-      repair_applied: false
-      artifacts: evidence/runs/local-abstain-002/
-    - run_id: local-resolved-002
-      type: resolved
-      execution_environment: LOCAL
-      interpretation_source: PRESEEDED
-      human_decision_source: PRESEEDED
-      applicable_result: PASS
-      canon_patch_written: true
-      repair_applied: true
-      repaired: [api/handlers/recover.py]
-      preserved: [ledger/credit_entry.py]
-      not_applicable: [notifications/send_credit_notice.py]
-      baseline_restored: true
-      artifacts: evidence/runs/local-resolved-002/
-  cryptographic_receipt:
-    api_changed_during_repair: true
-    api_restored_to_input: true
-    ledger_changed_during_repair: false
-    notifications_changed_during_repair: false
-  gate: PASS
-  limitation: >
-    Interpretation objects and the human decision are PRESEEDED.
-    This proves the COLLIDER mechanism locally, not Bob-native live generation.
+  rules:
+    - consensus_does_not_upgrade_inference_to_truth
+    - PRESEEDED_interpretations_must_never_be_narrated_as_LIVE_BOB
+    - fresh_agent_replay_is_NOT_EXECUTED_until_genuinely_run
+
+technical_reality_check:
+  status: PROVEN
+  artifact: product/TECHNICAL-REALITY-CHECK.md
 
 comparative_evidence:
-  status: PASS
+  status: PROVEN
   baseline:
     run_id: baseline-001
     runtime_input_commit: 45fd342c6322178ee505456d2b95d301744d198f
     evidence_commit: 27676adbb0cd2df6702d3cf6cb07f26a6d08d779
-    artifacts: evidence/runs/baseline-001/
     local_tests_passed: 30
     integration_conflicts: 2
     integration_status: INTEGRATION_BLOCKED
   collider:
     run_id: local-resolved-004
     runtime_input_commit: 289415b06f69a9ea346606c07c4cb388f127c1bf
-    artifacts: evidence/runs/local-resolved-004/
     spec_gaps_detected: 1
     agent_drifts_detected: 1
-    agent_drifts_repaired: 1
-    human_clarifications_required: 1
     targeted_repairs: 2
     integration_conflicts_after_repairs: 0
     integration_status: INTEGRATION_READY
-    baseline_restored_after_capture: true
   fairness:
     starting_workstream_artifacts_byte_identical: true
-  receipt:
-    json: evidence/comparisons/baseline-001-vs-local-resolved-004.json
-    markdown: evidence/comparisons/baseline-001-vs-local-resolved-004.md
-  truth_boundary:
+  receipts:
+    - evidence/comparisons/baseline-001-vs-local-resolved-004.json
+    - evidence/comparisons/baseline-001-vs-local-resolved-004.md
+  boundary:
     execution: LOCAL
     interpretations: PRESEEDED
     human_decision: PRESEEDED
     live_bob: PENDING
     wall_clock_improvement: NOT_MEASURED
     percentage_improvement: NOT_CLAIMED
-  gate: PASS
 
 semantic_ci_loop:
-  status: LOCAL_ACTION_CAPABLE
+  status: FUNCTIONALLY_PROVEN
   loop: [DETECT, DECIDE, COMPILE, PATCH, VERIFY, REMEMBER, GUARD]
-  modules: [collider/gate.py, collider/decision_compiler.py, collider/replay.py, demo-ui/server.py]
-  receipt: evidence/decisions/decision-001/
-  decision: {concept: customer_identity, canonical_value: account_id, human_decision_source: PRESEEDED}
   gate_before: DECISION_REQUIRED
-  gate_after: SEMANTICALLY_READY
-  integration_conflicts: {before: 2, after: 0}
-  verification_in_compiled_tree: {passed: 37, failed: 0}
-  mutation_scope: workspace copy; committed tree hashes verified unchanged
-  decision_choices: [USE_ACCOUNT_ID, KEEP_UNKNOWN]
-  keep_unknown: abstention receipt only; no canon, no repair; gate stays DECISION_REQUIRED
-  guard_probe:
-    module: collider/guard_probe.py
-    endpoint: POST /api/guard
-    probe: customer_identity account_id → email (api/handlers/recover.py)
-    verdict: MERGE_BLOCKED (AGENT_DRIFT vs RESOLVED_CANON)
-    restoration: exact bytes; gate SEMANTICALLY_READY; 0 conflicts; contract passing
-    receipt: .collider/runs/<id>/guard-probe.json (runtime, not committed evidence)
-  modes: {ACTIVE: LOCAL ACTIVE DEMO, EVIDENCE: COMMITTED EVIDENCE}
-  fresh_agent_replay: NOT_EXECUTED / PENDING_LIVE_BOB
-  canonical_evidence_modified: false
+  resolved_path:
+    choice: USE_ACCOUNT_ID
+    integration_conflicts: {before: 2, after: 0}
+    gate_after: SEMANTICALLY_READY
+    compiled_outputs:
+      - decision_record
+      - source_spec_patch
+      - targeted_code_repairs
+      - executable_regression_contract
+      - decision_memory
+    verification_in_compiled_tree: {passed: 37, failed: 0}
+  abstention_path:
+    status: PROVEN
+    choice: KEEP_UNKNOWN
+    gate_after: DECISION_REQUIRED
+    conflicts_remaining: 2
+    canon_written: false
+    decision_memory_written: false
+    spec_patch_written: false
+    repairs_applied: none
+    source_tree_untouched: true
+  guard:
+    status: PROVEN
+    probe: customer_identity account_id -> email
+    verdict: MERGE_BLOCKED
+    reason: AGENT_DRIFT_vs_RESOLVED_CANON
+    restoration: exact_workspace_restore
+    final_gate: SEMANTICALLY_READY
+    final_conflicts: 0
+
+public_runtime:
+  status: ACTIVE_PARTIAL_GATE
+  url: https://collider-semantic-ci.faadil-casecraft.workers.dev/
+  topology: Cloudflare Worker + Static Assets + per-browser-session Container
+  deployed_runtime_code_commit: bdfd9d35054ddefe8e48c7e67f525f5d3d55f5e7
+  cloudflare_version_observed: f946793b
+  provenance:
+    mode: ACTIVE
+    execution_environment: CLOUDFLARE_CONTAINER
+    interpretation_source: PRESEEDED
+    human_decision_source: INTERACTIVE_WEB
+  observed:
+    - DECISION_REQUIRED at initial active state
+    - two integration conflicts before decision
+    - interactive account_id decision
+    - two_to_zero_conflict_repair
+    - SEMANTICALLY_READY after compile and verification
+    - future incompatible change produces MERGE_BLOCKED
+    - exact restore returns SEMANTICALLY_READY
+    - KEEP_UNKNOWN preserves UNKNOWN and writes no canon
+  remaining_before_public_runtime_gate_PROVEN:
+    - separate_session_isolation
+    - mobile_smoke
+  exact_deployment_sha_binding:
+    status: ACTIVE
+    note: >
+      The deployed behavior matches the Cloudflare adapter commit and deployment was issued from the
+      verified branch workspace, but preserve a dedicated version-to-SHA receipt before marking
+      Runtime/Commit Binding PROVEN.
+
+gateway_registry:
+  artifact: product/GATEWAY-REGISTRY.md
+  statuses:
+    creative_depth_and_product_ambition: PROVEN
+    distinctiveness_escalation: PROVEN
+    concept_compression_and_validation: ACTIVE
+    runtime_commit_binding: ACTIVE
+    public_runtime_live_proof: ACTIVE
+    deterministic_demo: ACTIVE
+    judge_performance_assurance: PENDING
+    pre_launch_ship_assurance: ACTIVE
+    submission_integrity: PENDING
+    final_snapshot_handover: ACTIVE
+
+conditional_gateways:
+  x402: N/A
+  nanopayments: N/A
+  wallets: N/A
+  smart_contracts: N/A
+  app_kit: N/A
+  live_gateway: N/A
+
+bob_boundary:
+  implementation_and_architecture_use: REAL
+  canonical_interpretation_generation: PRESEEDED
+  fresh_live_parallel_replay: NOT_EXECUTED
+  budget_constraint: ACTIVE
+  forbidden_claim: "Do not imply the canonical current interpretations were generated by live Bob parallel agents."
 
 submission:
   status: NOT_EARNED
-known_limitations:
-  - Interpretation objects are PRESEEDED — not produced by live Bob parallel subagents
-  - All Bob capability claims remain INFERRED until a LIVE_BOB session run exists
-  - human_decision for customer_identity was pre-supplied (PRESEEDED), not interactive
-  - classifier_judgment_used=false for all fixture concepts (deterministic exact-match resolver)
-next:
-  - preserve comparative truth boundary: LOCAL/PRESEEDED, no invented time or percentage claims
-  - pursue LIVE_BOB only if additional Bob budget becomes available
-  - package deterministic demo and submission evidence
+  pending:
+    - close public runtime remaining checks
+    - external Real-User / Outsider Break Test or explicitly document why unavailable
+    - Judge Performance Assurance
+    - full Pre-Launch / Ship Assurance
+    - update submission copy to active Semantic CI truth
+    - Bob Task Session Summary evidence
+    - slides_and_cover
+    - final <=3min video with >=90s real product
+    - Submission Integrity Gate
+    - final CURRENT/HANDOVER snapshot
+
+do_not_redo:
+  - technical reality check
+  - baseline-vs-COLLIDER comparative evidence
+  - creative depth and product ambition pass
+  - distinctiveness escalation pass
+  - resolved-path core proof
+  - KEEP_UNKNOWN negative-path proof
+  - MERGE_BLOCKED guard proof
+
+next_exact_actions:
+  - prove separate browser-session isolation
+  - run mobile public-runtime smoke
+  - record runtime-version-to-Git-SHA binding receipt
+  - complete Concept Compression real-user break validation
+  - run Pre-Launch / Ship Assurance checklist on production
+  - run Judge Performance Assurance
