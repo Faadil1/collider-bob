@@ -1,5 +1,5 @@
 project: collider-bob
-handover_version: 5
+handover_version: 6
 date: 2026-09-27
 source_of_truth: state/CURRENT.yaml
 branch: claude/sharp-planck-vfqz40   # never merged to main by an agent
@@ -12,20 +12,21 @@ north_star:
   mechanism: "Independent implementation agents act as specification fuzzers; every future agent change is a new probe."
 
 current_stage:
-  status: ESCALATED_BUILD_PENDING_LIVE_VERIFICATION
+  status: ESCALATED_BUILD_LIVE_THREE_VERDICT_PROVEN
   concept_lock: LOCKED_AFTER_SECOND_CREATIVE_DEPTH_PASS
   demo_lock: NOT_EARNED
   submission_status: NOT_EARNED
 
 what_changed_in_this_handover:
   artifact: product/SEMANTIC-CI-ESCALATION.md
+  public_receipt: evidence/runtime/PUBLIC-THREE-VERDICT-GUARD-2026-09-27.md
   findings_fixed:
     - gate hard-coded customer_identity; now one truth table over collider/concepts.py
-    - guard could only block (unfalsifiable); now three verdicts incl. MERGE_ALLOWED control
-    - shared assumption (money unit) invisible in ACTIVE MODE; now disclosed as INFERRED
+    - guard could only block; now three verdicts incl. MERGE_ALLOWED control
+    - shared assumption money unit invisible; now disclosed as INFERRED
     - memory consequence asserted, not measured; now same-diff counterfactual per probe
     - test suite rewrote committed evidence; now pinned by pytest.ini and temp dirs
-    - no CSP/security headers or live version binding; both shipped
+    - no CSP/security headers or live version binding; both mechanisms shipped
     - container would have crashed on a page-only file; caught by running the real image
   signature_moment: "MONEY_UNIT_DRIFT: 37/37 tests pass, COLLIDER returns DECISION_REQUIRED"
 
@@ -35,15 +36,26 @@ canonical_decisions:
   - Guard probes are fixed, bounded, controlled changes. No judge-supplied diffs.
   - Fresh-agent REPLAY remains NOT_EXECUTED / PENDING_LIVE_BOB.
   - RATIFY is the next North Star step, deliberately not in this build.
-  - The money-unit divergence is a SPEC_GAP finding, not an "integration conflict"; the historical conflict definition is unchanged.
+  - The money-unit divergence is a SPEC_GAP finding, not an "integration conflict"; historical evidence remains unchanged.
 
 public_runtime:
   url: https://collider-semantic-ci.faadil-casecraft.workers.dev/
-  last_live_verified_code_commit: bdfd9d35054ddefe8e48c7e67f525f5d3d55f5e7
-  escalated_build_live: NOT_YET_OBSERVED
-  why: the agent build environment's egress policy denies the workers.dev host; not routed around
+  escalated_build_live: OBSERVED
+  public_receipt: evidence/runtime/PUBLIC-THREE-VERDICT-GUARD-2026-09-27.md
+  observed:
+    - shared money_representation assumption visible as INFERRED
+    - IDENTITY_REVERT -> MERGE_BLOCKED
+    - same diff without memory -> DECISION_REQUIRED
+    - COMPATIBLE_CHANGE -> MERGE_ALLOWED
+    - same diff without memory -> DECISION_REQUIRED
+    - MONEY_UNIT_DRIFT -> DECISION_REQUIRED with tests still green
+    - exact bytes restored after each probe
+    - SEMANTICALLY_READY_AGAIN
+    - regression contract 7/7
+    - proof drawer diffs and restoration hashes visible
   deploy_path: push to claude/sharp-planck-vfqz40 -> Workers Builds -> npx wrangler deploy
   binding_mechanism: x-collider-worker-version on every /api/* response; PROOF -> PROVENANCE shows it
+  exact_commit_binding: PENDING
   rollback: cloudflare/README.md "Rollback / recovery"
 
 gateway_status:
@@ -77,28 +89,32 @@ truth_boundary:
     - PRESEEDED interpretations are LIVE_BOB
     - fresh-agent replay has executed
     - guard probes are agents
-    - the escalated build was verified on the public runtime (until it is)
+    - exact escalated-build Git commit is runtime-bound until x-collider-worker-version is matched
     - measured wall-clock or percentage improvement
   allowed:
     - Bob was genuinely used in implementation/design
-    - the Cloudflare ACTIVE runtime is real (core loop live-verified on bdfd9d3)
-    - the three guard verdicts are real executions (local + real container image)
+    - the escalated Cloudflare ACTIVE runtime is real
+    - all three guard verdicts executed publicly
+    - exact restoration is publicly visible
     - current interpretations are PRESEEDED
 
 blocking_or_pending:
-  - live verification of the escalated build (three verdicts, two sessions, mobile, headers, version id)
-  - external Real-User / Outsider Break Test (a person who did not build it)
+  - live two-browser session isolation
+  - live mobile smoke
+  - live x-collider-worker-version matched to Workers Builds commit
+  - live page-header/CSP confirmation
+  - external Real-User / Outsider Break Test
   - Judge Performance Assurance
   - submission/ copy refresh to the three-verdict truth
   - Bob Task Session Summary evidence
-  - slides/cover and final <=3 min video (demo/DEMO-SCRIPT-ACTIVE.md)
+  - slides/cover and final <=3 min video
   - Submission Integrity
   - final snapshot
 
 next_exact_action: >
-  Open the public URL after Workers Builds deploys the pushed head; in two separate browser sessions
-  run all three future agent changes in one, confirm the other starts at DECISION_REQUIRED, and record
-  the x-collider-worker-version from PROOF -> PROVENANCE with the commit Workers Builds lists for it.
+  Keep the resolved public session open, open a second independent InPrivate session and verify it
+  starts at DECISION_REQUIRED with 2 conflicts; then run a mobile viewport smoke and capture
+  PROOF -> PROVENANCE showing x-collider-worker-version.
 
 do_not_forget:
   - "Functional ≠ finished."
