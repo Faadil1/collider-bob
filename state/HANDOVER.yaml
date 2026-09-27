@@ -81,7 +81,7 @@ public_runtime:
 gateway_status:
   Creative_Depth_Product_Ambition: PROVEN
   Distinctiveness_Escalation: PROVEN
-  Concept_Compression_Validation: ACTIVE
+  Concept_Compression_Validation: ACTIVE  # product/CONCEPT-COMPRESSION-VALIDATION.md; external break test pending
   Truth_Boundary: PROVEN
   Negative_Path: PROVEN
   Evidence_Integrity: ACTIVE
@@ -89,7 +89,7 @@ gateway_status:
   Public_Runtime_Live_Proof: ACTIVE
   Deterministic_Demo: ACTIVE
   Judge_Performance_Assurance: PENDING
-  Pre_Launch_Ship_Assurance: ACTIVE
+  Pre_Launch_Ship_Assurance: ACTIVE  # product/PRE-LAUNCH-SHIP-ASSURANCE.md
   Submission_Integrity: PENDING
   Final_Snapshot_CURRENT_HANDOVER: ACTIVE
   x402: N/A
@@ -126,6 +126,8 @@ blocking_or_pending:
   - runtime-version-to-Git-SHA binding receipt
   - external Real-User / Outsider Break Test
   - production Pre-Launch / Ship Assurance closure
+  - security headers/CSP disposition
+  - rollback/recovery documentation
   - Judge Performance Assurance
   - final submission copy refresh
   - literal Bob Task Session Summary evidence
@@ -139,6 +141,8 @@ next_exact_action:
 
 files_changed_this_reconciliation:
   - product/CREATIVE-DEPTH-AND-DISTINCTIVENESS.md
+  - product/CONCEPT-COMPRESSION-VALIDATION.md
+  - product/PRE-LAUNCH-SHIP-ASSURANCE.md
   - product/GATEWAY-REGISTRY.md
   - state/CURRENT.yaml
   - state/HANDOVER.yaml
