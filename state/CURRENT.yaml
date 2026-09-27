@@ -131,7 +131,6 @@ public_runtime:
   runtime_commit_binding_mechanism: x-collider-worker-version header on every /api/* response (version_metadata binding)
   remaining_before_PROVEN:
     - x-collider-worker-version read live and matched to its Workers Builds commit
-    - two separate browser sessions each start at DECISION_REQUIRED
     - mobile smoke on the public URL
     - live page headers show the demo-ui/_headers CSP
 
@@ -142,6 +141,8 @@ verification:
   browser: 1440x900, 1366x768 (reduced motion), 390x844 mobile; full flow incl. KEEP UNKNOWN and EVIDENCE MODE; zero console/CSP errors; no document overflow
   container_image: real Dockerfile runtime (sandbox CA variant for pip only) ran state, decide, three probes, bad probe 400, KEEP UNKNOWN
   public_guard_video: three verdicts + exact restoration + proof drawer observed
+  public_session_isolation: PROVEN
+  public_session_isolation_receipt: evidence/runtime/PUBLIC-SESSION-ISOLATION-2026-09-27.md
 
 gateway_status:
   "Real Negative Event Gate": PROVEN
@@ -179,7 +180,7 @@ submission:
   status: NOT_EARNED
   demo_lock: NOT_EARNED
   pending:
-    - close remaining public runtime checks (binding, two-session isolation, mobile, live CSP)
+    - close remaining public runtime checks (binding, mobile, live CSP)
     - external Real-User / Outsider Break Test
     - Judge Performance Assurance
     - refresh submission/ copy to the three-verdict Semantic CI truth
@@ -197,6 +198,5 @@ do_not_redo:
   - creative depth passes one and two
 
 next_exact_action: >
-  Keep one resolved public session open. Open a second independent InPrivate session and verify it
-  starts at DECISION_REQUIRED with 2 conflicts. Then run the public page at a mobile viewport and
-  capture PROOF -> PROVENANCE showing x-collider-worker-version so it can be matched to Workers Builds.
+  Run the public page at a mobile viewport and capture PROOF -> PROVENANCE showing
+  x-collider-worker-version so it can be matched to Workers Builds; then confirm live CSP/headers.
