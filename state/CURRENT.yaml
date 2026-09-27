@@ -174,8 +174,11 @@ submission:
   status: FINAL_PACKAGING
   demo_lock: EARNED
   copy_refreshed:
+    - README.md
     - submission/PROBLEM-SOLUTION.md
     - submission/BOB-USAGE.md
+    - demo/DEMO-SCRIPT-ACTIVE.md
+    - evidence/bob-sessions/JUDGE-EVIDENCE-MANIFEST-2026-09-27.md
   pending:
     - slides and cover
     - final <=3 min video from demo/DEMO-SCRIPT-ACTIVE.md
@@ -198,11 +201,10 @@ do_not_redo:
   - repo publication audit
 
 next_exact_action: >
-  Bob-native proof is complete for the current scope: LIVE_BOB ambiguity proof is observed and targeted fresh-agent
-  replay attempt 02 passed a withheld regression contract after attempt 01 failed. Preserve both attempts. Next,
-  package the authentic Bob evidence/screenshots, refresh judge-facing submission copy to reflect the attempt history
-  and targeted-repair truth boundary, then proceed to final slides/cover, <=3 minute video, Submission Integrity Gate,
-  and final snapshot.
+  Bob evidence packaging copy and judge-selection manifest are now refreshed. Preserve the raw Bob transcripts,
+  receipts and all original screenshots. Next archive the selected original screenshot files into the Bob evidence
+  folder without reconstruction, bind their SHA-256 values into the judge manifest, then proceed to final slides/cover,
+  <=3 minute video, Submission Integrity Gate, and final snapshot.
 
 fresh_agent_replay_attempt_02:
   status: REPLAY_PASS
