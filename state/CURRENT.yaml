@@ -1,6 +1,6 @@
 project: collider-bob
 date: 2026-09-27
-stage: UIUX_MERGED_FINAL_PACKAGING
+stage: SUBMISSION_EVIDENCE_SEALED
 branch: main
 
 north_star:
@@ -63,9 +63,11 @@ public_runtime:
   execution_environment: CLOUDFLARE_CONTAINER
   interpretation_source: PRESEEDED
   human_decision_source: INTERACTIVE_WEB
-  runtime_commit_binding_receipt: evidence/runtime/RUNTIME-COMMIT-BINDING-2026-09-27.md
-  bound_worker_version: 364ad4fd-7eb3-4918-aef8-f9ad049ee20a
-  bound_git_commit: e185e84d9d1cf00dfa1700b6bd2439e57887a291
+  runtime_commit_binding_receipt: evidence/runtime/RUNTIME-COMMIT-BINDING-FINAL-2026-09-27.md
+  bound_worker_version: 453a881f-3b9a-4065-b65b-25b3b2ffa369
+  bound_git_commit: 91795b67dc8dfeec51e485ec7cea8ada0bace60c
+  binding_scope: PRODUCT_ASSET_TREE
+  documentation_head_verified: 8e336c8e344d712749b4a886fae349630afc7c4c
   session_isolation: PROVEN
   mobile_smoke: PROVEN
   live_csp_headers: PROVEN
@@ -119,8 +121,8 @@ gateway_status:
   "Deterministic Demo": PROVEN
   "Judge Performance Assurance": PROVEN
   "Pre-Launch / Ship Assurance": PROVEN
-  "Submission Integrity": PENDING
-  "Final Snapshot / CURRENT / HANDOVER": ACTIVE
+  "Submission Integrity": PROVEN
+  "Final Snapshot / CURRENT / HANDOVER": PROVEN
   "x402": N/A
   "Nanopayments": N/A
   "Wallets": N/A
@@ -171,7 +173,7 @@ bob_boundary:
   fresh_live_parallel_replay: PROVEN_ATTEMPT_02_TARGETED_REPAIR_AFTER_ATTEMPT_01_FAIL
 
 submission:
-  status: FINAL_PACKAGING
+  status: SEALED
   demo_lock: EARNED
   copy_refreshed:
     - README.md
@@ -179,15 +181,18 @@ submission:
     - submission/BOB-USAGE.md
     - demo/DEMO-SCRIPT-ACTIVE.md
     - evidence/bob-sessions/JUDGE-EVIDENCE-MANIFEST-2026-09-27.md
-  pending:
-    - verify the merged UI on the public Cloudflare runtime after Workers Build deployment
-    - archive selected Bob screenshots and bind hashes
-    - final cover asset is prepared locally for submission
-    - final screenshot set is prepared locally for submission
-    - slides
-    - final <=3 min video from demo/DEMO-SCRIPT-ACTIVE.md
-    - Submission Integrity Gate
-    - final snapshot
+  evidence_seal:
+    runtime_binding: evidence/runtime/RUNTIME-COMMIT-BINDING-FINAL-2026-09-27.md
+    bob_judge_index: bob_sessions/README.md
+    bob_screenshots_archived: [J1, J2, J3, J4]
+    bob_screenshot_archive_commit: 8e336c8e344d712749b4a886fae349630afc7c4c
+    public_live_product_video: https://youtu.be/hlGGJA5Z_e4
+    technical_judge_story: https://scrimba.com/explain/guide0fr8krhbe?claim=dmn31o0nk830ujs6&fullscreen=1
+    slides: PREPARED_EXTERNAL_ARTIFACT_NOT_REPOSITORY_EVIDENCE
+  pending: []
+  non_blocking_declared_limitations:
+    - no authentic J5/J6 replay screenshot was found in the accessible image pool; machine replay receipts remain canonical and no image was fabricated
+    - outsider break test remains waived and must not be narrated as executed
   truth_boundary:
     - LIVE_BOB claims are allowed only for run live-bob-2026-09-27-01 and its captured provenance
     - fresh-agent replay attempt 01 executed for real and FAILED its withheld regression contract
@@ -205,12 +210,17 @@ do_not_redo:
   - repo publication audit
 
 next_exact_action: >
-  UI/UX redesign is merged to main at 91795b67dc8dfeec51e485ec7cea8ada0bace60c. Cloudflare Workers Builds should
-  deploy the main-branch merge automatically; verify the public origin shows the polished copy (including
-  "Source authority ends here.", "Bob replay evidence", and "field_name") and record the new worker version /
-  commit binding. Submission cover and screenshot assets are prepared locally; after public runtime verification,
-  replace any capture that differs from the deployed build, then finish slides, final <=3 minute video, Submission
-  Integrity Gate, and final snapshot.
+  STOP product and pipeline changes. COLLIDER is frozen after Demo Lock and the evidence seal.
+  Future edits require a concrete judge-discoverability correction, factual evidence correction, or a reopened gate.
+
+submission_integrity:
+  status: PROVEN
+  product_frozen: true
+  runtime_binding: PROVEN_PRODUCT_ASSET_TREE
+  bob_visual_archive: AUTHENTIC_J1_TO_J4
+  replay_machine_evidence: PROVEN_ATTEMPT_01_FAIL_AND_ATTEMPT_02_TARGETED_PASS
+  declared_visual_gap: J5_J6_NOT_ARCHIVED_NO_FABRICATION
+  external_submission_action: HUMAN_CONTROLLED
 
 uiux_final:
   status: MERGED
@@ -222,10 +232,10 @@ uiux_final:
     reduced_motion: PASS
     pytest: "271 passed, 123 subtests passed"
     typecheck: clean
-  deployment: TRIGGERED_BY_MAIN_MERGE_PENDING_PUBLIC_VERIFICATION
+  deployment: PUBLIC_VERIFIED
   submission_assets:
-    cover: PREPARED_LOCAL
-    screenshots: PREPARED_LOCAL
+    cover: PREPARED_EXTERNAL
+    screenshots: PUBLIC_EVIDENCE_ARCHIVE_J1_TO_J4
 
 fresh_agent_replay_attempt_02:
   status: REPLAY_PASS
