@@ -5,6 +5,12 @@
 
 **Live demo:** https://collider-semantic-ci.faadil-casecraft.workers.dev/
 
+**Submitted build snapshot:** `archive/submission-deadline-2026-09-27` at `a909a682f1b033e41b1e1ef312dffbe24005af67`  
+**Verified deployed Worker:** `453a881f-3b9a-4065-b65b-25b3b2ffa369`
+
+> Post-submission repository changes are limited to documentation, evidence clarity,
+> and presentation media. The submitted build is preserved on the archive branch above.
+
 Parallel AI coding agents can all be locally correct and still build incompatible
 assumptions because the specification never made a cross-boundary decision.
 
@@ -294,7 +300,8 @@ cloudflare/     Worker/Container deployment adapter
 | Pre-Launch / Ship Assurance | **PROVEN** |
 | Concept Compression | **PROVEN** with documented outsider-test waiver |
 | Judge Performance Assurance | **PROVEN FOR DEMO LOCK** |
-| Submission Integrity | **PENDING final media/package** |
+| Submission package | **SUBMITTED** — deadline snapshot preserved |
+| Post-submission presentation refresh | **DOCUMENTATION / MEDIA ONLY** |
 | LIVE_BOB ambiguity run | **OBSERVED** — 3 isolated Bob subagents + provenance validation |
 | Fresh-agent replay | **PROVEN (Attempt 02 targeted-repair)** — Attempt 01 failure preserved |
 
