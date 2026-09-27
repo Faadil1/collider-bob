@@ -64,7 +64,7 @@ def send_credit_notice(
     display_amount = format_amount(refund_amount)
     message = (
         f"Your charge {charge_id} has been recovered. "
-        f"A credit of {display_amount} has been applied to your account."
+        f"The requested credit of {display_amount} has been applied to your account."
     )
     return {
         "status": "ok",
