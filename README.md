@@ -117,14 +117,30 @@ Correct abstention is a product behavior, not an error state.
 IBM Bob 2.0 was used directly in the repository as a load-bearing development
 agent during implementation and refinement.
 
-Preserved Bob work shows repository reading, file creation/modification, runtime
-and test work, and continuation across two tasks.
+COLLIDER now also ships as a **project-native Bob capability**, not only as a
+standalone runtime:
 
-The submission intentionally separates **Bob's real development contribution**
-from the provenance of the canonical runtime evidence. See:
+- `.bob/custom_modes.yaml` — **⚛️ COLLIDER Semantic CI** custom mode
+- `.bob/skills/collider-semantic-review/SKILL.md` — reusable semantic-review skill
+- `.bob/rules/collider-truth-boundary.md` — workspace truth/provenance rules
+- `collider/bob_live.py` — rejects fake/relabelled LIVE_BOB inputs and binds real
+  Bob session/task references to interpretation hashes
+- `collider/bob_rules.py` — exports approved COLLIDER decision memory into Bob
+  workspace rules so future Bob agents inherit semantic canon
+
+The native live protocol uses **three isolated Bob subagents** as ambiguity
+probes, validates their independent interpretation artifacts, then lets the same
+COLLIDER pipeline classify, decide, compile, verify, remember, and guard.
+
+The integration mechanism is shipped and tested. A real Bob session is still
+required before a specific interpretation run may be called `LIVE_BOB`; the
+repository deliberately refuses to relabel PRESEEDED evidence.
+
+See:
 
 - `submission/BOB-USAGE.md`
 - `product/BOB-NATIVE-INTEGRATION.md`
+- `evidence/bob-sessions/README.md`
 
 ## Public runtime
 
@@ -180,8 +196,8 @@ npx tsc --noEmit
 Last full recorded verification before submission packaging:
 
 ```text
-249 passed
-117 subtests passed
+255 passed
+123 subtests passed
 TypeScript: clean
 ```
 
