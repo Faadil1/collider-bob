@@ -1,6 +1,6 @@
 project: collider-bob
 date: 2026-09-27
-stage: BOB_NATIVE_LIVE_PROOF_OBSERVED_REPLAY_ATTEMPT_01_FAILED
+stage: BOB_NATIVE_LIVE_PROOF_AND_TARGETED_REPLAY_PROVEN
 branch: main
 
 north_star:
@@ -17,8 +17,8 @@ north_star:
   product_loop: [PROBE, COLLIDE, ADJUDICATE, DECIDE, COMPILE, PATCH, VERIFY, REMEMBER, GUARD]
   future_step:
     name: REPLAY
-    status: ATTEMPT_01_EXECUTED_REPLAY_FAIL
-    boundary: ATTEMPT_02_PENDING
+    status: PROVEN_TARGETED_REPAIR_REPLAY
+    boundary: CLOSED_WITH_ATTEMPT_HISTORY
   artifact: product/SEMANTIC-CI-ESCALATION.md
 
 concept_lock:
@@ -168,7 +168,7 @@ bob_native_integration:
 bob_boundary:
   implementation_and_architecture_use: REAL
   canonical_interpretation_generation: LIVE_BOB_OBSERVED_FOR_RUN_2026_09_27_01
-  fresh_live_parallel_replay: ATTEMPT_01_EXECUTED_REPLAY_FAIL
+  fresh_live_parallel_replay: PROVEN_ATTEMPT_02_TARGETED_REPAIR_AFTER_ATTEMPT_01_FAIL
 
 submission:
   status: FINAL_PACKAGING
@@ -177,14 +177,14 @@ submission:
     - submission/PROBLEM-SOLUTION.md
     - submission/BOB-USAGE.md
   pending:
-    - execute fresh-agent replay attempt 02 in a new physically isolated workspace
     - slides and cover
     - final <=3 min video from demo/DEMO-SCRIPT-ACTIVE.md
     - Submission Integrity Gate
     - final snapshot
   truth_boundary:
     - LIVE_BOB claims are allowed only for run live-bob-2026-09-27-01 and its captured provenance
-    - fresh-agent replay attempt 01 executed for real but FAILED its withheld regression contract; do not claim REPLAY_PASS
+    - fresh-agent replay attempt 01 executed for real and FAILED its withheld regression contract
+    - fresh-agent replay attempt 02 returned REPLAY_PASS under an explicit general minimal-change / preserve-public-interface engineering constraint; narrate it as targeted-repair replay, not an unconstrained replay
     - do not call controlled guard probes agents
     - do not claim unmeasured time or percentage gains
 
@@ -198,12 +198,50 @@ do_not_redo:
   - repo publication audit
 
 next_exact_action: >
-  Preserve fresh-agent replay attempt 01 as immutable REPLAY_FAIL evidence. Fix the replay CLI import bug,
-  then create a brand-new isolated attempt-02 sandbox from commit 8370a82861cd27eb972700f74c916743e3fa578b
-  with the same authoritative INTERACTIVE canon/spec inputs, no repaired implementation, no prior repair.patch,
-  no prior attempt outputs, and a neutral minimal-change / preserve-unrelated-interface instruction. Run a new
-  independent Bob task and evaluate it against a withheld regression contract. Do not promote REPLAY_PASS unless
-  the fresh task derives account_id and the hidden regression contract passes.
+  Bob-native proof is complete for the current scope: LIVE_BOB ambiguity proof is observed and targeted fresh-agent
+  replay attempt 02 passed a withheld regression contract after attempt 01 failed. Preserve both attempts. Next,
+  package the authentic Bob evidence/screenshots, refresh judge-facing submission copy to reflect the attempt history
+  and targeted-repair truth boundary, then proceed to final slides/cover, <=3 minute video, Submission Integrity Gate,
+  and final snapshot.
+
+fresh_agent_replay_attempt_02:
+  status: REPLAY_PASS
+  replay_pass_proven: true
+  attempt_type: TARGETED_REPAIR_REPLAY
+  execution_source: LIVE_BOB_SESSION
+  task_id: 9a6ec967e19713910d16b99184b15307
+  session_ref: bob-task:9a6ec967e19713910d16b99184b15307
+  agent_id: bob-headless-agent:9a6ec967e19713910d16b99184b15307
+  input_base_commit: 8370a82861cd27eb972700f74c916743e3fa578b
+  inputs_sha256: 27d48a346c7801ba2f2d4e18157c2fa1ef36508f07370ca83839fde915a8b1b2
+  emitted_value: account_id
+  semantic_convergence: true
+  prompt_constraint: >-
+    Apply the narrowest change required by the authoritative decision and preserve existing public function
+    signatures and unrelated behavior unless authoritative sources explicitly require a breaking interface change.
+  holdout:
+    result: PASSED
+    passed: 7
+    failed: 0
+    exit_code: 0
+    contract_sha256: df25451d2298d74d22251b92d6ac855b03b377ea4dc85e950c8073caaa15fcae
+  result_hashes:
+    input_bundle: 42ab6d497bb4ca3586e98cf68e222ce2708df9664bbcf0237297f1c79dc6f181
+    bob_transcript: d082a63321aea01c525ad35dba05eb7b8380423996fdc79793850077c67affb4
+    fresh_agent_api_diff: aee0f46a130f1a62b5132105b61153c5d19910415caf5ea7ead4b7119a7dacb8
+    holdout_test: ee09f6debd9f81709cd5af75a47e8b1c6ed9a94b8e82a9b34c00f597199e9c17
+    replay_result: aa10c185b3bee095b8680c7e021953f103226493774147519d2139988e67e056
+    replay_receipt: ed623331edefb259ffc7047a98f3091fd0a0ac0d94566c927c4d4f9da71a12c0
+  bob_runtime:
+    session_costs: 0.20998
+    duration_ms: 25756
+    tool_calls: 8
+  truth_boundary: >-
+    Attempt 02 proves targeted fresh-agent implementation replay under the explicit general engineering constraint
+    to make the narrowest canonical change while preserving unrelated public interfaces. It does not erase Attempt 01,
+    which remains an authentic REPLAY_FAIL. The raw replay request embedded in the receipt contains stale historical
+    scaffold wording about exhausted Bob budget / pending execution; use the observed result/verdict and this canonical
+    evidence record for execution truth.
 
 fresh_agent_replay_attempt_01:
   status: REPLAY_FAIL
@@ -276,7 +314,7 @@ live_bob_observed_run:
     canon loader expects canon/decision-memory.json plus a source marker in the workspace root. The resolved
     pipeline and PR gate do observe zero integration conflicts and MERGE_ALLOWED. Do not narrate the root
     collider_gate itself as SEMANTICALLY_READY until that canon-path mismatch is fixed and re-observed.
-  fresh_agent_replay: ATTEMPT_01_REPLAY_FAIL
+  fresh_agent_replay: PROVEN_ATTEMPT_02_TARGETED_REPAIR
   bobcoin_usage_after_run:
     spent: 6
     budget: 50
