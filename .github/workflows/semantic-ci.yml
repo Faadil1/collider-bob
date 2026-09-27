@@ -35,6 +35,9 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Install conventional test dependency
+        run: python -m pip install --upgrade pytest
+
       - name: Run conventional workstream tests
         id: conventional
         shell: bash
