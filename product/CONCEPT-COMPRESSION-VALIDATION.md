@@ -25,7 +25,7 @@ Current wedge:
 | Proof-in-the-Product | PASS | Active UI exposes gate state, conflicts, compile/repair results, regression contract, decision memory, guard result, restore, and provenance. |
 | Reality Layer | PASS | Real public Cloudflare Worker + per-session Container; real mutations occur in isolated workspaces; errors/abstention/restore are first-class. |
 | Miracle Dependency | PASS WITH BOUNDARY | Core demo does not depend on a fresh model call. Fresh-agent replay remains PENDING_LIVE_BOB and is not required for the wedge. |
-| Outsider / Real-User Break Test | PENDING | Needs one external person to attempt the workflow without coaching. Not waived: the builder and an AI agent are not outsiders. |
+| Outsider / Real-User Break Test | PROVISIONAL_PASS / WAIVED | Not executed. Explicit submission-time waiver recorded in evidence/validation/OUTSIDER-BREAK-TEST-WAIVER-2026-09-27.md; external comprehension remains unmeasured. |
 | Narrative risk (new) | WATCH | The third verdict adds one idea. If the outsider cannot explain DECISION REQUIRED back, cut guard C from the video before cutting anything else. |
 | Narrative Compression | PASS | “When AI agents disagree, COLLIDER finds the decision the specification forgot to make.” |
 | North Star Preservation | PASS | Wedge compression does not collapse the broader Semantic CI / specification-fuzzing vision. |
@@ -81,6 +81,6 @@ Record failure points before polishing the final video.
 
 ## Gate verdict
 
-**ACTIVE — INTERNAL VALIDATION PASSED; EXTERNAL BREAK TEST PENDING**
+**PROVEN WITH EXPLICIT WAIVER — INTERNAL VALIDATION PASSED; OUTSIDER TEST NOT EXECUTED**
 
-The concept is compressed enough for judges without shrinking the North Star. Promotion to fully PROVEN requires the external break test or an explicit documented waiver if no suitable tester is available before the deadline.
+The concept is compressed enough for judges without shrinking the North Star. The allowed waiver path has been exercised and documented in evidence/validation/OUTSIDER-BREAK-TEST-WAIVER-2026-09-27.md. This does not convert the unexecuted outsider test into evidence; it records the residual comprehension risk explicitly.
