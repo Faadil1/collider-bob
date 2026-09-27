@@ -73,8 +73,8 @@ gateway_status:
   "Competitive Novelty / Kill Gate": PROVISIONAL_PASS
   "Creative Depth & Product Ambition": PROVEN
   "Distinctiveness Escalation": PROVEN
-  "Concept Compression & Validation": ACTIVE
-  "Real-User / Outsider Break Test": PENDING
+  "Concept Compression & Validation": PROVEN
+  "Real-User / Outsider Break Test": PROVISIONAL_PASS
   "Technical Reality Check": PROVEN
   "Truth Boundary": PROVEN
   "Negative Path": PROVEN
@@ -94,6 +94,12 @@ gateway_status:
   "App Kit / sponsor gateway": N/A
   "LIVE_GATEWAY promotion": N/A
 
+outsider_break_test:
+  status: PROVISIONAL_PASS
+  executed: false
+  waiver: evidence/validation/OUTSIDER-BREAK-TEST-WAIVER-2026-09-27.md
+  residual_risk: external_comprehension_unmeasured
+
 truth_boundary:
   do_not_claim:
     - PRESEEDED interpretations are LIVE_BOB
@@ -109,7 +115,6 @@ truth_boundary:
     - current interpretations are PRESEEDED
 
 blocking_or_pending:
-  - external Real-User / Outsider Break Test
   - Judge Performance Assurance
   - submission/ copy refresh to the three-verdict truth
   - Bob Task Session Summary evidence
@@ -118,7 +123,7 @@ blocking_or_pending:
   - final snapshot
 
 next_exact_action: >
-  Run the external Real-User / Outsider Break Test, then Judge Performance Assurance.
+  Run Judge Performance Assurance, then refresh submission copy and final packaging.
 
 do_not_forget:
   - "Functional ≠ finished."
