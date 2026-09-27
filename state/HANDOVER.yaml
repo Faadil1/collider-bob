@@ -12,7 +12,7 @@ north_star:
   mechanism: "Independent implementation agents act as specification fuzzers; every future agent change is a new probe."
 
 current_stage:
-  status: PUBLIC_RUNTIME_PROVEN_SHIP_HEADER_CHECK_PENDING
+  status: PUBLIC_RUNTIME_AND_SHIP_ASSURANCE_PROVEN
   concept_lock: LOCKED_AFTER_SECOND_CREATIVE_DEPTH_PASS
   demo_lock: NOT_EARNED
   submission_status: NOT_EARNED
@@ -56,6 +56,8 @@ public_runtime:
   deploy_path: push to claude/sharp-planck-vfqz40 -> Workers Builds -> npx wrangler deploy
   binding_mechanism: x-collider-worker-version on every /api/* response; PROOF -> PROVENANCE shows it
   exact_commit_binding: PROVEN
+  live_csp_headers: PROVEN
+  live_csp_headers_receipt: evidence/runtime/LIVE-CSP-HEADERS-2026-09-27.md
   runtime_commit_binding_receipt: evidence/runtime/RUNTIME-COMMIT-BINDING-2026-09-27.md
   bound_worker_version: 364ad4fd-7eb3-4918-aef8-f9ad049ee20a
   bound_git_commit: e185e84d9d1cf00dfa1700b6bd2439e57887a291
@@ -82,7 +84,7 @@ gateway_status:
   "Public Runtime / Live Proof": PROVEN
   "Deterministic Demo": PROVEN
   "Judge Performance Assurance": PENDING
-  "Pre-Launch / Ship Assurance": ACTIVE
+  "Pre-Launch / Ship Assurance": PROVEN
   "Submission Integrity": PENDING
   "Final Snapshot / CURRENT / HANDOVER": ACTIVE
   "x402": N/A
@@ -107,7 +109,6 @@ truth_boundary:
     - current interpretations are PRESEEDED
 
 blocking_or_pending:
-  - live page-header/CSP confirmation
   - external Real-User / Outsider Break Test
   - Judge Performance Assurance
   - submission/ copy refresh to the three-verdict truth
@@ -117,7 +118,7 @@ blocking_or_pending:
   - final snapshot
 
 next_exact_action: >
-  Confirm live page response headers/CSP match demo-ui/_headers; then run the Outsider Break Test and Judge Performance Assurance.
+  Run the external Real-User / Outsider Break Test, then Judge Performance Assurance.
 
 do_not_forget:
   - "Functional ≠ finished."
