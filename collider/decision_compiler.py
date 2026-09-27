@@ -345,6 +345,65 @@ def compile_decision(
     source_before = tracked_files(source_root)
     gate_before = gate_mod.evaluate_gate(source_root)
 
+    # PRESEEDED compilation still requires the committed tree to expose the
+    # unresolved gap. LIVE_BOB may discover a gap through independent agent
+    # interpretations even when the current tree alone cannot express it.
+    source_gap = next(
+        (
+            f for f in gate_before["findings"]
+            if f["kind"] == "SPEC_GAP" and f["concept"] == concept
+        ),
+        None,
+    )
+    if interpretation_source == "PRESEEDED" and source_gap is None:
+        raise RuntimeError(
+            f"REFUSE: no unresolved SPEC_GAP for {concept!r} in {source_root}; "
+            f"gate verdict is {gate_before['verdict']}"
+        )
+
+    # Validate the selected interpretation bundle and the proposed human value
+    # BEFORE creating a workspace. Invalid decisions must leave no side effects.
+    selected_interpretation_dir = (
+        Path(interpretation_dir).resolve()
+        if interpretation_dir is not None
+        else source_root / INTERPRETATIONS_RELDIR
+    )
+    interpretations = [
+        json.loads((selected_interpretation_dir / f"{ws}.json").read_text())
+        for ws in ("api", "ledger", "notifications")
+    ]
+
+    groups_for_decision = reconcile(interpretations)
+    if concept not in groups_for_decision:
+        raise RuntimeError(
+            f"REFUSE: selected interpretations do not contain {concept!r}"
+        )
+
+    bundle_gap = classify_concept(
+        concept,
+        groups_for_decision[concept],
+        source_before["spec"],
+    )
+    if bundle_gap.get("classification") != "SPEC_GAP":
+        raise RuntimeError(
+            f"REFUSE: selected interpretations do not expose an unresolved "
+            f"SPEC_GAP for {concept!r}; got {bundle_gap.get('classification')!r}"
+        )
+
+    gap = {
+        "question": (
+            bundle_gap.get("minimal_question")
+            or (source_gap or {}).get("question")
+        ),
+        "candidates": bundle_gap.get("workstream_values", {}),
+    }
+    candidates = sorted(set(gap["candidates"].values()))
+    if canonical_value not in candidates:
+        raise ValueError(
+            f"REFUSE: {canonical_value!r} is not an observed candidate for "
+            f"{concept!r}; candidates: {candidates}"
+        )
+
     # --- COMPILE: workspace + interpretation provenance ----------------------
     materialize_workspace(source_root, workspace)
     ws_before = tracked_files(workspace)
@@ -352,53 +411,11 @@ def compile_decision(
 
     interp_dir = workspace / INTERPRETATIONS_RELDIR
     if interpretation_dir is not None:
-        supplied_dir = Path(interpretation_dir).resolve()
         for ws in ("api", "ledger", "notifications"):
-            shutil.copyfile(supplied_dir / f"{ws}.json", interp_dir / f"{ws}.json")
-
-    interpretations = [
-        json.loads((interp_dir / f"{ws}.json").read_text())
-        for ws in ("api", "ledger", "notifications")
-    ]
-
-    if interpretation_source == "LIVE_BOB":
-        groups_for_decision = reconcile(interpretations)
-        if concept not in groups_for_decision:
-            raise RuntimeError(
-                f"REFUSE: LIVE_BOB interpretations do not contain {concept!r}"
+            shutil.copyfile(
+                selected_interpretation_dir / f"{ws}.json",
+                interp_dir / f"{ws}.json",
             )
-        live_gap = classify_concept(
-            concept,
-            groups_for_decision[concept],
-            source_before["spec"],
-        )
-        if live_gap.get("classification") != "SPEC_GAP":
-            raise RuntimeError(
-                f"REFUSE: LIVE_BOB interpretations do not expose an unresolved "
-                f"SPEC_GAP for {concept!r}; got {live_gap.get('classification')!r}"
-            )
-        gap = {
-            "question": live_gap.get("minimal_question"),
-            "candidates": live_gap.get("workstream_values", {}),
-        }
-    else:
-        gap = next(
-            (f for f in gate_before["findings"]
-             if f["kind"] == "SPEC_GAP" and f["concept"] == concept),
-            None,
-        )
-        if gap is None:
-            raise RuntimeError(
-                f"REFUSE: no unresolved SPEC_GAP for {concept!r} in {source_root}; "
-                f"gate verdict is {gate_before['verdict']}"
-            )
-
-    candidates = sorted(set(gap["candidates"].values()))
-    if canonical_value not in candidates:
-        raise ValueError(
-            f"REFUSE: {canonical_value!r} is not an observed candidate for "
-            f"{concept!r}; candidates: {candidates}"
-        )
 
     impact = route_impact(concept, canonical_value, interpretations)
     affected = sorted(
