@@ -135,6 +135,30 @@ flowchart TB
 
 The public runtime uses one isolated container per browser session. Guard probes restore the previous verified workspace after each controlled change.
 
+## What judges can test
+
+The hosted demo is intentionally deterministic: its `/api/guard` surface exposes three fixed, reproducible probes:
+
+- `IDENTITY_REVERT`
+- `COMPATIBLE_CHANGE`
+- `MONEY_UNIT_DRIFT`
+
+Those three buttons are **not the limit of the Semantic CI engine**. The repository also ships a real pull-request gate in `.github/workflows/semantic-ci.yml`. It compares the actual base and head revisions of a PR, detects which registered semantic concepts changed, and returns one of the same three verdicts:
+
+- `MERGE_ALLOWED`
+- `MERGE_BLOCKED`
+- `DECISION_REQUIRED`
+
+So a technical reviewer can clone the repository or open a PR and make their **own code change**. COLLIDER will evaluate that change when it affects a registered semantic concept rather than replaying one of the three hosted-demo edits.
+
+The current concept registry in `collider/concepts.py` covers:
+
+- `field_name`
+- `customer_identity`
+- `money_representation`
+
+The hosted demo is therefore a bounded, reproducible judge surface; the GitHub PR gate is the extensible testing surface for additional changes across those registered concepts.
+
 ## Try it
 
 **Live:** [collider-semantic-ci.faadil-casecraft.workers.dev](https://collider-semantic-ci.faadil-casecraft.workers.dev/)
