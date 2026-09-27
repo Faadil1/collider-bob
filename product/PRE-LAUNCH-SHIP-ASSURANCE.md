@@ -23,7 +23,7 @@ This gate applies to the real production runtime. Repository correctness alone i
 | Legal & Privacy | N/A / REVIEWED | No accounts, no intended PII; opaque random session id only. No compliance claim. |
 | HTTPS | PROVEN LIVE | Served over HTTPS by Cloudflare. |
 | Secrets | PROVEN FOR REPO | No application secret; tests assert none in wrangler.jsonc or the frontend. |
-| Session safety | PROVEN IN CODE / RUNTIME PARTIAL | 256-bit opaque id, HttpOnly/Secure/SameSite=Lax, malformed or duplicate cookie replaced, container name hashed at the Worker. Live two-session isolation still to observe. |
+| Session safety | PROVEN LIVE | 256-bit opaque id, HttpOnly/Secure/SameSite=Lax, malformed or duplicate cookie replaced, container name hashed at the Worker; a fresh InPrivate context started independently at DECISION_REQUIRED instead of inheriting the resolved normal-browser session. |
 | Request boundary | PROVEN IN CODE | Four allow-listed routes, 4 KiB bodies, only content-type/accept forwarded, probe id is an enum. |
 | Container network | PROVEN IN CONFIG | `enableInternet = false`. |
 | Security headers / CSP | PROVEN LOCALLY | demo-ui/_headers: strict same-origin CSP and hardening headers; browser runs at three viewports had zero CSP violations. Live header read still pending. |
@@ -44,10 +44,10 @@ This gate applies to the real production runtime. Repository correctness alone i
 | Critical resolved path | PROVEN LIVE | DECISION_REQUIRED → USE account_id → 2→0 → SEMANTICALLY_READY. |
 | Negative path | PROVEN LIVE + LOCAL | KEEP UNKNOWN previously observed live; current escalated guard now also proves harmless change → MERGE_ALLOWED. |
 | Second act | PROVEN LIVE | Public runtime visibly executed MERGE_BLOCKED / MERGE_ALLOWED / DECISION_REQUIRED with exact restore after each probe. Receipt: evidence/runtime/PUBLIC-THREE-VERDICT-GUARD-2026-09-27.md. |
-| Session isolation | PROVEN IN CODE | Live two-browser proof still pending. |
+| Session isolation | PROVEN LIVE | Normal browser session and fresh InPrivate context remained independent. Receipt: evidence/runtime/PUBLIC-SESSION-ISOLATION-2026-09-27.md. |
 | Runtime / commit binding | MECHANISM SHIPPED | `x-collider-worker-version` on every API response, shown in PROOF → PROVENANCE. Live value still must be matched to Workers Builds commit. |
 | Rollback / deployment recovery | DOCUMENTED | cloudflare/README.md §Rollback / recovery. Not rehearsed. |
-| Proof capture | PARTIAL_PASS | Public desktop capture now includes all three guard verdicts, restore, code diffs and hashes. Mobile/isolation/version/header receipts remain. |
+| Proof capture | PARTIAL_PASS | Public desktop capture includes all three guard verdicts, restore, code diffs/hashes, plus separate-session isolation. Mobile/version/header receipts remain. |
 
 ## Public escalated-build observation
 
@@ -67,9 +67,8 @@ The production recording showed:
 ## Ship blockers
 
 1. Read `x-collider-worker-version` live and match it to the Workers Builds commit.
-2. Two separate browser sessions must independently show the expected session state.
-3. Mobile smoke on the public URL.
-4. Read live page headers and confirm the CSP from demo-ui/_headers is served.
+2. Mobile smoke on the public URL.
+3. Read live page headers and confirm the CSP from demo-ui/_headers is served.
 
 ## Gate verdict
 
