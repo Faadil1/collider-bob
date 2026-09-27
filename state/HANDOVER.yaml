@@ -58,6 +58,9 @@ public_runtime:
   exact_commit_binding: PENDING
   session_isolation: PROVEN
   session_isolation_receipt: evidence/runtime/PUBLIC-SESSION-ISOLATION-2026-09-27.md
+  mobile_smoke: PROVEN
+  mobile_receipt: evidence/runtime/PUBLIC-MOBILE-PROVENANCE-2026-09-27.md
+  live_worker_version_observed: 364ad4fd-7eb3-4918-aef8-f9ad049ee20a
   rollback: cloudflare/README.md "Rollback / recovery"
 
 gateway_status:
@@ -102,7 +105,6 @@ truth_boundary:
 
 blocking_or_pending:
   - live two-browser session isolation
-  - live mobile smoke
   - live x-collider-worker-version matched to Workers Builds commit
   - live page-header/CSP confirmation
   - external Real-User / Outsider Break Test
@@ -114,8 +116,7 @@ blocking_or_pending:
   - final snapshot
 
 next_exact_action: >
-  Run a mobile viewport smoke on the public URL and capture PROOF -> PROVENANCE showing
-  x-collider-worker-version; then confirm live CSP/headers and match the version to Workers Builds.
+  Match Worker version 364ad4fd-7eb3-4918-aef8-f9ad049ee20a to the Workers Builds commit, then confirm live CSP/headers.
 
 do_not_forget:
   - "Functional ≠ finished."
