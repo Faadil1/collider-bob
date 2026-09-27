@@ -1,16 +1,53 @@
 # Rubric Map — IBM Bob 2.0 Hackathon
 
-## Application of Technology
-Bob's parallel subagents, Plan/Agent workflow, repository understanding, and document understanding must be load-bearing.
+Canonical judge assurance: `product/JUDGE-PERFORMANCE-ASSURANCE.md`
 
-Evidence required: Bob session evidence; multiple independent workstreams; source-grounded disagreement classification; targeted repair after canon patch.
+## Application of Technology
+
+What to show:
+- Bob worked directly in the repository as a development agent.
+- Bob session evidence demonstrates real file/runtime/test work.
+- COLLIDER turns parallel-agent disagreement into a semantic-specification signal.
+- The finished public product actively compiles decisions and guards future changes.
+
+Truth boundary:
+- canonical interpretations are PRESEEDED, not LIVE_BOB;
+- guard probes are controlled changes, not agents;
+- fresh-agent replay is NOT_EXECUTED / PENDING_LIVE_BOB.
 
 ## Presentation
-Memorable sequence: independent plausible interpretations → local work appears valid → COLLIDER identifies AGENT_DRIFT or SPEC_GAP → one targeted clarification → only affected workstreams rerun.
+
+Judge memory sentence:
+
+> **When AI agents disagree, COLLIDER finds the decision the specification forgot to make.**
+
+Core sequence:
+
+`green locally → 2 conflicts → AGENT_DRIFT vs SPEC_GAP → one decision → 2→0 → memory → three future verdicts`
+
+Signature moment:
+
+> **37/37 tests pass. COLLIDER returns DECISION_REQUIRED.**
 
 ## Business Value
-Never invent percentages. Measure human clarifications, rework cycles, workstreams rerun, time to integration-ready, contradictions caught before integration.
+
+Demonstrate mechanisms, not invented ROI:
+
+- semantic mismatch caught before silent propagation;
+- one bounded clarification instead of broad rework;
+- only affected implementation repaired;
+- resolved decisions become executable memory;
+- compatible changes are allowed rather than blanket-blocked.
+
+Do not claim unmeasured percentages or time savings.
 
 ## Originality
-Do not claim invention of semantic merge, shared memory, contracts, or two-phase commit.
-Differentiator: independent agent interpretations are used as experimental probes for missing specification decisions, followed by source-aware classification and targeted repair.
+
+Do not claim invention of semantic merge, shared memory, contracts, or multi-agent review.
+
+Differentiator:
+
+`interpretation variation → implementation divergence → source-aware truth test → missing decision → executable decision memory → future semantic CI verdict`
+
+The judge-facing distinction is the third verdict:
+**DECISION_REQUIRED even when ordinary tests remain green.**
