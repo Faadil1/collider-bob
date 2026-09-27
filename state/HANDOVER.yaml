@@ -1,5 +1,5 @@
 project: collider-bob
-handover_version: 12
+handover_version: 13
 date: 2026-09-27
 source_of_truth: state/CURRENT.yaml
 branch: main
@@ -11,7 +11,7 @@ north_star:
   signature_moment: "37/37 tests pass; COLLIDER returns DECISION_REQUIRED."
 
 current_stage:
-  status: BOB_NATIVE_LIVE_PROOF_AND_TARGETED_REPLAY_PROVEN
+  status: PRE_FINAL_UIUX_REDESIGN_WITH_CLAUDE
   concept_lock: LOCKED_AFTER_SECOND_CREATIVE_DEPTH_PASS
   demo_lock: EARNED
   submission_status: FINAL_PACKAGING
@@ -132,15 +132,19 @@ bob_native_integration:
   live_session_execution: OBSERVED
 
 blocking_or_pending:
+  - Claude UI/UX redesign pass on demo-ui
+  - post-redesign visual/responsive/reduced-motion validation
+  - archive selected Bob screenshots + hashes after UI lock
   - final slides and cover
   - final <=3 minute video
   - Submission Integrity
   - final snapshot
 
 next_exact_action: >
-  Judge-facing Bob copy and evidence-selection manifest are refreshed. Keep all raw screenshots/transcripts/receipts.
-  Archive the selected original screenshots without reconstruction, add exact filenames and hashes to the manifest,
-  then finish slides/cover, <=3 minute video, Submission Integrity, and final snapshot.
+  Execute the pre-final Claude UI/UX redesign using product/CLAUDE-UIUX-HANDOFF-2026-09-27.md. Do not reopen product
+  semantics or Bob proof. Improve only the judge-facing visual system and interaction presentation, then rerun
+  visual/responsive/reduced-motion checks. Only after the UI is locked should screenshot archival, slides, cover and
+  final video packaging proceed.
 
 fresh_agent_replay_attempt_02:
   status: REPLAY_PASS
