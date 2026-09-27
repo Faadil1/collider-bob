@@ -91,13 +91,21 @@ SOURCE SILENT + AGENTS AGREE
 → INFERRED, never fact
 ```
 
-The canonical interpretation objects are **PRESEEDED**. They are not claimed as
-live Bob-generated outputs.
+The comparative fixture interpretation objects remain **PRESEEDED** and are never
+relabeled as live Bob output.
 
-The future-change probes are controlled edits, not autonomous agents.
+Separately, a real Bob run (`live-bob-2026-09-27-01`) executed three isolated
+Bob subagents, passed LIVE_BOB provenance validation, surfaced
+`customer_identity` as `SPEC_GAP / UNKNOWN`, and stopped for an interactive
+human decision. The decision was then compiled into Bob decision memory.
 
-Fresh-agent replay exists as a contract, but is
-**NOT_EXECUTED / PENDING_LIVE_BOB**.
+Fresh-agent replay was also executed for real. Attempt 01 correctly converged on
+`account_id` but failed a withheld compatibility contract (5/7). Attempt 02 ran
+from a new isolated sandbox with a general minimal-change / preserve-public-interface
+constraint and passed the same withheld contract **7/7**, producing
+`REPLAY_PASS`.
+
+The future-change guard probes remain controlled edits, not autonomous agents.
 
 ## KEEP UNKNOWN is a valid result
 
@@ -137,9 +145,16 @@ The native live protocol uses **three isolated Bob subagents** as ambiguity
 probes, validates their independent interpretation artifacts, then lets the same
 COLLIDER pipeline classify, decide, compile, verify, remember, and guard.
 
-The integration mechanism is shipped and tested. A real Bob session is still
-required before a specific interpretation run may be called `LIVE_BOB`; the
-repository deliberately refuses to relabel PRESEEDED evidence.
+The integration mechanism is shipped, tested, and now exercised by a real Bob
+session. The observed live run used three isolated Bob subagents, quarantined the
+pre-existing decision-memory rule during ambiguity probing, restored it
+byte-for-byte before classification, validated session/task provenance, and
+stopped on the unresolved human decision instead of auto-resolving it.
+
+A later fresh-agent replay then proved targeted reuse of that decision memory:
+Attempt 01 failed the hidden compatibility contract; Attempt 02 passed it 7/7
+after adding only a general minimal-change / preserve-public-interface engineering
+constraint. Both attempts are preserved as evidence.
 
 See:
 
@@ -226,7 +241,7 @@ npx tsc --noEmit
 Last full recorded verification before submission packaging:
 
 ```text
-267 passed
+271 passed
 123 subtests passed
 TypeScript: clean
 ```
@@ -246,6 +261,10 @@ Key receipts:
 - `evidence/runtime/PUBLIC-MOBILE-PROVENANCE-2026-09-27.md`
 - `evidence/runtime/RUNTIME-COMMIT-BINDING-2026-09-27.md`
 - `evidence/runtime/LIVE-CSP-HEADERS-2026-09-27.md`
+- `evidence/bob-sessions/LIVE-BOB-2026-09-27-01.md`
+- `evidence/bob-sessions/FRESH-REPLAY-ATTEMPT-01-2026-09-27.md`
+- `evidence/bob-sessions/FRESH-REPLAY-ATTEMPT-02-2026-09-27.md`
+- `evidence/bob-sessions/JUDGE-EVIDENCE-MANIFEST-2026-09-27.md`
 
 ## Repository map
 
@@ -276,7 +295,8 @@ cloudflare/     Worker/Container deployment adapter
 | Concept Compression | **PROVEN** with documented outsider-test waiver |
 | Judge Performance Assurance | **PROVEN FOR DEMO LOCK** |
 | Submission Integrity | **PENDING final media/package** |
-| LIVE_BOB canonical interpretations | **NOT CLAIMED** |
+| LIVE_BOB ambiguity run | **OBSERVED** — 3 isolated Bob subagents + provenance validation |
+| Fresh-agent replay | **PROVEN (Attempt 02 targeted-repair)** — Attempt 01 failure preserved |
 
 Canonical status: `product/GATEWAY-REGISTRY.md`
 

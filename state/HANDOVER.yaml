@@ -1,5 +1,5 @@
 project: collider-bob
-handover_version: 11
+handover_version: 12
 date: 2026-09-27
 source_of_truth: state/CURRENT.yaml
 branch: main
@@ -102,7 +102,7 @@ outsider_break_test:
 truth_boundary:
   do_not_claim:
     - PRESEEDED interpretations are LIVE_BOB
-    - targeted fresh-agent replay attempt 02 passed under a general minimal-change / preserve-public-interface constraint; do not narrate it as an unconstrained first-try replay
+    - targeted fresh-agent replay attempt 02 as an unconstrained first-try replay
     - guard probes are autonomous agents
     - unmeasured time or percentage productivity gains
     - outsider test was executed
@@ -138,10 +138,9 @@ blocking_or_pending:
   - final snapshot
 
 next_exact_action: >
-  Preserve both replay attempts and package the authentic Bob proof. Refresh judge-facing copy so it says Attempt 01
-  failed the hidden compatibility contract, while Attempt 02 passed after adding a general minimal-change /
-  preserve-public-interface engineering constraint. Then finish slides/cover, <=3 minute video, Submission Integrity,
-  and final snapshot.
+  Judge-facing Bob copy and evidence-selection manifest are refreshed. Keep all raw screenshots/transcripts/receipts.
+  Archive the selected original screenshots without reconstruction, add exact filenames and hashes to the manifest,
+  then finish slides/cover, <=3 minute video, Submission Integrity, and final snapshot.
 
 fresh_agent_replay_attempt_02:
   status: REPLAY_PASS
