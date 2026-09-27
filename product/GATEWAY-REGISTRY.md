@@ -25,7 +25,7 @@ Every registered gateway receives an explicit status. Nothing is silently forgot
 | Public Runtime / Live Proof | PROVEN | Three-verdict guard, separate-session isolation, real-iPhone mobile smoke, and exact runtime↔commit binding are proven by evidence/runtime/ receipts. CSP/header confirmation remains a Ship Assurance item, not a runtime-truth blocker. |
 | Deterministic Demo | PROVEN | Public desktop and real-iPhone runs reproduce the three guard verdicts, exact restoration, Evidence/Active modes, and isolated sessions; runtime binding is proven. |
 | Judge Performance Assurance | PENDING | Run after remaining public-runtime checks, before video lock. |
-| Pre-Launch / Ship Assurance | ACTIVE | product/PRE-LAUNCH-SHIP-ASSURANCE.md — public runtime, mobile, isolation, and runtime binding are proven. Final ship blocker: confirm the live page response headers/CSP match demo-ui/_headers. |
+| Pre-Launch / Ship Assurance | PROVEN | product/PRE-LAUNCH-SHIP-ASSURANCE.md + evidence/runtime/LIVE-CSP-HEADERS-2026-09-27.md — public runtime, mobile, isolation, runtime binding, rollback documentation, and live CSP/security headers are proven or explicitly bounded. |
 | Submission Integrity | PENDING | submission/ copy predates the active loop and third verdict; refresh to proven truth boundary. |
 | Final Snapshot / CURRENT / HANDOVER | ACTIVE | state/CURRENT.yaml and state/HANDOVER.yaml updated through the public three-verdict proof; final snapshot after remaining gates. |
 | x402 | N/A | No payment rail in the product. |
