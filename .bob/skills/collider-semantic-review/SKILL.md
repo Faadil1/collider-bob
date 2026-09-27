@@ -37,8 +37,13 @@ Follow `LIVE-RUN-PROTOCOL.md` exactly.
 
 For the canonical failed-payment scenario:
 
-1. Read `fixtures/failed-payment/BRIEF.md`.
-2. Spawn three independent **general** Bob subagents in parallel:
+1. Briefly switch to Bob **Plan** mode and produce only a workstream-decomposition
+   artifact at `.collider/bob-live/<run-id>/plan.md`. Plan may define scopes,
+   inputs and isolation boundaries, but must not choose ambiguous semantic
+   values. Return to `collider-semantic-ci` mode after the plan is accepted.
+
+2. Read `fixtures/failed-payment/BRIEF.md`.
+3. Spawn three independent **general** Bob subagents in parallel:
    - API
    - Ledger
    - Notifications
@@ -46,20 +51,20 @@ For the canonical failed-payment scenario:
    Keep `fork_context: false` for all three. Their isolated context windows are
    the ambiguity-probe mechanism, not a token-saving convenience.
 
-3. Give each subagent the same authoritative brief plus only the files for its
+4. Give each subagent the same authoritative brief plus only the files for its
    assigned workstream. Do not reveal sibling interpretations, summaries, or
    chosen values until all three have returned.
-4. Require each subagent to return one JSON interpretation object following
+5. Require each subagent to return one JSON interpretation object following
    `INTERPRETATION-TEMPLATE.json` and
    `schemas/interpretation.schema.json`.
-5. In the parent Bob session, save the three returned objects to:
+6. In the parent Bob session, save the three returned objects to:
    `.collider/bob-live/<run-id>/interpretations/{api,ledger,notifications}.json`
-6. Ensure each object records:
+7. Ensure each object records:
    - `generation_mode: LIVE_BOB`
    - the same real `session_ref`
    - a real `task_summary_ref`
    - a unique `agent_id`
-7. Validate before COLLIDER is allowed to consume them. Prefer the native MCP
+8. Validate before COLLIDER is allowed to consume them. Prefer the native MCP
    tool `collider_validate_live_bob`. For a terminal receipt, run:
 
    ```bash
@@ -69,7 +74,7 @@ For the canonical failed-payment scenario:
      --receipt .collider/bob-live/<run-id>/bob-live-input.json
    ```
 
-8. Run COLLIDER against the live Bob interpretations, first without a human
+9. Run COLLIDER against the live Bob interpretations, first without a human
    decision:
 
    ```bash
@@ -82,15 +87,30 @@ For the canonical failed-payment scenario:
      --bob-session-ref "<real-bob-session-ref>"
    ```
 
-9. If COLLIDER returns a SPEC_GAP, ask the human exactly the minimal question.
+10. If COLLIDER returns a SPEC_GAP, ask the human exactly the minimal question.
    Do not choose for them.
 
-10. After the human answers, rerun to a new immutable transient run directory
-    with `--human-decision ... --human-decision-source INTERACTIVE`.
+11. After the human answers, compile that decision **from the same validated
+    LIVE_BOB interpretation bundle**. Do not fall back to PRESEEDED fixtures:
 
-11. When decision memory exists in the compiled workspace, export it into Bob
-    workspace rules. Prefer the approval-gated MCP tool
-    `collider_export_decision_rule`; CLI equivalent:
+    ```bash
+    python3 -m collider.decision_compiler \
+      --concept customer_identity \
+      --value "<human-answer>" \
+      --decision-id <run-id>-decision \
+      --human-decision-source INTERACTIVE_BOB \
+      --interpretation-source LIVE_BOB \
+      --interpretation-dir .collider/bob-live/<run-id>/interpretations \
+      --bob-session-ref "<real-bob-session-ref>" \
+      --out-dir .collider/bob-live/<run-id>/decision \
+      --workspace .collider/bob-live/<run-id>/workspace
+    ```
+
+    The compiler must persist the validated LIVE_BOB bundle hash into decision
+    memory and the decision receipt.
+
+12. Export the compiled decision memory into Bob workspace rules. Prefer the
+    approval-gated MCP tool `collider_export_decision_rule`; CLI equivalent:
 
     ```bash
     python3 -m collider.bob_rules \
@@ -98,15 +118,15 @@ For the canonical failed-payment scenario:
       --output .bob/rules/collider-decision-memory.md
     ```
 
-12. Run the COLLIDER guard. Show the three possible outcomes:
+13. Run the COLLIDER guard. Show the three possible outcomes:
     `MERGE_ALLOWED`, `MERGE_BLOCKED`, `DECISION_REQUIRED`.
 
-13. For fresh-agent proof, start a new independent Bob `general` subagent with
+14. For fresh-agent proof, start a new independent Bob `general` subagent with
     repaired implementation withheld. Evaluate its real result with
     `collider_evaluate_replay`. Never infer replay success from the original
     session.
 
-14. Let the Bob `Stop` lifecycle hook write the final session/gate receipt.
+15. Let the Bob `Stop` lifecycle hook write the final session/gate receipt.
     This receipt proves session lifecycle + semantic state only; the subagent
     interpretation bundle remains the source for LIVE_BOB provenance.
 
