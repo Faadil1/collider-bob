@@ -1,6 +1,6 @@
 project: collider-bob
 date: 2026-09-27
-stage: PUBLIC_RUNTIME_AND_SHIP_ASSURANCE_PROVEN
+stage: DEMO_LOCK_EARNED_FINAL_PACKAGING
 branch: claude/sharp-planck-vfqz40
 
 north_star:
@@ -13,33 +13,22 @@ north_star:
     Independent implementation agents are ambiguity probes. COLLIDER separates source-grounded
     agent drift from true specification gaps, asks the minimum human clarification, compiles the
     decision into executable artifacts, and judges every future change against decision memory
-    with three verdicts: MERGE_ALLOWED, MERGE_BLOCKED, DECISION_REQUIRED. Every future agent
-    change is a new ambiguity probe, so specification fuzzing continues after the first repair.
+    with three verdicts: MERGE_ALLOWED, MERGE_BLOCKED, DECISION_REQUIRED.
   product_loop: [PROBE, COLLIDE, ADJUDICATE, DECIDE, COMPILE, PATCH, VERIFY, REMEMBER, GUARD]
   future_step:
     name: REPLAY
     status: NOT_EXECUTED
     boundary: PENDING_LIVE_BOB
-  north_star_not_built:
-    - RATIFY a disclosed assumption into canon (money unit then flips DECISION_REQUIRED -> MERGE_BLOCKED)
-    - decision interaction graph and conflicting-canon detection
-    - COLLIDER as a required PR status check; decision memory as a portable semantic lockfile
-    - pre-implementation fuzzing and fresh-agent replay with live independent agents
-    - concept extraction beyond declared constants
   artifact: product/SEMANTIC-CI-ESCALATION.md
 
 concept_lock:
   status: LOCKED_AFTER_SECOND_CREATIVE_DEPTH_PASS
   wedge: failed-payment cross-boundary identity ambiguity
   signature_moment: "MONEY_UNIT_DRIFT: 37/37 tests pass, COLLIDER returns DECISION_REQUIRED"
-  category_not_reduced_to_wedge: true
 
 truth_boundary:
   labels: [OBSERVED, INFERRED, UNKNOWN, AGENT_DRIFT, SPEC_GAP]
   missing_evidence_policy: UNKNOWN
-  agreement_without_authority:
-    BLOCK: customer_identity (question raised in baseline-001; closed only by canon)
-    DISCLOSE: money_representation (INFERRED, non-blocking, never upgraded)
   rules:
     - consensus_does_not_upgrade_inference_to_truth
     - PRESEEDED_interpretations_must_never_be_narrated_as_LIVE_BOB
@@ -47,53 +36,17 @@ truth_boundary:
     - guard_probes_are_controlled_changes_not_agents
     - concepts_are_observed_from_declared_constants_and_signatures
 
-comparative_evidence:
-  status: PROVEN
-  baseline:
-    run_id: baseline-001
-    runtime_input_commit: 45fd342c6322178ee505456d2b95d301744d198f
-    evidence_commit: 27676adbb0cd2df6702d3cf6cb07f26a6d08d779
-    local_tests_passed: 30
-    integration_conflicts: 2
-    integration_status: INTEGRATION_BLOCKED
-  collider:
-    run_id: local-resolved-004
-    runtime_input_commit: 289415b06f69a9ea346606c07c4cb388f127c1bf
-    spec_gaps_detected: 1
-    agent_drifts_detected: 1
-    targeted_repairs: 2
-    integration_conflicts_after_repairs: 0
-    integration_status: INTEGRATION_READY
-  fairness:
-    starting_workstream_artifacts_byte_identical: true
-  receipts:
-    - evidence/comparisons/baseline-001-vs-local-resolved-004.json
-    - evidence/comparisons/baseline-001-vs-local-resolved-004.md
-  boundary:
-    execution: LOCAL
-    interpretations: PRESEEDED
-    human_decision: PRESEEDED
-    live_bob: PENDING
-    wall_clock_improvement: NOT_MEASURED
-    percentage_improvement: NOT_CLAIMED
-
 semantic_ci_loop:
   status: PROVEN_PUBLIC_THREE_VERDICT
-  gate:
-    implementation: collider/gate.py + collider/concepts.py
-    concepts: [field_name, customer_identity, money_representation]
-    committed_tree: DECISION_REQUIRED (SPEC_GAP customer_identity, AGENT_DRIFT field_name, assumption money_representation)
   resolved_path:
     choice: USE_ACCOUNT_ID
     integration_conflicts: {before: 2, after: 0}
     gate_after: SEMANTICALLY_READY
-    disclosed_assumption_after: money_representation = integer_cents (INFERRED)
     verification_in_compiled_tree: {passed: 37, failed: 0}
   abstention_path:
     status: PROVEN
     choice: KEEP_UNKNOWN
     gate_after: DECISION_REQUIRED
-    conflicts_remaining: 2
     canon_written: false
   guard:
     status: PROVEN_PUBLIC
@@ -102,52 +55,51 @@ semantic_ci_loop:
       COMPATIBLE_CHANGE: {tests: "37 passed / 0 failed", with_memory: MERGE_ALLOWED, without_memory: DECISION_REQUIRED}
       MONEY_UNIT_DRIFT: {tests: "37 passed / 0 failed", with_memory: DECISION_REQUIRED, without_memory: DECISION_REQUIRED}
     restoration: exact_bytes_every_probe
-    tests: tests/test_guard_suite.py
     public_receipt: evidence/runtime/PUBLIC-THREE-VERDICT-GUARD-2026-09-27.md
 
 public_runtime:
   status: PROVEN
   url: https://collider-semantic-ci.faadil-casecraft.workers.dev/
-  topology: Cloudflare Worker + Static Assets + per-browser-session Container
-  escalated_build_live: OBSERVED
-  escalated_build_public_receipt: evidence/runtime/PUBLIC-THREE-VERDICT-GUARD-2026-09-27.md
-  exact_commit_binding: PROVEN
+  execution_environment: CLOUDFLARE_CONTAINER
+  interpretation_source: PRESEEDED
+  human_decision_source: INTERACTIVE_WEB
   runtime_commit_binding_receipt: evidence/runtime/RUNTIME-COMMIT-BINDING-2026-09-27.md
   bound_worker_version: 364ad4fd-7eb3-4918-aef8-f9ad049ee20a
   bound_git_commit: e185e84d9d1cf00dfa1700b6bd2439e57887a291
-  provenance:
-    execution_environment: CLOUDFLARE_CONTAINER
-    interpretation_source: PRESEEDED
-    human_decision_source: INTERACTIVE_WEB
-  observed_on_public_escalated_build:
-    - shared assumption money_representation = integer_cents shown as INFERRED
-    - IDENTITY_REVERT -> MERGE_BLOCKED
-    - same diff without memory -> DECISION_REQUIRED
-    - COMPATIBLE_CHANGE -> MERGE_ALLOWED
-    - same diff without memory -> DECISION_REQUIRED
-    - MONEY_UNIT_DRIFT -> DECISION_REQUIRED while tests remain green
-    - exact workspace restore after every guard probe
-    - SEMANTICALLY_READY_AGAIN after restore
-    - regression contract 7/7
-    - proof drawer code diffs and restoration hashes visible
-  runtime_commit_binding_mechanism: x-collider-worker-version header on every /api/* response (version_metadata binding)
-  remaining_before_PROVEN: []
-  ship_assurance_remaining: []
+  session_isolation: PROVEN
+  mobile_smoke: PROVEN
   live_csp_headers: PROVEN
-  live_csp_headers_receipt: evidence/runtime/LIVE-CSP-HEADERS-2026-09-27.md
 
 verification:
-  command: python3 -m pytest -q -p no:cacheprovider   # suite pinned by pytest.ini
-  result: "249 passed, 117 subtests passed"
+  last_full_suite:
+    result: "249 passed, 117 subtests passed"
+    command: python3 -m pytest -q -p no:cacheprovider
   typecheck: npx tsc --noEmit (clean)
-  browser: 1440x900, 1366x768 (reduced motion), 390x844 mobile; full flow incl. KEEP UNKNOWN and EVIDENCE MODE; zero console/CSP errors; no document overflow
-  container_image: real Dockerfile runtime (sandbox CA variant for pip only) ran state, decide, three probes, bad probe 400, KEEP UNKNOWN
-  public_guard_video: three verdicts + exact restoration + proof drawer observed
-  public_session_isolation: PROVEN
-  public_session_isolation_receipt: evidence/runtime/PUBLIC-SESSION-ISOLATION-2026-09-27.md
-  public_mobile_smoke: PROVEN
-  public_mobile_receipt: evidence/runtime/PUBLIC-MOBILE-PROVENANCE-2026-09-27.md
-  live_worker_version_observed: 364ad4fd-7eb3-4918-aef8-f9ad049ee20a
+  note: >
+    Final packaging changes after this verification are documentation/repository-hygiene only;
+    no product runtime code was changed.
+
+outsider_break_test:
+  status: PROVISIONAL_PASS
+  executed: false
+  waiver: evidence/validation/OUTSIDER-BREAK-TEST-WAIVER-2026-09-27.md
+  residual_risk: external_comprehension_unmeasured
+
+judge_performance_assurance:
+  status: PROVEN
+  artifact: product/JUDGE-PERFORMANCE-ASSURANCE.md
+  demo_lock: EARNED
+  final_script: demo/DEMO-SCRIPT-ACTIVE.md
+
+repository_publication:
+  status: CLEAN_CURRENT_TREE
+  audit: evidence/validation/REPO-PUBLICATION-AUDIT-2026-09-27.md
+  cleanup:
+    - removed obsolete evidence/runs/test-run generated artifacts
+    - refreshed public README
+    - refreshed submission copy
+    - added private/scratch ignore rules
+  limitation: current-tree audit; no destructive full-history rewrite performed
 
 gateway_status:
   "Real Negative Event Gate": PROVEN
@@ -164,7 +116,7 @@ gateway_status:
   "Runtime / Commit Binding": PROVEN
   "Public Runtime / Live Proof": PROVEN
   "Deterministic Demo": PROVEN
-  "Judge Performance Assurance": PENDING
+  "Judge Performance Assurance": PROVEN
   "Pre-Launch / Ship Assurance": PROVEN
   "Submission Integrity": PENDING
   "Final Snapshot / CURRENT / HANDOVER": ACTIVE
@@ -179,32 +131,34 @@ bob_boundary:
   implementation_and_architecture_use: REAL
   canonical_interpretation_generation: PRESEEDED
   fresh_live_parallel_replay: NOT_EXECUTED
-  forbidden_claim: "Do not imply the canonical current interpretations were generated by live Bob parallel agents."
-
-outsider_break_test:
-  status: PROVISIONAL_PASS
-  executed: false
-  waiver: evidence/validation/OUTSIDER-BREAK-TEST-WAIVER-2026-09-27.md
-  residual_risk: external_comprehension_unmeasured
 
 submission:
-  status: NOT_EARNED
-  demo_lock: NOT_EARNED
+  status: FINAL_PACKAGING
+  demo_lock: EARNED
+  copy_refreshed:
+    - submission/PROBLEM-SOLUTION.md
+    - submission/BOB-USAGE.md
   pending:
-    - Judge Performance Assurance
-    - refresh submission/ copy to the three-verdict Semantic CI truth
-    - Bob Task Session Summary evidence
+    - literal Bob Task Session Summary evidence
     - slides and cover
     - final <=3 min video from demo/DEMO-SCRIPT-ACTIVE.md
     - Submission Integrity Gate
     - final snapshot
+  truth_boundary:
+    - do not claim LIVE_BOB canonical interpretations
+    - do not call controlled guard probes agents
+    - do not claim unmeasured time or percentage gains
 
 do_not_redo:
   - technical reality check
   - baseline-vs-COLLIDER comparative evidence
-  - resolved-path and KEEP_UNKNOWN proofs
-  - public three-verdict guard proof
-  - creative depth passes one and two
+  - creative depth / distinctiveness passes
+  - public runtime / mobile / isolation / CSP proof
+  - runtime-to-commit binding
+  - Judge Performance Assurance
+  - repo publication audit
 
 next_exact_action: >
-  Run Judge Performance Assurance, then refresh submission copy and final packaging.
+  Capture the literal IBM Bob Task Session Summary evidence if available, then create the final
+  slides/cover and record the <=3 minute video using demo/DEMO-SCRIPT-ACTIVE.md. After those assets
+  exist, run Submission Integrity and take the final CURRENT/HANDOVER snapshot.
