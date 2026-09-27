@@ -6,7 +6,7 @@ Every registered gateway receives an explicit status. Nothing is silently forgot
 | Gateway / Gate | Status | Reason / promotion condition |
 |---|---|---|
 | QUALIFY→DECIDE→DESIGN→DELIVER→AUDIT→EXPAND | ACTIVE | AUDIT of the escalated build; EXPAND items are preserved as North Star in product/SEMANTIC-CI-ESCALATION.md. |
-| RUBRIC→PAIN→PROBLEM→DIFFERENTIATOR→EXECUTION→EVIDENCE→STORY→DEMO→Q&A | ACTIVE | STORY/DEMO must be re-cut around the three guard verdicts (demo/DEMO-SCRIPT-ACTIVE.md). |
+| RUBRIC→PAIN→PROBLEM→DIFFERENTIATOR→EXECUTION→EVIDENCE→STORY→DEMO→Q&A | ACTIVE | STORY/DEMO is now centered on the three guard verdicts (demo/DEMO-SCRIPT-ACTIVE.md); final judge/video lock remains. |
 | Real Negative Event Gate | PROVEN | product/PROBLEM-EVIDENCE.md — Mars Climate Orbiter anchors the failure class only; no prevention claim. |
 | Competitive Novelty / Kill Gate | PROVISIONAL_PASS | Re-checked 2026-09-27 (product/SEMANTIC-CI-ESCALATION.md §7): no full kill-condition loop observed; decision-memory merge gates now exist, so lead with the DECISION_REQUIRED third verdict. |
 | Creative Depth & Product Ambition | PROVEN | product/SEMANTIC-CI-ESCALATION.md — second pass against the working product: third verdict, same-diff counterfactual, continuous specification fuzzing; North Star preserved. |
@@ -17,17 +17,17 @@ Every registered gateway receives an explicit status. Nothing is silently forgot
 | Demo-First Architecture | PROVEN | product/DEMO-FIRST-ARCHITECTURE.md — fixture, classifier, canon routing, demo sequence. |
 | Fixture Design | PROVEN | fixtures/failed-payment/BRIEF.md, fixtures/failed-payment/EXPECTED-TRUTH.md, fixtures/failed-payment/BASELINE-CONTRACT.md. |
 | Evidence Schema | PROVEN | evidence/EVIDENCE-SCHEMA.md — artifact types and provenance labels defined. |
-| Truth Boundary | PROVEN | product/TRUTH-BOUNDARY.md — OBSERVED/INFERRED/UNKNOWN enforced; shared assumptions now visible in ACTIVE MODE and never upgraded (tests/test_guard_suite.py). |
-| Negative Path | PROVEN | KEEP UNKNOWN (no canon, no repair) plus a false-positive control: a harmless change is MERGE_ALLOWED (tests/test_guard_suite.py). |
-| Evidence Integrity | PROVEN | tests/test_active_repair.py pins canonical evidence hashes; the suite no longer writes evidence/ (pytest.ini). Fresh LIVE_BOB replay is a boundary, not claimed. |
+| Truth Boundary | PROVEN | product/TRUTH-BOUNDARY.md — OBSERVED/INFERRED/UNKNOWN enforced; shared assumptions visible in ACTIVE MODE and never upgraded (tests/test_guard_suite.py). |
+| Negative Path | PROVEN | KEEP UNKNOWN (no canon, no repair) plus a false-positive control: harmless change is MERGE_ALLOWED (tests/test_guard_suite.py; public guard receipt confirms MERGE_ALLOWED). |
+| Evidence Integrity | PROVEN | tests/test_active_repair.py pins canonical evidence hashes; suite no longer writes evidence/. Fresh LIVE_BOB replay is a boundary, not claimed. |
 | Bob-Native Integration | ACTIVE | product/BOB-NATIVE-INTEGRATION.md — Bob load-bearing in implementation/design; canonical interpretations PRESEEDED, not LIVE_BOB. |
 | Runtime / Commit Binding | ACTIVE | Mechanism shipped: every API response carries x-collider-worker-version (cloudflare/README.md). PROVEN after one live read of that id matched to its Workers Builds commit. |
-| Public Runtime / Live Proof | ACTIVE | Core loop proven live on bdfd9d3. Escalated build not yet observed live (egress to workers.dev blocked in the build environment); session isolation + mobile live smoke pending. |
-| Deterministic Demo | ACTIVE | Locally deterministic at 1440×900, 1366×768 and 390×844, zero console/CSP errors; real container image verified. Live capture pending. |
-| Judge Performance Assurance | PENDING | Run after live verification of the escalated build, before video lock. |
-| Pre-Launch / Ship Assurance | ACTIVE | product/PRE-LAUNCH-SHIP-ASSURANCE.md — PRE_LAUNCH_CODE_OK reached; DEPLOY via Workers Builds on push; LIVE_RUNTIME_CHECK pending. |
-| Submission Integrity | PENDING | submission/ copy predates the active loop and the third verdict; must be refreshed to the proven truth boundary. |
-| Final Snapshot / CURRENT / HANDOVER | ACTIVE | state/CURRENT.yaml and state/HANDOVER.yaml reconciled for this build; final snapshot after live verification. |
+| Public Runtime / Live Proof | ACTIVE | Escalated three-verdict guard is proven live by evidence/runtime/PUBLIC-THREE-VERDICT-GUARD-2026-09-27.md. Remaining: two-session isolation, mobile smoke, live CSP/header check, exact version↔commit binding. |
+| Deterministic Demo | ACTIVE | Public desktop guard flow now captured end-to-end for MERGE_BLOCKED / MERGE_ALLOWED / DECISION_REQUIRED with restore; live mobile/session-isolation closure still pending. |
+| Judge Performance Assurance | PENDING | Run after remaining public-runtime checks, before video lock. |
+| Pre-Launch / Ship Assurance | ACTIVE | product/PRE-LAUNCH-SHIP-ASSURANCE.md — LIVE_RUNTIME_CHECK is partially proven on escalated build; remaining ship blockers are binding, isolation, mobile, and live CSP/header confirmation. |
+| Submission Integrity | PENDING | submission/ copy predates the active loop and third verdict; refresh to proven truth boundary. |
+| Final Snapshot / CURRENT / HANDOVER | ACTIVE | state/CURRENT.yaml and state/HANDOVER.yaml updated through the public three-verdict proof; final snapshot after remaining gates. |
 | x402 | N/A | No payment rail in the product. |
 | Nanopayments | N/A | No payment rail in the product. |
 | Wallets | N/A | No wallet or value movement. |
