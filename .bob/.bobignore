@@ -1,0 +1,15 @@
+.env
+.env.*
+node_modules/
+.wrangler/
+__pycache__/
+*.pyc
+coverage/
+dist/
+build/
+tmp/
+.cache/
+*.log
+private/
+scratch/
+.collider/runs/
