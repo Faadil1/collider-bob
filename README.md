@@ -1,214 +1,82 @@
 # COLLIDER
 
-## Find the decision the specification forgot to make.
+> **Semantic CI for Agentic Software Development**  
+> **Fuzz the specification. Repair the decision. Prove the system understands it.**
 
-**Disagreement-Driven Specification Repair for Parallel AI Agents**
+**Live demo:** https://collider-semantic-ci.faadil-casecraft.workers.dev/
 
-Three implementation workstreams can all look correct locally and still encode
-incompatible assumptions.
+Parallel AI coding agents can all be locally correct and still build incompatible
+assumptions because the specification never made a cross-boundary decision.
 
-COLLIDER turns those disagreements into specification intelligence:
-
-`independent interpretations → AGENT_DRIFT vs SPEC_GAP → minimal clarification → canon patch → targeted repair`
-
-> **Three agents can be individually right and still reveal that the specification forgot to decide.**
-
----
-
-## The proof in 15 seconds
-
-The canonical fixture starts with three independently green workstreams:
-
-- **30 local tests pass**
-- **3/3 workstreams are locally green**
-- **0 disagreements are surfaced before integration**
-
-But executable integration reveals:
+COLLIDER turns disagreement into a specification probe:
 
 ```text
-customer_identity
-API:     email
-Ledger:  account_id
-
-money field
-API:     refund_amount
-Ledger:  credit_amount
-Result:
-2 conflicts
-INTEGRATION_BLOCKED
-
-COLLIDER separates the two failures by evidence.
-1. The agent is wrong
-The source explicitly specifies refund_amount.
-Ledger implemented credit_amount.
-classification: AGENT_DRIFT
-repair: Ledger credit_amount → refund_amount
-repair source: AGENT_DRIFT_EVIDENCE
-human question: none
-
-2. The specification never decided
-API chose email.
-Ledger chose account_id.
-The source never chooses a customer identity field.
-classification: SPEC_GAP
-epistemic state: UNKNOWN
-auto-resolve: false
-
-COLLIDER refuses to invent a canon and requires one human decision.
-Canonical LOCAL decision:
-customer_identity = account_id
-
-That decision repairs only the affected API implementation:
-API email → account_id
-repair source: CANON_PATCH
-
-Notifications remains unchanged.
-Final executable result:
-2 → 0 integration conflicts
-INTEGRATION_READY
-
-Try the evidence-bound demo
-Generate its data directly from the committed canonical receipts:
-python3 demo-ui/build_demo_data.py
-python3 -m http.server 4173 --directory demo-ui
-
-Open port 4173.
-The UI does not hard-code the proof values independently. Its data generator
-reads the canonical baseline, COLLIDER run, and comparative receipt, and fails
-if their key invariants no longer hold.
-## Semantic CI loop: the demo is action-capable
-
-`DETECT → DECIDE → COMPILE → PATCH → VERIFY → REMEMBER → GUARD`
-
-```bash
-python3 -m collider.gate                       # committed tree → DECISION_REQUIRED (exit 1)
-python3 demo-ui/server.py                      # ACTIVE MODE UI at 127.0.0.1:4173
-python3 -m collider.decision_compiler \
-  --value account_id --decision-id my-decision # CLI equivalent of USE account_id
-python3 -m collider.guard_probe \
-  --workspace .collider/workspaces/my-decision \
-  --out-dir .collider/runs/my-decision \
-  --probe IDENTITY_REVERT                       # or COMPATIBLE_CHANGE / MONEY_UNIT_DRIFT
+PROBE → COLLIDE → ADJUDICATE → DECIDE
+      → COMPILE → PATCH → VERIFY → REMEMBER → GUARD
 ```
 
-The SPEC_GAP panel offers exactly two choices:
+> **When AI agents disagree, COLLIDER finds the decision the specification forgot to make.**
 
-- **KEEP UNKNOWN**: correct abstention. No canon, decision memory or spec patch is
-  written, nothing is repaired, and the gate stays `DECISION_REQUIRED`. Only a
-  bounded local action receipt (`abstention.json`) is recorded. It is not a
-  canonical decision receipt.
-- **USE account_id**: compiles the decision (below).
+## The 15-second proof
 
-`email` is not offered as a decision. In the canonical demo it is the value a
-future agent tries to reintroduce, and the guard blocks it.
+The canonical fixture starts with:
 
-Choosing `customer_identity = account_id` compiles one human decision into:
+- **30 local tests passing**
+- **3/3 workstreams locally green**
+- **2 integration conflicts**
 
-- canon decision artifact: `canon/decisions/customer_identity.json`
-- source-spec patch: a BRIEF.md "Adopted Decisions" section with a machine-readable
-  `collider:canon` marker, plus `canon/spec-patches/customer_identity.json`
-- targeted code repair: API `email → account_id` (CANON_PATCH), Ledger
-  `credit_amount → refund_amount` (AGENT_DRIFT_EVIDENCE); Notifications unchanged
-- regression contract: `contracts/test_canon_customer_identity.py`
-- decision memory: `canon/decision-memory.json`
+Two mismatches have different causes:
 
-It then runs verification in the compiled tree (30 workstream tests + 7 contract
-tests), the integration probe (2 → 0, `INTEGRATION_READY`), and the gate
-(`DECISION_REQUIRED → SEMANTICALLY_READY`).
+```text
+refund_amount vs credit_amount
+→ source explicitly says refund_amount
+→ AGENT_DRIFT
+→ repair from source evidence
 
-Mutation happens in a workspace copy (`.collider/workspaces/<id>`, git-ignored).
-The committed tree stays the canonical pre-decision input for baseline-001 and
-local-resolved-004, and the compiler checks that its hashes did not change.
+email vs account_id
+→ source never chooses a customer identity
+→ SPEC_GAP / UNKNOWN
+→ one human decision required
+```
 
-The gate applies one truth table to every concept registered in
-`collider/concepts.py`. Agreement without authority is never promoted: the
-money unit (`integer_cents`, assumed by all three workstreams, never stated by
-the source) is reported under `assumptions` as INFERRED and non-blocking.
+Selecting `account_id` compiles that decision into:
 
-Gate verdicts: `DECISION_REQUIRED` (unresolved SPEC_GAP) · `AGENT_DRIFT` (explicit
-source or resolved canon violated) · `SEMANTICALLY_READY` (canon resolved,
-dependents conform, verification passes) · `VERIFICATION_FAILED`.
+- a specification patch
+- targeted code repairs
+- a regression contract
+- decision memory
 
-Committed receipt: `evidence/decisions/decision-001/` (human decision source
-PRESEEDED). UI-triggered compiles record `INTERACTIVE_LOCAL_UI` and write only to
-`.collider/runs/`.
+The executable integration result moves from:
 
-GUARD is a second act with three verdicts. After `SEMANTICALLY_READY`, the judge
-runs fixed future-agent changes (`collider/guard_probe.py`) in the compiled
-workspace. Each is judged by the gate with decision memory **and** without it
-(same changed tree, memory and spec marker removed), then the exact prior bytes
-are restored and the gate re-runs:
+```text
+2 conflicts / INTEGRATION_BLOCKED
+→
+0 conflicts / SEMANTICALLY_READY
+```
 
-| Future change | Tests | With memory | Without memory |
-|---|---|---|---|
-| API identity `account_id → email` | 33 passed · 4 failed | `MERGE_BLOCKED` (AGENT_DRIFT vs RESOLVED_CANON) | `DECISION_REQUIRED` |
-| Notification wording only | 37 passed | `MERGE_ALLOWED` | `DECISION_REQUIRED` |
-| Ledger `MONEY_UNIT → decimal_dollars` | 37 passed | `DECISION_REQUIRED` (new SPEC_GAP: money unit) | `DECISION_REQUIRED` |
+## The second act: three Semantic CI verdicts
 
-The third row is the point: every test passes, nothing recorded is violated,
-and COLLIDER still refuses to merge, because the workstreams now disagree where
-the source is silent. Receipts: `.collider/runs/<id>/guard-probe*.json`. The
-guard is a controlled change, not the fresh-agent replay. See
-`product/SEMANTIC-CI-ESCALATION.md`.
+After the repair, COLLIDER tests controlled future changes against decision memory:
 
-Modes: **ACTIVE MODE** (default; truth label `LOCAL ACTIVE DEMO · PRESEEDED
-INTERPRETATIONS · INTERACTIVE HUMAN DECISION`) needs the local action server. If the
-server is unreachable, the UI says `ACTIVE MODE UNAVAILABLE` and never substitutes
-receipts. **EVIDENCE MODE** (`COMMITTED EVIDENCE · LOCAL / PRESEEDED`) shows baseline-001,
-local-resolved-004 and decision-001 as committed receipts.
+| Future change | Tests | Verdict |
+|---|---:|---|
+| API reverts `account_id → email` | 33 pass / 4 fail | **MERGE_BLOCKED** |
+| Notification wording only | 37 pass | **MERGE_ALLOWED** |
+| Ledger changes cents → dollars | **37 pass** | **DECISION_REQUIRED** |
 
-Fresh-agent replay: the interface and acceptance contract exist
-(`collider/replay.py`), but execution is **NOT_EXECUTED / PENDING_LIVE_BOB**. It only
-accepts results from an independent `LIVE_BOB_SESSION`.
+The third row is the signature moment: **all tests pass, but COLLIDER still refuses
+to merge because the workstreams now disagree where the source is silent.**
 
-## Hosted demo (Cloudflare)
+For the identity revert, the same changed tree without decision memory becomes
+`DECISION_REQUIRED` instead of `MERGE_BLOCKED`. Memory changes the verdict.
 
-A Worker serves `demo-ui/` from Workers Static Assets and routes `/api/*` to one
-Cloudflare Container per browser session (same Python runtime, provenance
-`CLOUDFLARE_CONTAINER` / `INTERACTIVE_WEB`). The container filesystem is
-ephemeral. Deploy with `npx wrangler deploy` via Workers Builds; see
-`cloudflare/README.md`.
+Every guard probe restores the prior verified workspace exactly.
 
-Evidence
-Canonical baseline
-evidence/runs/baseline-001/
-Observed:
-- 30 local workstream tests pass
-- 3/3 workstreams locally green
-- 2 integration conflicts
-- INTEGRATION_BLOCKED
-- no COLLIDER root-cause classification
-Canonical COLLIDER run
-evidence/runs/local-resolved-004/
-Observed:
-- 1 SPEC_GAP
-- 1 AGENT_DRIFT
-- 1 human clarification
-- 2 targeted executable repairs
-- Notifications unchanged
-- 0 final integration conflicts
-- INTEGRATION_READY
-- transient source and Python module state restored afterward
-Comparative receipt
-evidence/comparisons/baseline-001-vs-local-resolved-004.md
-Fairness control:
-API, Ledger, and Notifications implementation artifacts are byte-identical at
-the start of the baseline and COLLIDER measured conditions.
-Comparative evidence commit:
-49d59a6c48aae5dce5ebad9f36909b5c71e77bb6
-Demo UI commit:
-852db864add8f24364ed91134749fe65055f811a
-Truth boundary
-The canonical comparative proof is LOCAL / PRESEEDED.
-It proves the COLLIDER reconciliation, classification, abstention, canon,
-targeted-repair, integration, and evidence-binding mechanisms.
-It does not claim:
-- LIVE_BOB-generated canonical interpretations
-- live interactive human clarification
-- wall-clock productivity improvement
-- percentage productivity improvement
-- production-scale generalization
-Agent agreement is never upgraded into truth.
+## Truth boundary
+
+COLLIDER deliberately distinguishes evidence from inference:
+
+```text
 SOURCE EXPLICIT + AGENT DISAGREES
 → AGENT_DRIFT
 → evidence-grounded repair
@@ -219,67 +87,163 @@ SOURCE SILENT + AGENTS DISAGREE
 → HUMAN DECISION REQUIRED
 
 SOURCE SILENT + AGENTS AGREE
-→ SHARED_INFERRED
-→ not fact
+→ SHARED ASSUMPTION
+→ INFERRED, never fact
+```
 
-Why this matters
-Parallel coding agents increase implementation throughput, but parallelism also
-creates a new coordination problem: independent agents can make different
-reasonable choices where the specification is silent.
-Traditional merge tools detect textual conflicts.
-Tests detect behaviors they were designed to test.
-COLLIDER targets a different failure mode:
-locally valid implementations that reveal a missing cross-boundary decision.
-The disagreement itself becomes a probe for specification quality.
-Negative path
-Correct abstention is a first-class product behavior.
-If evidence is insufficient, conflicting, or unavailable, COLLIDER preserves
-UNKNOWN rather than inventing a canonical answer.
-See:
-- evidence/runs/local-abstain-002/
-- fixtures/failed-payment/EXPECTED-TRUTH.md
-Real-world failure anchor
-The Mars Climate Orbiter is used only as evidence for the broader class of
-cross-boundary assumption failures: one interface received English-unit data
-where metric units were expected, and verification processes failed to catch
-the mismatch before mission loss.
-COLLIDER does not claim it would have prevented that historical incident.
-Primary references:
-- NASA/JPL Mars Climate Orbiter investigation
-- NASA technical report
-- CodeScout, ACL Findings 2026, on underspecified software-engineering requests
-See the source links and claim boundary in the project evidence/docs.
-Repository map
-collider/       reconciliation + classification + repair runtime
+The canonical interpretation objects are **PRESEEDED**. They are not claimed as
+live Bob-generated outputs.
+
+The future-change probes are controlled edits, not autonomous agents.
+
+Fresh-agent replay exists as a contract, but is
+**NOT_EXECUTED / PENDING_LIVE_BOB**.
+
+## KEEP UNKNOWN is a valid result
+
+COLLIDER does not force a decision.
+
+`KEEP UNKNOWN`:
+
+- writes no canon
+- writes no decision memory
+- applies no repair
+- leaves the gate at `DECISION_REQUIRED`
+
+Correct abstention is a product behavior, not an error state.
+
+## IBM Bob 2.0
+
+IBM Bob 2.0 was used directly in the repository as a load-bearing development
+agent during implementation and refinement.
+
+Preserved Bob work shows repository reading, file creation/modification, runtime
+and test work, and continuation across two tasks.
+
+The submission intentionally separates **Bob's real development contribution**
+from the provenance of the canonical runtime evidence. See:
+
+- `submission/BOB-USAGE.md`
+- `product/BOB-NATIVE-INTEGRATION.md`
+
+## Public runtime
+
+The hosted demo runs on:
+
+```text
+Cloudflare Worker
+├── Workers Static Assets → demo-ui/
+└── /api/* → per-browser-session Cloudflare Container
+    └── Python COLLIDER runtime
+```
+
+Production proof includes:
+
+- public three-verdict guard
+- exact workspace restoration
+- separate browser-session isolation
+- real-iPhone mobile smoke
+- Worker-version ↔ Git-commit binding
+- live CSP/security-header verification
+
+Receipts are under `evidence/runtime/`.
+
+## Run locally
+
+```bash
+python3 demo-ui/server.py
+# open http://127.0.0.1:4173
+```
+
+Core CLI:
+
+```bash
+python3 -m collider.gate
+
+python3 -m collider.decision_compiler \
+  --value account_id \
+  --decision-id demo-decision
+
+python3 -m collider.guard_probe \
+  --workspace .collider/workspaces/demo-decision \
+  --out-dir .collider/runs/demo-decision \
+  --probe IDENTITY_REVERT
+```
+
+## Verify
+
+```bash
+python3 -m pytest -q -p no:cacheprovider
+npx tsc --noEmit
+```
+
+Last full recorded verification before submission packaging:
+
+```text
+249 passed
+117 subtests passed
+TypeScript: clean
+```
+
+The canonical test configuration excludes committed evidence from test collection
+and writes transient test runs outside `evidence/`.
+
+## Evidence
+
+Key receipts:
+
+- `evidence/runs/baseline-001/`
+- `evidence/runs/local-resolved-004/`
+- `evidence/comparisons/baseline-001-vs-local-resolved-004.md`
+- `evidence/runtime/PUBLIC-THREE-VERDICT-GUARD-2026-09-27.md`
+- `evidence/runtime/PUBLIC-SESSION-ISOLATION-2026-09-27.md`
+- `evidence/runtime/PUBLIC-MOBILE-PROVENANCE-2026-09-27.md`
+- `evidence/runtime/RUNTIME-COMMIT-BINDING-2026-09-27.md`
+- `evidence/runtime/LIVE-CSP-HEADERS-2026-09-27.md`
+
+## Repository map
+
+```text
+collider/       semantic gate, decision compiler, guard, replay contract
 baseline/       no-COLLIDER executable control
-fixtures/       canonical failed-payment specification fixture
-evidence/       immutable run receipts, hashes, failures, comparisons
-demo-ui/        evidence-bound judge/demo surface
-demo/           canonical narrative + recording plan
-product/        technical reality, failure modes, architecture
-schemas/        structured interpretation contract
+fixtures/       canonical failed-payment fixture
+evidence/       immutable comparison/runtime receipts
+demo-ui/        interactive judge surface
+demo/           recording script and demo contract
+product/        PRD, truth boundary, architecture, gates
 submission/     hackathon submission copy
-state/          CURRENT + HANDOVER
-tests/          integrity and regression verification
+state/          canonical CURRENT / HANDOVER
+tests/          regression, integrity and deployment tests
+cloudflare/     Worker/Container deployment adapter
+```
 
-Verification
-python3 -m pytest -q -p no:cacheprovider   # canonical suite, pinned in pytest.ini
-npx tsc --noEmit                          # Worker / router types
-
-Current result:
-249 passed, 117 subtests passed
-
-Project status (canonical: product/GATEWAY-REGISTRY.md, checked by tests/test_gate_registry.py)
+## Submission status
 
 | Gate | Status |
 |---|---|
-| Creative Depth · Distinctiveness (second pass) | PROVEN |
-| Technical Reality · Truth Boundary · Negative Path · Evidence Integrity | PROVEN |
-| Competitive Novelty / Kill | PROVISIONAL_PASS |
-| Public Runtime / Live Proof | ACTIVE: core loop live on `bdfd9d3`; three-verdict build not yet observed live |
-| Runtime / Commit Binding · Deterministic Demo · Pre-Launch / Ship | ACTIVE |
-| Real-User / Outsider Break Test · Judge Performance · Submission Integrity | PENDING |
-| LIVE_BOB canonical runtime | NOT CLAIMED |
+| Creative Depth & Distinctiveness | **PROVEN** |
+| Truth Boundary / Negative Path / Evidence Integrity | **PROVEN** |
+| Runtime / Commit Binding | **PROVEN** |
+| Public Runtime / Live Proof | **PROVEN** |
+| Deterministic Demo | **PROVEN** |
+| Pre-Launch / Ship Assurance | **PROVEN** |
+| Concept Compression | **PROVEN** with documented outsider-test waiver |
+| Judge Performance Assurance | **PROVEN FOR DEMO LOCK** |
+| Submission Integrity | **PENDING final media/package** |
+| LIVE_BOB canonical interpretations | **NOT CLAIMED** |
 
-Real failure > fake success.
+Canonical status: `product/GATEWAY-REGISTRY.md`
+
+## Real-world anchor
+
+Mars Climate Orbiter is used only as evidence for the broader class of
+cross-boundary assumption failures. COLLIDER does **not** claim it would have
+prevented that historical incident.
+
+See `product/PROBLEM-EVIDENCE.md` for sources and claim boundaries.
+
+---
+
+**Real failure > fake success.**
+
 MIT licensed.
