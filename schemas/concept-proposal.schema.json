@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "COLLIDER Dynamic Concept Proposal",
+  "description": "A truth-bounded proposal emitted during V2 semantic discovery. A proposal is not canon and cannot decide authority.",
+  "type": "object",
+  "required": [
+    "proposal_id",
+    "concept",
+    "label",
+    "workstream",
+    "value",
+    "epistemic_state",
+    "source_relation",
+    "source_refs",
+    "artifact_refs",
+    "generation_mode",
+    "status"
+  ],
+  "properties": {
+    "proposal_id": {"type": "string", "minLength": 1},
+    "concept": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "description": "Proposed stable semantic key. Discovery may propose it; later normalization decides whether proposals refer to the same concept."
+    },
+    "label": {"type": "string", "minLength": 1},
+    "workstream": {"type": "string", "minLength": 1},
+    "value": {
+      "description": "Observed implementation choice for this workstream. It is not authoritative merely because a model emitted it."
+    },
+    "epistemic_state": {
+      "enum": ["OBSERVED", "INFERRED", "UNKNOWN"]
+    },
+    "source_relation": {
+      "enum": ["EXPLICIT", "SILENT", "INFERRED", "CONFLICTING"],
+      "description": "Relationship between the authoritative source set and the proposed concept/value."
+    },
+    "source_refs": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "artifact_refs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string"}
+    },
+    "generation_mode": {
+      "enum": ["LIVE_BOB", "PRESEEDED", "SIMULATED", "LOCAL", "LOCAL_STUB"]
+    },
+    "session_ref": {"type": "string", "minLength": 1},
+    "task_summary_ref": {"type": "string", "minLength": 1},
+    "agent_id": {"type": "string", "minLength": 1},
+    "status": {
+      "const": "PROPOSED",
+      "description": "Discovery output remains proposed until deterministic normalization and explicit ratification."
+    }
+  },
+  "not": {
+    "description": "Opaque model confidence must never substitute for evidence.",
+    "required": ["confidence"]
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {"generation_mode": {"const": "LIVE_BOB"}},
+        "required": ["generation_mode"]
+      },
+      "then": {
+        "required": ["session_ref", "task_summary_ref", "agent_id"]
+      }
+    },
+    {
+      "if": {
+        "properties": {"source_relation": {"const": "EXPLICIT"}},
+        "required": ["source_relation"]
+      },
+      "then": {
+        "properties": {"source_refs": {"minItems": 1}}
+      }
+    }
+  ]
+}
