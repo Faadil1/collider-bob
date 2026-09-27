@@ -91,7 +91,9 @@ For the canonical failed-payment scenario:
    Do not choose for them.
 
 11. After the human answers, compile that decision **from the same validated
-    LIVE_BOB interpretation bundle**. Do not fall back to PRESEEDED fixtures:
+    LIVE_BOB interpretation bundle**. Prefer the approval-gated native MCP tool
+    `collider_compile_live_decision`. Do not fall back to PRESEEDED fixtures.
+    CLI equivalent:
 
     ```bash
     python3 -m collider.decision_compiler \
