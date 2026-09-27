@@ -1,118 +1,151 @@
 project: collider-bob
-handover_version: 3
+handover_version: 4
+date: 2026-09-27
 source_of_truth: state/CURRENT.yaml
-do_not_forget:
-  - Real failure > fake success
-  - agents are not read-only by default
-  - preserve UNKNOWN rather than inventing canon
-  - competitive novelty must continue to be monitored
-  - x402 and other external gateways are conditional, never silently omitted
-  - no completion claim without verification-before-completion
-  - stage is LOCAL_COMPARATIVE_EVIDENCE_COMPLETE — baseline and COLLIDER comparative evidence passed; LIVE_BOB remains pending
-  - all Bob capability claims are INFERRED until session evidence exists; "Bob-native architecture designed; runtime proof pending"
-  - correct abstention (UNKNOWN) is a first-class product success, not a failure state
-  - the classifier must be rule-based for the demo; model-based classification introduces variability at the trust boundary
-  - customer_identity is scoped to API and Ledger ONLY — Notifications holds notification_contact as a separate concept
-  - Notifications is structurally unaffected because it never held a customer_identity claim (dependency-graph result, not a special rule)
-  - the negative control uses a scope filter (Step 0) — only stub-defined fields are cross-boundary candidates; no synonym table; no model judgment
-  - generation_mode must be present and truthful on all run artifacts (LIVE_BOB / PRESEEDED / SIMULATED / LOCAL / LOCAL_STUB)
-  - PRESEEDED interpretation objects must never be narrated as LIVE_BOB; disclose in manifest.json known_limitations
-  - prompt isolation: workstream prompts must NOT specify which value to choose; brief genuinely permits divergence
-  - EXPECTED-TRUTH.md is the oracle; all 6 claims must pass before a run can be called a success
-  - "green locally" not "all tests pass" — the demo shows local tests pass but cross-boundary semantic conflict is invisible to them
-accomplished_this_session:
-  - product/TECHNICAL-REALITY-CHECK.md — 15 questions answered with epistemic labels
-  - product/DEMO-FIRST-ARCHITECTURE.md — classifier (with Step 0 scope filter), canon routing, impact routing, 15-step demo sequence
-  - product/FAILURE-MODES.md — 7 failure modes catalogued with severity and mitigation
-  - product/BOB-NATIVE-INTEGRATION.md — designed load-bearing roles; downgraded to INFERRED pending runtime proof
-  - fixtures/failed-payment/BRIEF.md — canonical fixture brief; notification_target → notification_contact; prompt isolation design
-  - fixtures/failed-payment/EXPECTED-TRUTH.md — ground-truth oracle for all 6 fixture claims; Notifications scope fixed
-  - fixtures/failed-payment/BASELINE-CONTRACT.md — interpretation objects fixed; negative control scope rule applied
-  - evidence/EVIDENCE-SCHEMA.md — generation_mode, evidence_relation, artifact_refs; fixture tables corrected
-  - schemas/interpretation.schema.json — updated with all required fields including evidence_relation, artifact_refs, generation_mode
-  - product/GATEWAY-REGISTRY.md — updated with new COMPLETE gates and clarified conditions
-  - state/CURRENT.yaml — corrected stage; added demo_architecture block; updated next steps
-  adversarial_corrections:
-  - ADV-1: Notifications separated from customer_identity; holds notification_contact independently
-  - ADV-2: Bob-native claims downgraded to INFERRED/PENDING_RUNTIME_PROOF
-  - ADV-3: generation_mode (LIVE_BOB/PRESEEDED/SIMULATED/LOCAL/LOCAL_STUB) added to all evidence artifacts
-  - ADV-4: Prompt isolation design documented in BRIEF.md; no forced divergence
-  - ADV-5: Synonym table replaced with deterministic Step 0 scope filter (stub field lookup)
-  - ADV-6: Green claim corrected to "green locally" throughout; removed "all tests pass" language
-  - ADV-7: Interpretation schema updated with evidence_relation, artifact_refs, generation_mode, no-confidence rule
-current_signature:
-  judge_memory_sentence: "Three agents can be individually right and still reveal that the specification forgot to decide."
-  signature_behavior: "Independent agent disagreements become probes for missing specification decisions."
-  signature_moment: "Everything looks locally valid; COLLIDER classifies the disagreement as SPEC_GAP and asks one minimal question."
-  demo_emotional_arc:
-    beat_1: "Everything was green — but the agents were building different realities."
-    beat_2: "The specification never decided."
-    beat_3: "One question repairs only what actually depended on it."
-blocking_unknowns:
-  - whether Bob parallel subagents reliably produce divergent interpretations without prompt isolation (UNKNOWN — requires a live session)
-  - whether Bob Plan mode decomposition names workstream tasks in a form compatible with the interpretation schema vocabulary (UNKNOWN — requires a live session)
 
-local_runtime_evidence_gate:
-  status: PASS
-  runtime_input_commit: f581c332782bc4945110b8ea1fdcb155dc00b502
-  canonical_runs:
-    abstain: evidence/runs/local-abstain-002/
-    resolved: evidence/runs/local-resolved-002/
-  truth_boundary:
+north_star:
+  category: Semantic CI for Agentic Software Development
+  tagline: "Fuzz the specification. Repair the decision. Prove the system understands it."
+  judge_memory_sentence: "When AI agents disagree, COLLIDER finds the decision the specification forgot to make."
+  mechanism: "Independent implementation agents act as specification fuzzers / ambiguity probes."
+
+current_stage:
+  status: PUBLIC_RUNTIME_AUDIT_AND_FINAL_GATES
+  concept_lock: LOCKED_AFTER_CREATIVE_DEPTH_GATE
+  submission_status: NOT_EARNED
+
+canonical_decisions:
+  - Creative Depth & Product Ambition is now a formal mandatory gate before final Concept Lock.
+  - Distinctiveness Escalation is mandatory after Functional Proof and before Demo/Submission Lock.
+  - Current category is Semantic CI / specification fuzzing, not generic disagreement detection or a simple repair assistant.
+  - Current product loop is PROBE→COLLIDE→ADJUDICATE→DECIDE→COMPILE→PATCH→VERIFY→REMEMBER→GUARD.
+  - Fresh-agent REPLAY remains North Star only and is NOT_EXECUTED / PENDING_LIVE_BOB.
+  - UNKNOWN is first-class; consensus never becomes truth.
+  - Do not add features merely to look ambitious; depth must strengthen the mechanism, user value, or defensibility.
+
+creative_depth:
+  status: PROVEN
+  artifact: product/CREATIVE-DEPTH-AND-DISTINCTIVENESS.md
+  strongest_escalations:
+    - specification_fuzzing
+    - decision_compilation
+    - semantic_ci_guard
+    - future_fresh_agent_replay
+  rejected_as_dilution:
+    - generic_agent_orchestrator
+    - dashboard_expansion
+    - probabilistic_confidence_scoring
+
+distinctiveness_escalation:
+  status: PROVEN
+  proven:
+    - active_mutation_in_isolated_workspace
+    - closed_loop_repair
+    - second_act_guard
+    - memory_with_future_consequence
+    - KEEP_UNKNOWN_counter_case
+    - MERGE_BLOCKED_signature_moment
+    - two_conflicts_to_zero_before_after
+  sponsor_native_strength: PARTIAL
+  reason: canonical interpretations remain PRESEEDED, not LIVE_BOB
+
+public_runtime:
+  url: https://collider-semantic-ci.faadil-casecraft.workers.dev/
+  status: ACTIVE_PARTIAL_GATE
+  deployed_runtime_code_commit: bdfd9d35054ddefe8e48c7e67f525f5d3d55f5e7
+  cloudflare_version_observed: f946793b
+  provenance:
+    execution_environment: CLOUDFLARE_CONTAINER
     interpretation_source: PRESEEDED
-    human_decision_source_resolved: PRESEEDED
-    live_bob_proof: PENDING
-  observed:
-    - SPEC_GAP preserves UNKNOWN without human decision
-    - no canon patch is emitted on abstention path
-    - API is actually repaired after canonical decision
-    - Ledger remains byte-identical
-    - Notifications remains byte-identical and not applicable to customer_identity
-    - repaired API is restored to baseline after evidence capture
-  next:
-    - LIVE_BOB evidence if additional Bob budget becomes available
-    - baseline-vs-COLLIDER comparison
-    - deterministic demo packaging
-    - submission evidence and Bob Task Session Summary capture
+    human_decision_source: INTERACTIVE_WEB
+  core_flow_observed:
+    - initial DECISION_REQUIRED
+    - two integration conflicts
+    - USE_ACCOUNT_ID compiles decision
+    - two_to_zero conflicts
+    - SEMANTICALLY_READY
+    - future account_id_to_email attempt
+    - MERGE_BLOCKED
+    - exact restore
+    - SEMANTICALLY_READY restored
+  negative_path_observed:
+    - KEEP_UNKNOWN
+    - DECISION_REQUIRED remains
+    - two conflicts remain
+    - no canon
+    - no decision memory
+    - no spec patch
+    - no repairs
+    - source tree untouched
 
-comparative_evidence_gate:
-  status: PASS
-  baseline:
-    run: evidence/runs/baseline-001/
-    evidence_commit: 27676adbb0cd2df6702d3cf6cb07f26a6d08d779
-    observed:
-      - 30 local workstream tests pass
-      - 3 of 3 workstreams are locally green
-      - 2 incompatibilities are discovered at integration
-      - result is INTEGRATION_BLOCKED
-      - no root-cause classification is performed
-  collider:
-    run: evidence/runs/local-resolved-004/
-    runtime_input_commit: 289415b06f69a9ea346606c07c4cb388f127c1bf
-    observed:
-      - customer_identity is SPEC_GAP with UNKNOWN preserved
-      - one PRESEEDED human decision resolves customer_identity
-      - API is repaired from email to account_id
-      - field_name is AGENT_DRIFT against explicit source evidence
-      - Ledger is repaired from credit_amount to refund_amount
-      - Notifications remains unchanged
-      - final executable integration has zero conflicts
-      - result is INTEGRATION_READY
-      - transient source and Python module state are restored afterward
-  fairness:
-    starting_workstream_artifacts_byte_identical: true
-  receipt:
-    - evidence/comparisons/baseline-001-vs-local-resolved-004.json
-    - evidence/comparisons/baseline-001-vs-local-resolved-004.md
-  truth_boundary:
-    execution: LOCAL
-    interpretations: PRESEEDED
-    human_decision: PRESEEDED
-    live_bob: PENDING
-    wall_clock_improvement: UNKNOWN
-    percentage_improvement: NOT_CLAIMED
-  next:
-    - deterministic demo compression
-    - submission packaging
-    - Bob Task Session Summary screenshots
-    - LIVE_BOB evidence only if budget becomes available
+gateway_status:
+  Creative_Depth_Product_Ambition: PROVEN
+  Distinctiveness_Escalation: PROVEN
+  Concept_Compression_Validation: ACTIVE
+  Truth_Boundary: PROVEN
+  Negative_Path: PROVEN
+  Evidence_Integrity: ACTIVE
+  Runtime_Commit_Binding: ACTIVE
+  Public_Runtime_Live_Proof: ACTIVE
+  Deterministic_Demo: ACTIVE
+  Judge_Performance_Assurance: PENDING
+  Pre_Launch_Ship_Assurance: ACTIVE
+  Submission_Integrity: PENDING
+  Final_Snapshot_CURRENT_HANDOVER: ACTIVE
+  x402: N/A
+  nanopayments: N/A
+  wallets: N/A
+  smart_contracts: N/A
+  App_Kit: N/A
+  LIVE_GATEWAY: N/A
+
+truth_boundary:
+  do_not_claim:
+    - PRESEEDED interpretations are LIVE_BOB
+    - fresh-agent replay has executed
+    - Bob parallel subagents generated the canonical current interpretations
+    - measured wall-clock or percentage improvement without evidence
+  allowed:
+    - Bob was genuinely used in implementation/design
+    - Cloudflare ACTIVE runtime is real
+    - interactive web human decision is real
+    - current interpretations are PRESEEDED
+
+do_not_redo:
+  - Technical Reality Check
+  - local comparative evidence baseline-001 vs local-resolved-004
+  - Creative Depth & Product Ambition pass
+  - Distinctiveness Escalation pass
+  - core public resolved path proof
+  - KEEP_UNKNOWN negative path proof
+  - MERGE_BLOCKED + restore proof
+
+blocking_or_pending:
+  - separate browser-session isolation
+  - mobile smoke
+  - runtime-version-to-Git-SHA binding receipt
+  - external Real-User / Outsider Break Test
+  - production Pre-Launch / Ship Assurance closure
+  - Judge Performance Assurance
+  - final submission copy refresh
+  - literal Bob Task Session Summary evidence
+  - slides/cover
+  - final <=3min video
+  - Submission Integrity
+  - final snapshot
+
+next_exact_action:
+  - "Prove separate-session isolation, then run mobile smoke. Do not merge to main until Public Runtime / Live Proof closes."
+
+files_changed_this_reconciliation:
+  - product/CREATIVE-DEPTH-AND-DISTINCTIVENESS.md
+  - product/GATEWAY-REGISTRY.md
+  - state/CURRENT.yaml
+  - state/HANDOVER.yaml
+
+do_not_forget:
+  - "Functional ≠ finished."
+  - "Explore widely before constraining."
+  - "Execution constraints may sequence the vision; they must not define the vision."
+  - "Memory compactness must never reduce workflow depth."
+  - "Every major decision/gate/build/proof/deployment updates canonical state."
