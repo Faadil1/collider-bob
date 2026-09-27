@@ -23,6 +23,16 @@ The source material does not decide a cross-boundary question and multiple plaus
 - Agreement among agents is not proof; shared inference remains INFERRED unless source evidence upgrades it.
 - Conflicting or stale evidence cannot be narrated as PASS.
 
+## Agreement without authority (Semantic CI gate)
+Registered in collider/concepts.py, applied identically to every concept:
+- `BLOCK` — the question has already been raised (it diverged before). Later agreement does not close it; only canon does. Gate stays DECISION_REQUIRED.
+- `DISCLOSE` — never yet diverged. Reported as a shared assumption: INFERRED, `upgrades_to_fact: false`, non-blocking, visible. The first disagreement makes it a SPEC_GAP.
+
+## Guard verdicts
+- `MERGE_BLOCKED` — contradicts explicit source or resolved canon.
+- `MERGE_ALLOWED` — no semantic concept changed.
+- `DECISION_REQUIRED` — the change exposes a decision nobody made. It is never called AGENT_DRIFT, because nothing was decided to drift from.
+
 ## Negative path
 SPEC_GAP → UNKNOWN → HUMAN DECISION REQUIRED
 

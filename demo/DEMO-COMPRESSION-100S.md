@@ -1,6 +1,7 @@
 # COLLIDER — 100-Second Actual Product Demo
 
-Status: LOCKED FOR RECORDING
+Status: SUPERSEDED FOR RECORDING by demo/DEMO-SCRIPT-ACTIVE.md (this script
+predates ACTIVE MODE and the three-verdict guard; kept as the compression record).
 
 Purpose: satisfy the hackathon requirement for at least 90 seconds of actual
 product while maximizing judge comprehension.

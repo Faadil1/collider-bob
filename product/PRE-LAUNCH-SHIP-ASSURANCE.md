@@ -17,36 +17,40 @@ This gate applies to the real production runtime. Repository correctness alone i
 
 ## Audit
 
+Status as of commit `6564720` (escalated build: three guard verdicts). Rows
+marked *(live)* were proven on the public runtime for `bdfd9d3` and must be
+re-observed on the escalated build.
+
 | Area | Status | Current evidence / remaining work |
 |---|---|---|
-| Legal & Privacy | N/A / REVIEWED | Demo has no account system or intended PII collection. Session uses an opaque random identifier. Do not upgrade this to a legal-compliance claim. |
-| HTTPS | PROVEN | Public runtime is served over HTTPS by Cloudflare. |
-| Secrets | PROVEN FOR REPO | Wrangler config requires no application secret; no frontend secret is part of the adapter design. Account credentials remain deployment-side only. |
-| Session safety | PROVEN IN CODE / RUNTIME PARTIAL | 256-bit opaque session id; HttpOnly, Secure, SameSite=Lax cookie; malformed/duplicate cookie replaced; container name derived by Worker hash. Separate-session live proof still pending. |
-| Request boundary | PROVEN IN CODE | API routes/methods are allow-listed, request body bounded to 4096 bytes, only content-type/accept forwarded. |
-| Container network | PROVEN IN CONFIG | Container has outbound Internet disabled. |
-| Security headers / CSP | PENDING | Must inspect final production headers before SHIP. |
-| Abuse / rate limiting | REVIEW NEEDED | Low-volume hackathon demo; no dedicated rate limiter proven. Decide explicit N/A or bounded mitigation before SHIP. |
-| Metadata | PARTIAL_PASS | Public title and description are present. |
-| Canonical / OG / favicon | PENDING / NON-CORE | Verify link-preview metadata and favicon; add only if it improves submission sharing. |
-| sitemap.xml | N/A | Single-purpose hackathon demo; current endpoint is 404 and search indexing is not a product requirement. |
-| robots.txt | REVIEWED | Cloudflare serves robots/content-signal text. No staging-indexing claim is made. |
-| Accessibility | ACTIVE | Reduced-motion path exists. Keyboard/focus, contrast, semantics, and final mobile usability still need live smoke. |
-| Performance | ACTIVE | Public page responds; no Core Web Vitals or formal performance budget has been recorded. |
-| Responsive / mobile | PENDING | Final mobile smoke required. |
-| Error / loading / empty states | PARTIAL_PASS | Active-mode unavailable, action failure, compile, guard-running, abstention, and restoration states exist. |
-| Input/action safety | PROVEN FOR CURRENT ACTIONS | Human choice is bounded; mutations occur in isolated workspace; guard mutation is restored exactly. |
-| Retry / idempotency | REVIEW NEEDED | Current judge path is bounded and session-scoped; no general idempotency claim. |
-| Observability | PARTIAL_PASS | Cloudflare observability enabled; container emits one-line request logs without request bodies. Operational alerting is not proven. |
-| Analytics events | N/A | No product-analytics requirement for the hackathon demo. Do not claim analytics instrumentation. |
-| Narrative / primary CTA | PARTIAL_PASS | Core narrative and decision flow are strong; Outsider Break Test still pending. |
-| Critical resolved path | PROVEN | DECISION_REQUIRED → USE account_id → compile/repair → 2→0 → SEMANTICALLY_READY. |
-| Negative path | PROVEN | KEEP UNKNOWN preserves DECISION_REQUIRED and writes no canon/repair. |
-| Second act | PROVEN | Future incompatible change → MERGE_BLOCKED → exact restore → SEMANTICALLY_READY. |
-| Session isolation | PENDING | Must prove a separate browser session starts from its own DECISION_REQUIRED state. |
-| Runtime / commit binding | ACTIVE | Deployment was issued from the verified branch workspace; record a dedicated Cloudflare-version↔Git-SHA receipt before PROVEN. |
-| Rollback / deployment recovery | PENDING | Cloudflare version history exists; rehearse or document exact rollback path before SHIP. |
-| Proof capture | PARTIAL_PASS | Core and abstention paths captured in live user recordings. Session isolation/mobile/header/rollback receipts remain. |
+| Legal & Privacy | N/A / REVIEWED | No accounts, no intended PII; opaque random session id only. No compliance claim. |
+| HTTPS | PROVEN *(live)* | Served over HTTPS by Cloudflare. |
+| Secrets | PROVEN FOR REPO | No application secret; tests assert none in wrangler.jsonc or the frontend. |
+| Session safety | PROVEN IN CODE / RUNTIME PARTIAL | 256-bit opaque id, HttpOnly/Secure/SameSite=Lax, malformed or duplicate cookie replaced, container name hashed at the Worker. Live two-session isolation still to observe. |
+| Request boundary | PROVEN IN CODE | Four allow-listed routes, 4 KiB bodies, only content-type/accept forwarded, probe id is an enum. |
+| Container network | PROVEN IN CONFIG | `enableInternet = false`. |
+| Security headers / CSP | PROVEN LOCALLY | demo-ui/_headers: `default-src 'none'`, same-origin script/style/connect, no inline, `frame-ancestors 'none'`, nosniff, no-referrer, DENY, COOP, Permissions-Policy. Worker adds nosniff + `default-src 'none'` CSP to every API response. Browser runs at three viewports: zero CSP violations. Live header read pending. |
+| Abuse / rate limiting | ACCEPTED WITH BOUNDS | No dedicated rate limiter. Bounded by `max_instances = 20`, body cap, route allowlist, 24 decision runs per container (HTTP 429), one run per guard probe. |
+| Metadata | PASS | Title, description, viewport, favicon (SVG). |
+| Canonical / OG | N/A | Not needed for a judged single-purpose demo. |
+| sitemap.xml | N/A | Search indexing is not a product requirement. |
+| robots.txt | REVIEWED | Cloudflare-served; no indexing claim. |
+| Accessibility | PARTIAL_PASS | Reduced-motion path skips staged reveals; future-change list uses real buttons with focus-visible outlines; mode switch is a radiogroup. No formal audit. |
+| Performance | PARTIAL_PASS | Static assets only, no external fonts or scripts. Each guard probe runs the test suite server-side (seconds). No Core Web Vitals recorded. |
+| Responsive / mobile | PROVEN LOCALLY | 390×844: no horizontal overflow, full flow incl. three verdicts. Live mobile smoke pending. |
+| Error / loading / empty states | PASS | Unavailable runtime, action failure, 409 re-run, 429 cap, 503 container unreachable, abstention, judging and restore states. |
+| Input/action safety | PROVEN | Mutations only in the session's compiled workspace; every probe restores exact bytes (sha256 checked). |
+| Retry / idempotency | PASS FOR PROBES | A probe re-run returns 409; the UI re-shows the recorded receipt. Decisions create new isolated runs. |
+| Observability | PARTIAL_PASS | Cloudflare observability on; one-line container request logs without bodies; Worker Version id on every API response. No alerting. |
+| Analytics events | N/A | No product-analytics requirement. |
+| Narrative / primary CTA | PARTIAL_PASS | demo/DEMO-SCRIPT-ACTIVE.md; outsider test pending. |
+| Critical resolved path | PROVEN *(live)* + LOCAL | DECISION_REQUIRED → USE account_id → 2→0 → SEMANTICALLY_READY. |
+| Negative path | PROVEN *(live)* + LOCAL | KEEP UNKNOWN; and MERGE_ALLOWED as false-positive control (local + container image). |
+| Second act | PROVEN LOCAL + CONTAINER IMAGE | MERGE_BLOCKED / MERGE_ALLOWED / DECISION_REQUIRED, exact restore each time. Live pending. |
+| Session isolation | PROVEN IN CODE | Two-instance container isolation proven earlier; live two-browser proof pending. |
+| Runtime / commit binding | MECHANISM SHIPPED | `x-collider-worker-version` on every API response, shown in PROOF → PROVENANCE. |
+| Rollback / deployment recovery | DOCUMENTED | cloudflare/README.md §Rollback / recovery. Not rehearsed. |
+| Proof capture | PARTIAL_PASS | Local screenshots of all states; live capture pending. |
 
 ## Discoverability observation
 
@@ -59,15 +63,12 @@ A production fetch confirmed:
 
 ## Ship blockers
 
-The build must not be marked `SHIP` until:
-
-1. separate-session isolation is observed;
-2. mobile smoke passes;
-3. security headers/CSP are inspected and either fixed or explicitly accepted;
-4. runtime-version↔Git-SHA binding is recorded;
-5. rollback/recovery path is documented;
-6. final critical-path receipt is captured.
+1. Observe the escalated build live: three guard verdicts on the public URL.
+2. Read `x-collider-worker-version` live and match it to the Workers Builds commit.
+3. Two separate browser sessions each start at DECISION_REQUIRED.
+4. Mobile smoke on the public URL.
+5. Read live page headers and confirm the CSP from demo-ui/_headers is served.
 
 ## Gate verdict
 
-**ACTIVE — PRODUCTION CORE PATH PROVEN; SHIP NOT YET EARNED**
+**ACTIVE — PRE_LAUNCH_CODE_OK; LIVE_RUNTIME_CHECK PENDING; SHIP NOT YET EARNED**

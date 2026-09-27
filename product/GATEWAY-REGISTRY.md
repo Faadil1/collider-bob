@@ -5,33 +5,34 @@ Every registered gateway receives an explicit status. Nothing is silently forgot
 
 | Gateway / Gate | Status | Reason / promotion condition |
 |---|---|---|
-| QUALIFY→DECIDE→DESIGN→DELIVER→AUDIT→EXPAND | ACTIVE | Build has moved from DELIVER into AUDIT; final promotion still gated. |
-| RUBRIC→PAIN→PROBLEM→DIFFERENTIATOR→EXECUTION→EVIDENCE→STORY→DEMO→Q&A | ACTIVE | EVIDENCE→STORY/DEMO transition. |
-| Real Negative Event Gate | PROVEN | Mars Climate Orbiter anchors the failure class only; no prevention claim. |
-| Competitive Novelty / Kill Gate | PROVISIONAL_PASS | Continue monitoring; kill condition remains documented in DIFFERENTIATOR.md. |
-| Creative Depth & Product Ambition | PROVEN | product/CREATIVE-DEPTH-AND-DISTINCTIVENESS.md — Semantic CI / specification fuzzing category locked; North Star preserved. |
-| Distinctiveness Escalation | PROVEN | Active repair loop, second act, memory consequence, KEEP UNKNOWN, MERGE_BLOCKED, and feature-bloat guard formally passed. |
-| Concept Compression & Validation | ACTIVE | product/CONCEPT-COMPRESSION-VALIDATION.md — internal compression checks passed; external Real-User / Outsider Break Test still pending. |
+| QUALIFY→DECIDE→DESIGN→DELIVER→AUDIT→EXPAND | ACTIVE | AUDIT of the escalated build; EXPAND items are preserved as North Star in product/SEMANTIC-CI-ESCALATION.md. |
+| RUBRIC→PAIN→PROBLEM→DIFFERENTIATOR→EXECUTION→EVIDENCE→STORY→DEMO→Q&A | ACTIVE | STORY/DEMO must be re-cut around the three guard verdicts (demo/DEMO-SCRIPT-ACTIVE.md). |
+| Real Negative Event Gate | PROVEN | product/PROBLEM-EVIDENCE.md — Mars Climate Orbiter anchors the failure class only; no prevention claim. |
+| Competitive Novelty / Kill Gate | PROVISIONAL_PASS | Re-checked 2026-09-27 (product/SEMANTIC-CI-ESCALATION.md §7): no full kill-condition loop observed; decision-memory merge gates now exist, so lead with the DECISION_REQUIRED third verdict. |
+| Creative Depth & Product Ambition | PROVEN | product/SEMANTIC-CI-ESCALATION.md — second pass against the working product: third verdict, same-diff counterfactual, continuous specification fuzzing; North Star preserved. |
+| Distinctiveness Escalation | PROVEN | product/SEMANTIC-CI-ESCALATION.md — block-path bias, hard-coded memory and invisible shared assumptions found and fixed; sponsor-native strength stays PARTIAL (PRESEEDED, not LIVE_BOB). |
+| Concept Compression & Validation | ACTIVE | product/CONCEPT-COMPRESSION-VALIDATION.md — internal checks pass; external Real-User / Outsider Break Test not yet run. |
+| Real-User / Outsider Break Test | PENDING | Needs one person who did not build COLLIDER (protocol in product/CONCEPT-COMPRESSION-VALIDATION.md). No agent substitutes for it. |
 | Technical Reality Check | PROVEN | product/TECHNICAL-REALITY-CHECK.md — 15 questions answered with epistemic labels. |
 | Demo-First Architecture | PROVEN | product/DEMO-FIRST-ARCHITECTURE.md — fixture, classifier, canon routing, demo sequence. |
-| Fixture Design | PROVEN | fixtures/failed-payment/BRIEF.md, EXPECTED-TRUTH.md, BASELINE-CONTRACT.md. |
+| Fixture Design | PROVEN | fixtures/failed-payment/BRIEF.md, fixtures/failed-payment/EXPECTED-TRUTH.md, fixtures/failed-payment/BASELINE-CONTRACT.md. |
 | Evidence Schema | PROVEN | evidence/EVIDENCE-SCHEMA.md — artifact types and provenance labels defined. |
-| Truth Boundary | PROVEN | OBSERVED/INFERRED/UNKNOWN enforced; source-silent disagreement stays UNKNOWN. |
-| Negative Path | PROVEN | Public KEEP UNKNOWN path observed: no canon, no memory/spec patch/repair; gate remains DECISION_REQUIRED. |
-| Evidence Integrity | ACTIVE | LOCAL/PRESEEDED and Cloudflare ACTIVE provenance preserved; fresh LIVE_BOB replay remains pending. |
-| Bob-Native Integration | ACTIVE | Bob was load-bearing in implementation/design; canonical interpretation generation is PRESEEDED, not LIVE_BOB. |
-| Runtime / Commit Binding | ACTIVE | Public Cloudflare Worker + Container are live on the branch build; exact deployment-version↔Git-SHA binding still needs a recorded receipt before PROVEN. |
-| Public Runtime / Live Proof | ACTIVE | Cloudflare ACTIVE runtime, DECISION_REQUIRED, 2→0 compile, SEMANTICALLY_READY, MERGE_BLOCKED/restore, and KEEP UNKNOWN proven. Session isolation + mobile smoke remain. |
-| Deterministic Demo | ACTIVE | Main path and abstention path are repeatable; final deterministic capture still requires session-isolation/mobile closure. |
-| Judge Performance Assurance | PENDING | Run after final public-runtime closure and before video/submission lock. |
-| Pre-Launch / Ship Assurance | ACTIVE | product/PRE-LAUNCH-SHIP-ASSURANCE.md — production core path proven; session isolation, mobile, headers/CSP, runtime binding, rollback and final receipt remain. |
-| Submission Integrity | PENDING | Final copy/video/slides must reflect exact proven truth boundary. |
-| Final Snapshot / CURRENT / HANDOVER | ACTIVE | Canonical state is being reconciled now; final snapshot required after remaining gates. |
-| x402 | N/A | No payment rail. |
-| Nanopayments | N/A | No payment rail. |
-| Wallets | N/A | No wallet value movement. |
+| Truth Boundary | PROVEN | product/TRUTH-BOUNDARY.md — OBSERVED/INFERRED/UNKNOWN enforced; shared assumptions now visible in ACTIVE MODE and never upgraded (tests/test_guard_suite.py). |
+| Negative Path | PROVEN | KEEP UNKNOWN (no canon, no repair) plus a false-positive control: a harmless change is MERGE_ALLOWED (tests/test_guard_suite.py). |
+| Evidence Integrity | PROVEN | tests/test_active_repair.py pins canonical evidence hashes; the suite no longer writes evidence/ (pytest.ini). Fresh LIVE_BOB replay is a boundary, not claimed. |
+| Bob-Native Integration | ACTIVE | product/BOB-NATIVE-INTEGRATION.md — Bob load-bearing in implementation/design; canonical interpretations PRESEEDED, not LIVE_BOB. |
+| Runtime / Commit Binding | ACTIVE | Mechanism shipped: every API response carries x-collider-worker-version (cloudflare/README.md). PROVEN after one live read of that id matched to its Workers Builds commit. |
+| Public Runtime / Live Proof | ACTIVE | Core loop proven live on bdfd9d3. Escalated build not yet observed live (egress to workers.dev blocked in the build environment); session isolation + mobile live smoke pending. |
+| Deterministic Demo | ACTIVE | Locally deterministic at 1440×900, 1366×768 and 390×844, zero console/CSP errors; real container image verified. Live capture pending. |
+| Judge Performance Assurance | PENDING | Run after live verification of the escalated build, before video lock. |
+| Pre-Launch / Ship Assurance | ACTIVE | product/PRE-LAUNCH-SHIP-ASSURANCE.md — PRE_LAUNCH_CODE_OK reached; DEPLOY via Workers Builds on push; LIVE_RUNTIME_CHECK pending. |
+| Submission Integrity | PENDING | submission/ copy predates the active loop and the third verdict; must be refreshed to the proven truth boundary. |
+| Final Snapshot / CURRENT / HANDOVER | ACTIVE | state/CURRENT.yaml and state/HANDOVER.yaml reconciled for this build; final snapshot after live verification. |
+| x402 | N/A | No payment rail in the product. |
+| Nanopayments | N/A | No payment rail in the product. |
+| Wallets | N/A | No wallet or value movement. |
 | Smart Contracts | N/A | No on-chain execution. |
-| App Kit / sponsor gateway | N/A | No applicable integration in current architecture. |
+| App Kit / sponsor gateway | N/A | No applicable sponsor SDK in the architecture. |
 | LIVE_GATEWAY promotion | N/A | No external settlement gateway. |
 
 ## Canonical promotion order
@@ -39,6 +40,14 @@ Every registered gateway receives an explicit status. Nothing is silently forgot
 `CREATIVE DEPTH → DISTINCTIVENESS → COMPRESSION/REAL-USER VALIDATION → RUNTIME BINDING → PUBLIC RUNTIME → DETERMINISTIC DEMO → JUDGE PERFORMANCE → PRE-LAUNCH/SHIP → SUBMISSION INTEGRITY → FINAL SNAPSHOT`
 
 A gate marked `PROVEN` does not silently promote another gate.
+
+## Machine check
+
+`tests/test_gate_registry.py` parses this table and fails if a status is outside
+`PROVEN / PROVISIONAL_PASS / ACTIVE / PENDING / BLOCKED / N/A`, if a PROVEN
+gate cites a repository path that does not exist, if an N/A gate has no
+reason, or if `state/HANDOVER.yaml` reports a different status for the same
+gate. It checks consistency, not truth: evidence still has to exist.
 
 ## Re-evaluation rule
 

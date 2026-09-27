@@ -1,155 +1,108 @@
 project: collider-bob
-handover_version: 4
+handover_version: 5
 date: 2026-09-27
 source_of_truth: state/CURRENT.yaml
+branch: claude/sharp-planck-vfqz40   # never merged to main by an agent
 
 north_star:
   category: Semantic CI for Agentic Software Development
   tagline: "Fuzz the specification. Repair the decision. Prove the system understands it."
   judge_memory_sentence: "When AI agents disagree, COLLIDER finds the decision the specification forgot to make."
-  mechanism: "Independent implementation agents act as specification fuzzers / ambiguity probes."
+  second_act_line: "Tests say pass or fail. COLLIDER adds a third answer: nobody decided this yet."
+  mechanism: "Independent implementation agents act as specification fuzzers; every future agent change is a new probe."
 
 current_stage:
-  status: PUBLIC_RUNTIME_AUDIT_AND_FINAL_GATES
-  concept_lock: LOCKED_AFTER_CREATIVE_DEPTH_GATE
+  status: ESCALATED_BUILD_PENDING_LIVE_VERIFICATION
+  concept_lock: LOCKED_AFTER_SECOND_CREATIVE_DEPTH_PASS
+  demo_lock: NOT_EARNED
   submission_status: NOT_EARNED
 
+what_changed_in_this_handover:
+  artifact: product/SEMANTIC-CI-ESCALATION.md
+  findings_fixed:
+    - gate hard-coded customer_identity; now one truth table over collider/concepts.py
+    - guard could only block (unfalsifiable); now three verdicts incl. MERGE_ALLOWED control
+    - shared assumption (money unit) invisible in ACTIVE MODE; now disclosed as INFERRED
+    - memory consequence asserted, not measured; now same-diff counterfactual per probe
+    - test suite rewrote committed evidence; now pinned by pytest.ini and temp dirs
+    - no CSP/security headers or live version binding; both shipped
+    - container would have crashed on a page-only file; caught by running the real image
+  signature_moment: "MONEY_UNIT_DRIFT: 37/37 tests pass, COLLIDER returns DECISION_REQUIRED"
+
 canonical_decisions:
-  - Creative Depth & Product Ambition is now a formal mandatory gate before final Concept Lock.
-  - Distinctiveness Escalation is mandatory after Functional Proof and before Demo/Submission Lock.
-  - Current category is Semantic CI / specification fuzzing, not generic disagreement detection or a simple repair assistant.
-  - Current product loop is PROBE→COLLIDE→ADJUDICATE→DECIDE→COMPILE→PATCH→VERIFY→REMEMBER→GUARD.
-  - Fresh-agent REPLAY remains North Star only and is NOT_EXECUTED / PENDING_LIVE_BOB.
-  - UNKNOWN is first-class; consensus never becomes truth.
-  - Do not add features merely to look ambitious; depth must strengthen the mechanism, user value, or defensibility.
-
-creative_depth:
-  status: PROVEN
-  artifact: product/CREATIVE-DEPTH-AND-DISTINCTIVENESS.md
-  strongest_escalations:
-    - specification_fuzzing
-    - decision_compilation
-    - semantic_ci_guard
-    - future_fresh_agent_replay
-  rejected_as_dilution:
-    - generic_agent_orchestrator
-    - dashboard_expansion
-    - probabilistic_confidence_scoring
-
-distinctiveness_escalation:
-  status: PROVEN
-  proven:
-    - active_mutation_in_isolated_workspace
-    - closed_loop_repair
-    - second_act_guard
-    - memory_with_future_consequence
-    - KEEP_UNKNOWN_counter_case
-    - MERGE_BLOCKED_signature_moment
-    - two_conflicts_to_zero_before_after
-  sponsor_native_strength: PARTIAL
-  reason: canonical interpretations remain PRESEEDED, not LIVE_BOB
+  - Category stays Semantic CI; the DECISION_REQUIRED third verdict is what earns it.
+  - A raised question is closed only by authority (BLOCK); a never-contested agreement is disclosed (DISCLOSE).
+  - Guard probes are fixed, bounded, controlled changes. No judge-supplied diffs.
+  - Fresh-agent REPLAY remains NOT_EXECUTED / PENDING_LIVE_BOB.
+  - RATIFY is the next North Star step, deliberately not in this build.
+  - The money-unit divergence is a SPEC_GAP finding, not an "integration conflict"; the historical conflict definition is unchanged.
 
 public_runtime:
   url: https://collider-semantic-ci.faadil-casecraft.workers.dev/
-  status: ACTIVE_PARTIAL_GATE
-  deployed_runtime_code_commit: bdfd9d35054ddefe8e48c7e67f525f5d3d55f5e7
-  cloudflare_version_observed: f946793b
-  provenance:
-    execution_environment: CLOUDFLARE_CONTAINER
-    interpretation_source: PRESEEDED
-    human_decision_source: INTERACTIVE_WEB
-  core_flow_observed:
-    - initial DECISION_REQUIRED
-    - two integration conflicts
-    - USE_ACCOUNT_ID compiles decision
-    - two_to_zero conflicts
-    - SEMANTICALLY_READY
-    - future account_id_to_email attempt
-    - MERGE_BLOCKED
-    - exact restore
-    - SEMANTICALLY_READY restored
-  negative_path_observed:
-    - KEEP_UNKNOWN
-    - DECISION_REQUIRED remains
-    - two conflicts remain
-    - no canon
-    - no decision memory
-    - no spec patch
-    - no repairs
-    - source tree untouched
+  last_live_verified_code_commit: bdfd9d35054ddefe8e48c7e67f525f5d3d55f5e7
+  escalated_build_live: NOT_YET_OBSERVED
+  why: the agent build environment's egress policy denies the workers.dev host; not routed around
+  deploy_path: push to claude/sharp-planck-vfqz40 -> Workers Builds -> npx wrangler deploy
+  binding_mechanism: x-collider-worker-version on every /api/* response; PROOF -> PROVENANCE shows it
+  rollback: cloudflare/README.md "Rollback / recovery"
 
 gateway_status:
-  Creative_Depth_Product_Ambition: PROVEN
-  Distinctiveness_Escalation: PROVEN
-  Concept_Compression_Validation: ACTIVE  # product/CONCEPT-COMPRESSION-VALIDATION.md; external break test pending
-  Truth_Boundary: PROVEN
-  Negative_Path: PROVEN
-  Evidence_Integrity: ACTIVE
-  Runtime_Commit_Binding: ACTIVE
-  Public_Runtime_Live_Proof: ACTIVE
-  Deterministic_Demo: ACTIVE
-  Judge_Performance_Assurance: PENDING
-  Pre_Launch_Ship_Assurance: ACTIVE  # product/PRE-LAUNCH-SHIP-ASSURANCE.md
-  Submission_Integrity: PENDING
-  Final_Snapshot_CURRENT_HANDOVER: ACTIVE
-  x402: N/A
-  nanopayments: N/A
-  wallets: N/A
-  smart_contracts: N/A
-  App_Kit: N/A
-  LIVE_GATEWAY: N/A
+  "Real Negative Event Gate": PROVEN
+  "Competitive Novelty / Kill Gate": PROVISIONAL_PASS
+  "Creative Depth & Product Ambition": PROVEN
+  "Distinctiveness Escalation": PROVEN
+  "Concept Compression & Validation": ACTIVE
+  "Real-User / Outsider Break Test": PENDING
+  "Technical Reality Check": PROVEN
+  "Truth Boundary": PROVEN
+  "Negative Path": PROVEN
+  "Evidence Integrity": PROVEN
+  "Bob-Native Integration": ACTIVE
+  "Runtime / Commit Binding": ACTIVE
+  "Public Runtime / Live Proof": ACTIVE
+  "Deterministic Demo": ACTIVE
+  "Judge Performance Assurance": PENDING
+  "Pre-Launch / Ship Assurance": ACTIVE
+  "Submission Integrity": PENDING
+  "Final Snapshot / CURRENT / HANDOVER": ACTIVE
+  "x402": N/A
+  "Nanopayments": N/A
+  "Wallets": N/A
+  "Smart Contracts": N/A
+  "App Kit / sponsor gateway": N/A
+  "LIVE_GATEWAY promotion": N/A
 
 truth_boundary:
   do_not_claim:
     - PRESEEDED interpretations are LIVE_BOB
     - fresh-agent replay has executed
-    - Bob parallel subagents generated the canonical current interpretations
-    - measured wall-clock or percentage improvement without evidence
+    - guard probes are agents
+    - the escalated build was verified on the public runtime (until it is)
+    - measured wall-clock or percentage improvement
   allowed:
     - Bob was genuinely used in implementation/design
-    - Cloudflare ACTIVE runtime is real
-    - interactive web human decision is real
+    - the Cloudflare ACTIVE runtime is real (core loop live-verified on bdfd9d3)
+    - the three guard verdicts are real executions (local + real container image)
     - current interpretations are PRESEEDED
 
-do_not_redo:
-  - Technical Reality Check
-  - local comparative evidence baseline-001 vs local-resolved-004
-  - Creative Depth & Product Ambition pass
-  - Distinctiveness Escalation pass
-  - core public resolved path proof
-  - KEEP_UNKNOWN negative path proof
-  - MERGE_BLOCKED + restore proof
-
 blocking_or_pending:
-  - separate browser-session isolation
-  - mobile smoke
-  - runtime-version-to-Git-SHA binding receipt
-  - external Real-User / Outsider Break Test
-  - production Pre-Launch / Ship Assurance closure
-  - security headers/CSP disposition
-  - rollback/recovery documentation
+  - live verification of the escalated build (three verdicts, two sessions, mobile, headers, version id)
+  - external Real-User / Outsider Break Test (a person who did not build it)
   - Judge Performance Assurance
-  - final submission copy refresh
-  - literal Bob Task Session Summary evidence
-  - slides/cover
-  - final <=3min video
+  - submission/ copy refresh to the three-verdict truth
+  - Bob Task Session Summary evidence
+  - slides/cover and final <=3 min video (demo/DEMO-SCRIPT-ACTIVE.md)
   - Submission Integrity
   - final snapshot
 
-next_exact_action:
-  - "Prove separate-session isolation, then run mobile smoke. Do not merge to main until Public Runtime / Live Proof closes."
-
-files_changed_this_reconciliation:
-  - product/CREATIVE-DEPTH-AND-DISTINCTIVENESS.md
-  - product/CONCEPT-COMPRESSION-VALIDATION.md
-  - product/PRE-LAUNCH-SHIP-ASSURANCE.md
-  - product/GATEWAY-REGISTRY.md
-  - state/CURRENT.yaml
-  - state/HANDOVER.yaml
+next_exact_action: >
+  Open the public URL after Workers Builds deploys the pushed head; in two separate browser sessions
+  run all three future agent changes in one, confirm the other starts at DECISION_REQUIRED, and record
+  the x-collider-worker-version from PROOF -> PROVENANCE with the commit Workers Builds lists for it.
 
 do_not_forget:
   - "Functional ≠ finished."
   - "Explore widely before constraining."
   - "Execution constraints may sequence the vision; they must not define the vision."
-  - "Memory compactness must never reduce workflow depth."
+  - "A gate document saying PROVEN is not evidence; re-derive it from the product."
   - "Every major decision/gate/build/proof/deployment updates canonical state."

@@ -87,7 +87,8 @@ python3 -m collider.decision_compiler \
   --value account_id --decision-id my-decision # CLI equivalent of USE account_id
 python3 -m collider.guard_probe \
   --workspace .collider/workspaces/my-decision \
-  --out-dir .collider/runs/my-decision          # CLI equivalent of the guard probe
+  --out-dir .collider/runs/my-decision \
+  --probe IDENTITY_REVERT                       # or COMPATIBLE_CHANGE / MONEY_UNIT_DRIFT
 ```
 
 The SPEC_GAP panel offers exactly two choices:
@@ -119,6 +120,11 @@ Mutation happens in a workspace copy (`.collider/workspaces/<id>`, git-ignored).
 The committed tree stays the canonical pre-decision input for baseline-001 and
 local-resolved-004, and the compiler checks that its hashes did not change.
 
+The gate applies one truth table to every concept registered in
+`collider/concepts.py`. Agreement without authority is never promoted: the
+money unit (`integer_cents`, assumed by all three workstreams, never stated by
+the source) is reported under `assumptions` as INFERRED and non-blocking.
+
 Gate verdicts: `DECISION_REQUIRED` (unresolved SPEC_GAP) · `AGENT_DRIFT` (explicit
 source or resolved canon violated) · `SEMANTICALLY_READY` (canon resolved,
 dependents conform, verification passes) · `VERIFICATION_FAILED`.
@@ -127,14 +133,23 @@ Committed receipt: `evidence/decisions/decision-001/` (human decision source
 PRESEEDED). UI-triggered compiles record `INTERACTIVE_LOCAL_UI` and write only to
 `.collider/runs/`.
 
-GUARD is a second action. After `SEMANTICALLY_READY`, **TEST A FUTURE AGENT CHANGE**
-runs `collider/guard_probe.py` in the compiled workspace. It reads the decision memory,
-rewrites `api/handlers/recover.py` `CUSTOMER_IDENTITY_FIELD` from `account_id` to
-`email`, runs the gate (`AGENT_DRIFT` vs `RESOLVED_CANON` → `MERGE_BLOCKED`), runs the
-regression contract (fails), restores the exact prior bytes, and re-runs the gate
-(`SEMANTICALLY_READY`, 0 conflicts, contract passing). The receipt is
-`.collider/runs/<id>/guard-probe.json`. GUARD is shown as complete only after this
-probe has run. The guard is not the fresh-agent replay.
+GUARD is a second act with three verdicts. After `SEMANTICALLY_READY`, the judge
+runs fixed future-agent changes (`collider/guard_probe.py`) in the compiled
+workspace. Each is judged by the gate with decision memory **and** without it
+(same changed tree, memory and spec marker removed), then the exact prior bytes
+are restored and the gate re-runs:
+
+| Future change | Tests | With memory | Without memory |
+|---|---|---|---|
+| API identity `account_id → email` | 33 passed · 4 failed | `MERGE_BLOCKED` (AGENT_DRIFT vs RESOLVED_CANON) | `DECISION_REQUIRED` |
+| Notification wording only | 37 passed | `MERGE_ALLOWED` | `DECISION_REQUIRED` |
+| Ledger `MONEY_UNIT → decimal_dollars` | 37 passed | `DECISION_REQUIRED` (new SPEC_GAP: money unit) | `DECISION_REQUIRED` |
+
+The third row is the point: every test passes, nothing recorded is violated,
+and COLLIDER still refuses to merge, because the workstreams now disagree where
+the source is silent. Receipts: `.collider/runs/<id>/guard-probe*.json`. The
+guard is a controlled change, not the fresh-agent replay. See
+`product/SEMANTIC-CI-ESCALATION.md`.
 
 Modes: **ACTIVE MODE** (default; truth label `LOCAL ACTIVE DEMO · PRESEEDED
 INTERPRETATIONS · INTERACTIVE HUMAN DECISION`) needs the local action server. If the
@@ -248,33 +263,23 @@ state/          CURRENT + HANDOVER
 tests/          integrity and regression verification
 
 Verification
-python3 -m pytest \
-  tests/test_fixture.py \
-  tests/test_baseline.py \
-  api/tests/ \
-  ledger/tests/ \
-  notifications/tests/ \
-  tests/test_semantic_ci.py \
-  tests/test_active_repair.py \
-  tests/test_cloudflare_adapter.py \
-  -q
+python3 -m pytest -q -p no:cacheprovider   # canonical suite, pinned in pytest.ini
+npx tsc --noEmit                          # Worker / router types
 
 Current result:
-212 passed, 6 subtests passed
+249 passed, 117 subtests passed
 
-Project status
-Gate	Status
-Concept Lock	PASS
-Technical Reality	PASS
-Local Runtime Evidence	PASS
-Baseline Evidence	PASS
-Comparative Evidence	PASS
-Evidence Integrity	PASS
-Demo Compression	PASS
-Visual / Judge Performance	PASS
-LIVE_BOB canonical runtime	NOT CLAIMED
-Submission packaging	IN PROGRESS
+Project status (canonical: product/GATEWAY-REGISTRY.md, checked by tests/test_gate_registry.py)
 
+| Gate | Status |
+|---|---|
+| Creative Depth · Distinctiveness (second pass) | PROVEN |
+| Technical Reality · Truth Boundary · Negative Path · Evidence Integrity | PROVEN |
+| Competitive Novelty / Kill | PROVISIONAL_PASS |
+| Public Runtime / Live Proof | ACTIVE: core loop live on `bdfd9d3`; three-verdict build not yet observed live |
+| Runtime / Commit Binding · Deterministic Demo · Pre-Launch / Ship | ACTIVE |
+| Real-User / Outsider Break Test · Judge Performance · Submission Integrity | PENDING |
+| LIVE_BOB canonical runtime | NOT CLAIMED |
 
 Real failure > fake success.
 MIT licensed.

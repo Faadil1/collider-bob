@@ -130,6 +130,14 @@ This verdict does **not** declare the product finished forever. It means the cur
 
 ---
 
+## Second pass (2026-09-27)
+
+Re-run against the working product rather than this document:
+product/SEMANTIC-CI-ESCALATION.md. It overturned three PASS rows above
+(memory was hard-coded to one concept, the guard could only block, the shared
+assumption was invisible) and escalated the guard into three verdicts with a
+same-diff counterfactual.
+
 ## Promotion boundary
 
 The build may move forward only with these truths preserved:

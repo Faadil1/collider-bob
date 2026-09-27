@@ -21,11 +21,12 @@ Current wedge:
 | Pain Evidence | PASS | product/PROBLEM-EVIDENCE.md includes a concrete historical cross-boundary failure-class anchor and modern agent-specific ambiguity evidence. |
 | Wedge | PASS | One concrete failed-payment workflow demonstrates a specific cross-boundary identity decision. |
 | Demo Compression | PASS | demo/DEMO-COMPRESSION-100S.md proves the core transformation can be shown inside the hackathon video constraint. |
-| Before → After | PASS | 30 local tests / 3 green workstreams / 2 integration conflicts → targeted repair → 0 conflicts; future violation → MERGE_BLOCKED. |
+| Before → After | PASS | 30 local tests / 3 green workstreams / 2 integration conflicts → targeted repair → 0 conflicts; future changes → MERGE_BLOCKED / MERGE_ALLOWED / DECISION_REQUIRED, each with the same diff judged without memory. |
 | Proof-in-the-Product | PASS | Active UI exposes gate state, conflicts, compile/repair results, regression contract, decision memory, guard result, restore, and provenance. |
 | Reality Layer | PASS | Real public Cloudflare Worker + per-session Container; real mutations occur in isolated workspaces; errors/abstention/restore are first-class. |
 | Miracle Dependency | PASS WITH BOUNDARY | Core demo does not depend on a fresh model call. Fresh-agent replay remains PENDING_LIVE_BOB and is not required for the wedge. |
-| Outsider / Real-User Break Test | PENDING | Needs one external person to attempt the workflow without coaching. |
+| Outsider / Real-User Break Test | PENDING | Needs one external person to attempt the workflow without coaching. Not waived: the builder and an AI agent are not outsiders. |
+| Narrative risk (new) | WATCH | The third verdict adds one idea. If the outsider cannot explain DECISION REQUIRED back, cut guard C from the video before cutting anything else. |
 | Narrative Compression | PASS | “When AI agents disagree, COLLIDER finds the decision the specification forgot to make.” |
 | North Star Preservation | PASS | Wedge compression does not collapse the broader Semantic CI / specification-fuzzing vision. |
 
@@ -72,6 +73,8 @@ Observe:
 - Can they reach the human decision without explanation?
 - Do they understand 2→0?
 - Do they discover or understand the guard second act?
+- Do they understand why the dollars change is DECISION REQUIRED although every test passes?
+- Do they read the "same diff without decision memory" line as proof that memory matters?
 - Can they explain the product back in one sentence?
 
 Record failure points before polishing the final video.

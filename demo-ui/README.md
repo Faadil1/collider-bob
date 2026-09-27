@@ -14,7 +14,8 @@ Serves the UI at 127.0.0.1:4173 with bounded local actions:
 
     GET  /api/state    gate on the committed tree
     POST /api/decide   {"choice": "USE_ACCOUNT_ID" | "KEEP_UNKNOWN"}
-    POST /api/guard    {"decision_id": "<session id from USE_ACCOUNT_ID>"}
+    POST /api/guard    {"decision_id": "<session id from USE_ACCOUNT_ID>",
+                        "probe": "IDENTITY_REVERT" | "COMPATIBLE_CHANGE" | "MONEY_UNIT_DRIFT"}
     GET  /api/gate?decision=<session id>
 
 No HTTP input carries values or paths. Every action writes only to the
@@ -26,9 +27,11 @@ ACTIVE MODE is a fixed-height application shell (no document scrolling):
 top bar with provenance · left loop rail (DETECT → GUARD, replay pending) ·
 one current step in the center · proof drawer (collapsed by default: code diff,
 spec patch, regression contract, decision memory, receipts, hashes, provenance) ·
-bottom action bar holding the primary action. The rail follows what is on
-screen: GUARD reads blocking → restoring → ✓ only as the receipt-driven guard
-phases are revealed. On phones the rail becomes a compact progress line, the
+bottom action bar holding the primary action. The GUARD step lists three
+future agent changes; each is judged with and without decision memory and
+shows MERGE BLOCKED, MERGE ALLOWED or DECISION REQUIRED. The rail follows what
+is on screen: GUARD reads ✓ only once the revealed receipt reached that
+change's expected verdict and the exact prior bytes were restored. On phones the rail becomes a compact progress line, the
 action bar is sticky, and proof opens as a bottom sheet. All API calls are
 relative (`./api/...`), so the UI works behind any single origin.
 
