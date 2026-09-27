@@ -1,6 +1,6 @@
 project: collider-bob
 date: 2026-09-27
-stage: BOB_NATIVE_LIVE_PROOF_AND_TARGETED_REPLAY_PROVEN
+stage: UIUX_REDESIGN_IMPLEMENTED_PENDING_REVIEW
 branch: main
 
 north_star:
@@ -180,6 +180,9 @@ submission:
     - demo/DEMO-SCRIPT-ACTIVE.md
     - evidence/bob-sessions/JUDGE-EVIDENCE-MANIFEST-2026-09-27.md
   pending:
+    - review + merge the Claude UI/UX redesign (branch design/claude-uiux-pass; product/UIUX-COLLISION-CHAMBER-2026-09-27.md; locally validated desktop/mobile/reduced-motion)
+    - observe the redesigned UI on the public Cloudflare runtime after deploy
+    - archive selected Bob screenshots and bind hashes after final UI direction is locked
     - slides and cover
     - final <=3 min video from demo/DEMO-SCRIPT-ACTIVE.md
     - Submission Integrity Gate
@@ -201,10 +204,9 @@ do_not_redo:
   - repo publication audit
 
 next_exact_action: >
-  Bob evidence packaging copy and judge-selection manifest are now refreshed. Preserve the raw Bob transcripts,
-  receipts and all original screenshots. Next archive the selected original screenshot files into the Bob evidence
-  folder without reconstruction, bind their SHA-256 values into the judge manifest, then proceed to final slides/cover,
-  <=3 minute video, Submission Integrity Gate, and final snapshot.
+  Review design/claude-uiux-pass (collision-chamber redesign, product/UIUX-COLLISION-CHAMBER-2026-09-27.md).
+  After merge and deploy, run the full flow once on the public URL (desktop + phone), then archive selected
+  screenshots and continue slides, cover and final video from demo/DEMO-SCRIPT-ACTIVE.md.
 
 fresh_agent_replay_attempt_02:
   status: REPLAY_PASS
