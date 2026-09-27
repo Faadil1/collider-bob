@@ -37,4 +37,9 @@ The signature example changes Ledger from cents to dollars: **37/37 tests pass**
 
 That is the core idea: tests can say pass or fail; COLLIDER adds a third answer — **nobody decided this yet**.
 
-The canonical interpretation evidence is PRESEEDED, not live Bob-generated. No unmeasured time-saving or percentage-productivity claim is made.
+The comparative fixture interpretation evidence remains PRESEEDED. Separately, a real
+LIVE_BOB run with three isolated Bob subagents reproduced the source-silent
+`customer_identity` ambiguity and stopped for an interactive human decision. A
+fresh-agent replay then preserved an authentic first failure before a second,
+targeted minimal-change replay passed the withheld regression contract 7/7. No
+unmeasured time-saving or percentage-productivity claim is made.
