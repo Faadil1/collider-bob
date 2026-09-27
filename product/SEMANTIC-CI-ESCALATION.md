@@ -77,7 +77,7 @@ every future agent change is a new ambiguity probe.
 | Idea | Why not |
 |---|---|
 | Judge-supplied arbitrary diffs | Breaks the bounded-input rule (no paths/values from HTTP) and invites unverifiable demos. Fixed probes are real mutations with real verdicts. |
-| Scripted "fresh agent" replay | Would be a simulation narrated as an agent. Replay stays `NOT_EXECUTED / PENDING_LIVE_BOB`. |
+| Scripted "fresh agent" replay | Rejected. The real replay evidence is session-bound Bob execution: Attempt 01 is preserved as REPLAY_FAIL; Attempt 02 is a targeted-repair REPLAY_PASS after a withheld 7/7 contract. |
 | RATIFY action for the money unit in this build | Requires generalising the decision compiler to a concept with no repair and adds a fourth decision to the judge path. Preserved as the next North Star step (below). |
 | Counting the money-unit divergence as an "integration conflict" | The conflict probe is the canonical baseline definition (identity + money field). Changing it would silently redefine historical evidence. The divergence is reported as a SPEC_GAP finding instead. |
 | LLM confidence / semantic-similarity classification | Consensus and confidence are not authority; the classifier stays deterministic. |
