@@ -11,8 +11,8 @@ Every registered gateway receives an explicit status. Nothing is silently forgot
 | Competitive Novelty / Kill Gate | PROVISIONAL_PASS | Re-checked 2026-09-27 (product/SEMANTIC-CI-ESCALATION.md §7): no full kill-condition loop observed; decision-memory merge gates now exist, so lead with the DECISION_REQUIRED third verdict. |
 | Creative Depth & Product Ambition | PROVEN | product/SEMANTIC-CI-ESCALATION.md — second pass against the working product: third verdict, same-diff counterfactual, continuous specification fuzzing; North Star preserved. |
 | Distinctiveness Escalation | PROVEN | product/SEMANTIC-CI-ESCALATION.md — block-path bias, hard-coded memory and invisible shared assumptions found and fixed; sponsor-native strength stays PARTIAL (PRESEEDED, not LIVE_BOB). |
-| Concept Compression & Validation | ACTIVE | product/CONCEPT-COMPRESSION-VALIDATION.md — internal checks pass; external Real-User / Outsider Break Test not yet run. |
-| Real-User / Outsider Break Test | PENDING | Needs one person who did not build COLLIDER (protocol in product/CONCEPT-COMPRESSION-VALIDATION.md). No agent substitutes for it. |
+| Concept Compression & Validation | PROVEN | product/CONCEPT-COMPRESSION-VALIDATION.md — internal checks pass and the documented waiver path was exercised; external comprehension remains unmeasured. |
+| Real-User / Outsider Break Test | PROVISIONAL_PASS | Not executed; explicitly waived for this submission in evidence/validation/OUTSIDER-BREAK-TEST-WAIVER-2026-09-27.md. This status must never be narrated as a completed user test. |
 | Technical Reality Check | PROVEN | product/TECHNICAL-REALITY-CHECK.md — 15 questions answered with epistemic labels. |
 | Demo-First Architecture | PROVEN | product/DEMO-FIRST-ARCHITECTURE.md — fixture, classifier, canon routing, demo sequence. |
 | Fixture Design | PROVEN | fixtures/failed-payment/BRIEF.md, fixtures/failed-payment/EXPECTED-TRUTH.md, fixtures/failed-payment/BASELINE-CONTRACT.md. |
