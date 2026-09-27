@@ -9,6 +9,7 @@
     name="description"
     content="Semantic CI for agentic software development: detect, decide, compile, patch, verify, remember, guard."
   >
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./styles.css">
 </head>
 
@@ -161,6 +162,14 @@
             <code id="g-drift">—</code>
             <span class="drift-src">SOURCE EXPLICIT · repaired from source, no human question</span>
           </div>
+
+          <div class="drift-strip assumption-strip" id="assumption-strip">
+            <span class="tag tag-inferred">SHARED ASSUMPTION</span>
+            <span>not blocking</span>
+            <strong id="g-assume-label">—</strong>
+            <code id="g-assume">—</code>
+            <span class="drift-src">SOURCE SILENT · all agree · stays INFERRED, never canon</span>
+          </div>
         </div>
 
         <!-- 02b KEEP UNKNOWN ---------------------------------------- -->
@@ -208,28 +217,29 @@
 
         <!-- 07 GUARD ------------------------------------------------- -->
         <div class="screen" data-screen="guard">
-          <div class="eyebrow">07 · GUARD · future-agent change against persisted canon</div>
+          <div class="eyebrow">07 · GUARD · future agent changes judged against decision memory</div>
 
           <div class="guard-grid">
             <div class="phase-panel" id="phase-panel" data-phase="0">
-              <!-- 0 running -->
+              <!-- 0 choose / running -->
               <div class="phase" data-p="0">
-                <span class="kicker">GUARD PROBE</span>
-                <strong class="phase-title">RUNNING IN ISOLATED WORKSPACE…</strong>
-                <p>Reading decision memory, applying the future-agent change, running the gate.</p>
+                <span class="kicker">SEMANTIC CI · NEXT PULL REQUEST</span>
+                <strong class="phase-title" id="p-idle-title">PICK A FUTURE AGENT CHANGE</strong>
+                <p id="p-idle-text">Each change is applied to this session’s compiled workspace, judged by the gate with and without decision memory, then restored byte for byte.</p>
               </div>
               <!-- A attempt -->
               <div class="phase" data-p="1">
-                <span class="kicker kicker-danger">A · FUTURE AGENT ATTEMPT</span>
+                <span class="kicker kicker-danger" id="p-attempt-kicker">A · FUTURE AGENT CHANGE</span>
                 <pre class="attempt-diff" id="p-attempt"></pre>
                 <small id="p-attempt-file"></small>
               </div>
-              <!-- B violation -->
+              <!-- B verdict -->
               <div class="phase phase-violation" data-p="2">
-                <span class="kicker kicker-danger">B · CANON VIOLATION</span>
+                <span class="kicker kicker-danger" id="p-verdict-kicker">B · VERDICT</span>
                 <code class="attempt-inline" id="p-inline"></code>
-                <strong class="blocked">MERGE BLOCKED</strong>
+                <strong class="blocked" id="p-verdict">—</strong>
                 <p class="rule" id="p-rule"></p>
+                <p class="counterfactual" id="p-cf"></p>
                 <dl class="facts" id="p-violation"></dl>
               </div>
               <!-- C restoring -->
@@ -240,7 +250,8 @@
               </div>
               <!-- D complete -->
               <div class="phase phase-complete" data-p="4">
-                <span class="kicker kicker-ok">D · COMPLETE</span>
+                <span class="kicker kicker-ok" id="p-complete-kicker">D · COMPLETE</span>
+                <strong class="complete-verdict" id="p-complete-verdict">—</strong>
                 <ul class="complete-list" id="p-complete"></ul>
                 <small id="p-receipt"></small>
               </div>
@@ -249,12 +260,8 @@
             <aside class="phase-list">
               <span class="kicker">PROTECTED DECISION</span>
               <strong class="protected-value" id="p-protected">—</strong>
-              <ol id="phase-list">
-                <li data-p="1"><b>A</b><span>Attempt</span><small></small></li>
-                <li data-p="2"><b>B</b><span>Violation</span><small></small></li>
-                <li data-p="3"><b>C</b><span>Restore</span><small></small></li>
-                <li data-p="4"><b>D</b><span>Complete</span><small></small></li>
-              </ol>
+              <span class="kicker">FUTURE AGENT CHANGES</span>
+              <ol class="pr-list" id="pr-list"></ol>
             </aside>
           </div>
         </div>

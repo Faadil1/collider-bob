@@ -15,6 +15,7 @@ All tests must pass before the LOCAL-001 run is considered verified.
 import json
 import os
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -37,7 +38,9 @@ from collider.pipeline import (
 FIXTURE_DIR = "fixtures/failed-payment"
 BRIEF_PATH = "fixtures/failed-payment/BRIEF.md"
 RUN_ID = "test-run"
-RUN_DIR = "evidence/runs/test-run"
+# Test pipeline output goes to a throwaway directory, never into committed
+# evidence/ (the suite must leave the evidence tree byte-identical).
+RUN_DIR = os.path.join(tempfile.mkdtemp(prefix="collider-test-run-"), RUN_ID)
 
 
 def load_interpretations():

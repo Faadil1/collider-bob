@@ -31,6 +31,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+from collider.concepts import CONCEPTS, ORDER, values_for
 from collider.pipeline import classify_concept
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -93,6 +94,10 @@ def observe_facts(root: Path) -> dict:
         "notifications_money_field": (
             "refund_amount" if "refund_amount" in notif_params else None
         ),
+        # Declared money unit (MONEY_UNIT); None when a workstream declares none.
+        "api_money_unit": ns["api"].get("MONEY_UNIT"),
+        "ledger_money_unit": ns["ledger"].get("MONEY_UNIT"),
+        "notifications_money_unit": ns["notifications"].get("MONEY_UNIT"),
     }
 
 
@@ -191,6 +196,95 @@ def run_verification(root: Path) -> dict:
 # Gate
 # ---------------------------------------------------------------------------
 
+def evaluate_concept(concept: str, values: dict, record: dict | None,
+                     brief_text: str) -> tuple[dict | None, dict | None]:
+    """Apply the truth table to one concept. Returns (finding, assumption)."""
+    spec = CONCEPTS[concept]
+
+    if record:
+        expected = record["canonical_value"]
+        dependents = record.get("affected_dependents", sorted(values))
+        violations = {
+            ws: values[ws] for ws in dependents
+            if ws in values and values[ws] != expected
+        }
+        if violations:
+            return {
+                "kind": "AGENT_DRIFT",
+                "concept": concept,
+                "authority": "RESOLVED_CANON",
+                "expected": expected,
+                "violations": violations,
+                "decision_id": record.get("decision_id"),
+            }, None
+        return None, None
+
+    result = classify_concept(
+        concept,
+        {ws: {"value": v, "epistemic_state": "UNKNOWN"} for ws, v in values.items()},
+        brief_text,
+    )
+    kind = result["classification"]
+    if kind == "AGENT_DRIFT":
+        return {
+            "kind": "AGENT_DRIFT",
+            "concept": concept,
+            "authority": "EXPLICIT_SOURCE",
+            "expected": result["authoritative_value"],
+            "violations": {
+                ws: result["workstream_values"][ws]
+                for ws in result["agent_drift_workstreams"]
+            },
+            "source_evidence": result["source_evidence"]["excerpt"],
+        }, None
+    if kind == "SPEC_GAP":
+        return {
+            "kind": "SPEC_GAP",
+            "concept": concept,
+            "authority": "NONE",
+            "epistemic_state": "UNKNOWN",
+            "candidates": result["workstream_values"],
+            "question": spec["question"],
+        }, None
+    if kind == "NO_DISAGREEMENT":
+        value = next(iter(values.values()))
+        explicit = resolve_source(concept, brief_text)
+        if explicit is not None and explicit == value:
+            return None, None  # agreement with explicit source: OBSERVED, nothing to report
+        if spec["unresolved_agreement"] == "BLOCK":
+            return {
+                "kind": "SHARED_INFERRED",
+                "concept": concept,
+                "authority": "NONE",
+                "value": value,
+                "note": "Agents agree without canon; agreement is not fact.",
+                "question_raised_by": spec.get("question_raised_by"),
+            }, None
+        return None, {
+            "kind": "SHARED_ASSUMPTION",
+            "concept": concept,
+            "label": spec["label"],
+            "value": value,
+            "workstreams": sorted(values),
+            "epistemic_state": "INFERRED",
+            "consensus": True,
+            "upgrades_to_fact": False,
+            "ratified": False,
+            "blocking": False,
+            "note": (
+                "Every workstream assumes this; the source never says it. "
+                "Consensus is not authority: the first disagreement makes it a SPEC_GAP."
+            ),
+        }
+    return None, None
+
+
+def resolve_source(concept: str, brief_text: str):
+    from collider.pipeline import resolve_evidence
+    ev = resolve_evidence(concept, brief_text)
+    return ev["value"] if ev["found"] else None
+
+
 def evaluate_gate(root: Path = ROOT) -> dict:
     root = Path(root)
     facts = observe_facts(root)
@@ -199,85 +293,23 @@ def evaluate_gate(root: Path = ROOT) -> dict:
     integration = probe_integration(facts)
     findings = []
 
-    def ws_values(pairs):
-        return {
-            ws: {"value": v, "epistemic_state": "UNKNOWN"} for ws, v in pairs.items()
-        }
-
-    # Explicit-source concept: the money field name (BRIEF API contract stub).
-    money = classify_concept(
-        "field_name",
-        ws_values({
-            "api": facts["api_money_field"],
-            "ledger": facts["ledger_money_field"],
-            "notifications": facts["notifications_money_field"],
-        }),
-        brief_text,
-    )
-    if money["classification"] == "AGENT_DRIFT":
-        findings.append({
-            "kind": "AGENT_DRIFT",
-            "concept": "field_name",
-            "authority": "EXPLICIT_SOURCE",
-            "expected": money["authoritative_value"],
-            "violations": {
-                ws: money["workstream_values"][ws]
-                for ws in money["agent_drift_workstreams"]
-            },
-            "source_evidence": money["source_evidence"]["excerpt"],
-        })
-
-    # Cross-boundary concept: customer identity (source silent until canon).
-    identity_values = {
-        "api": facts["api_customer_identity_field"],
-        "ledger": facts["ledger_customer_identity_field"],
-    }
-    record = canon.get("customer_identity")
-    if record:
-        expected = record["canonical_value"]
-        dependents = record.get("affected_dependents", sorted(identity_values))
-        violations = {
-            ws: identity_values[ws]
-            for ws in dependents
-            if ws in identity_values and identity_values[ws] != expected
-        }
-        if violations:
-            findings.append({
-                "kind": "AGENT_DRIFT",
-                "concept": "customer_identity",
-                "authority": "RESOLVED_CANON",
-                "expected": expected,
-                "violations": violations,
-                "decision_id": record.get("decision_id"),
-            })
-    else:
-        identity = classify_concept(
-            "customer_identity", ws_values(identity_values), brief_text
+    assumptions = []
+    for concept in ORDER:
+        finding, assumption = evaluate_concept(
+            concept, values_for(concept, facts), canon.get(concept), brief_text
         )
-        if identity["classification"] == "SPEC_GAP":
-            findings.append({
-                "kind": "SPEC_GAP",
-                "concept": "customer_identity",
-                "authority": "NONE",
-                "epistemic_state": "UNKNOWN",
-                "candidates": identity["workstream_values"],
-                "question": identity["minimal_question"],
-            })
-        elif identity["classification"] == "NO_DISAGREEMENT":
-            findings.append({
-                "kind": "SHARED_INFERRED",
-                "concept": "customer_identity",
-                "authority": "NONE",
-                "note": "Agents agree without canon; agreement is not fact.",
-            })
+        if finding:
+            findings.append(finding)
+        if assumption:
+            assumptions.append(assumption)
 
     verification = None
     if any(f["kind"] == "SPEC_GAP" for f in findings):
         verdict = "DECISION_REQUIRED"
     elif any(f["kind"] == "AGENT_DRIFT" for f in findings):
         verdict = "AGENT_DRIFT"
-    elif "customer_identity" not in canon:
-        # Shared inference without canon: not a gap, but not resolved either.
+    elif any(f["kind"] == "SHARED_INFERRED" for f in findings):
+        # A raised question agreed on without canon: not a gap, not resolved.
         verdict = "DECISION_REQUIRED"
     else:
         verification = run_verification(root)
@@ -293,6 +325,8 @@ def evaluate_gate(root: Path = ROOT) -> dict:
         "verdict": verdict,
         "passed": verdict == "SEMANTICALLY_READY",
         "findings": findings,
+        # Non-blocking, unratified shared assumptions: INFERRED, never OBSERVED.
+        "assumptions": assumptions,
         "facts": facts,
         "integration": integration,
         "canon_resolved": sorted(canon),

@@ -138,6 +138,21 @@ class TestWorkerRouting(unittest.TestCase):
         self.assertIsNone(self.o["sameGet"]["setCookie"])  # upstream set-cookie dropped
         self.assertEqual(self.o["sameGet"]["cacheControl"], "no-store")
 
+    def test_api_responses_carry_security_headers(self):
+        for key in ("sameGet", "samePost", "unknownApi", "wrongMethod", "tooLarge", "down"):
+            with self.subTest(response=key):
+                self.assertEqual(self.o[key]["nosniff"], "nosniff")
+                self.assertEqual(self.o[key]["csp"], "default-src 'none'; frame-ancestors 'none'")
+
+    def test_api_responses_name_the_worker_version(self):
+        v = self.o["version"]
+        self.assertEqual(v["api"], "f946793b-0000-4000-8000-000000000000")
+        self.assertEqual(v["unknownRoute"], "f946793b-0000-4000-8000-000000000000")
+        self.assertIsNone(v["asset"])
+        self.assertIsNone(v["rejected"])
+        cfg = (ROOT / "wrangler.jsonc").read_text()
+        self.assertIn('"version_metadata": { "binding": "CF_VERSION_METADATA" }', cfg)
+
     def test_container_unavailable_is_reported_not_faked(self):
         down = self.o["down"]
         self.assertEqual(down["status"], 503)
@@ -262,6 +277,35 @@ class TestContainerServer(unittest.TestCase):
             self.assertEqual(self.call("/api/decide", payload)[0], 400, payload)
         self.assertEqual(self.call("/api/guard", {"decision_id": "../../etc"})[0], 404)
 
+    def test_future_agent_changes_are_selectable_and_bounded(self):
+        status, d = self.call("/api/decide", {"choice": "USE_ACCOUNT_ID"})
+        self.assertEqual(status, 200)
+        sid = d["decision"]["decision_id"]
+        status, allowed = self.call("/api/guard", {"decision_id": sid, "probe": "COMPATIBLE_CHANGE"})
+        self.assertEqual(status, 200)
+        self.assertEqual(allowed["guard_verdict"], "MERGE_ALLOWED")
+        self.assertTrue(allowed["receipt_path"].endswith("guard-probe-compatible-change.json"))
+        status, held = self.call("/api/guard", {"decision_id": sid, "probe": "MONEY_UNIT_DRIFT"})
+        self.assertEqual(status, 200)
+        self.assertEqual(held["guard_verdict"], "DECISION_REQUIRED")
+        self.assertEqual(held["verification_during_probe"]["full_suite"]["failed_count"], 0)
+        self.assertEqual(held["execution_environment"], "CLOUDFLARE_CONTAINER")
+        for probe in ("rm -rf /", "ledger/credit_entry.py", 1, None):
+            self.assertEqual(self.call("/api/guard", {"decision_id": sid, "probe": probe})[0], 400, probe)
+        self.assertEqual(self.call("/api/guard", {"decision_id": sid, "probe": "COMPATIBLE_CHANGE"})[0], 409)
+
+    def test_action_sessions_are_capped_per_container(self):
+        runtime = self.mod.server_mod.RUNTIME
+        self.assertEqual(runtime["max_action_sessions"], 24)
+        before = runtime["max_action_sessions"]
+        try:
+            runtime["max_action_sessions"] = self.mod.server_mod.action_session_count()
+            status, body = self.call("/api/decide", {"choice": "KEEP_UNKNOWN"})
+            self.assertEqual(status, 429)
+            self.assertIn("action limit", body["error"])
+        finally:
+            runtime["max_action_sessions"] = before
+
     def test_oversized_body_refused(self):
         status, body = self.call("/api/decide", {"choice": "KEEP_UNKNOWN", "pad": "x" * 5000})
         self.assertEqual(status, 400)
@@ -273,6 +317,7 @@ class TestContainerServer(unittest.TestCase):
         spec.loader.exec_module(local)
         self.assertEqual(local.RUNTIME, {
             "execution_environment": "LOCAL", "human_decision_source": "INTERACTIVE_LOCAL_UI",
+            "max_action_sessions": None,
         })
         with self.assertRaises(ValueError):
             local.configure("LIVE_BOB")
@@ -363,6 +408,37 @@ class TestDeploymentConfig(unittest.TestCase):
             text = (ROOT / rel).read_text()
             self.assertNotIn("workers.dev", text)
             self.assertNotIn("127.0.0.1", text)
+
+    def test_pages_ship_a_strict_security_policy(self):
+        text = (ROOT / "demo-ui/_headers").read_text()
+        self.assertIn("/*", text)
+        for directive in ("default-src 'none'", "script-src 'self'", "style-src 'self'",
+                          "connect-src 'self'", "frame-ancestors 'none'", "base-uri 'none'"):
+            self.assertIn(directive, text)
+        self.assertNotIn("unsafe-inline", text)
+        self.assertNotIn("unsafe-eval", text)
+        self.assertNotIn("_headers", (ROOT / "demo-ui/.assetsignore").read_text())
+
+    def test_frontend_is_compatible_with_the_policy(self):
+        html = (ROOT / "demo-ui/index.html").read_text()
+        self.assertNotRegex(html, r"<script(?![^>]*\bsrc=)")  # no inline scripts
+        self.assertNotIn(" style=", html)
+        self.assertNotIn("style=", (ROOT / "demo-ui/app.js").read_text())
+        for rel in ("demo-ui/index.html", "demo-ui/styles.css", "demo-ui/app.js"):
+            self.assertNotRegex((ROOT / rel).read_text(), r"https?://(?!www\.w3\.org)")
+
+    def test_local_server_applies_the_same_page_policy(self):
+        spec = importlib.util.spec_from_file_location("collider_local_server_headers", ROOT / "demo-ui/server.py")
+        local = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(local)
+        names = [n for n, _ in local.PAGE_HEADERS]
+        self.assertIn("Content-Security-Policy", names)
+        self.assertIn("X-Frame-Options", names)
+        csp = dict(local.PAGE_HEADERS)["Content-Security-Policy"]
+        self.assertIn("default-src 'none'", csp)
+        # The API-only container image does not ship demo-ui/_headers.
+        self.assertEqual(local.load_page_headers(ROOT / "demo-ui/_no_such_headers"), [])
+        self.assertNotIn("_headers", (ROOT / ".dockerignore").read_text())
 
     def test_static_assets_exclude_server_files(self):
         ignored = (ROOT / "demo-ui/.assetsignore").read_text().split()

@@ -24,6 +24,7 @@ STRUCTURAL INDEPENDENCE:
 """
 
 NOTIFICATION_CONTACT_TYPE = "email_address"  # INFERRED — stub says string, type unspecified
+MONEY_UNIT = "integer_cents"  # INFERRED — format_amount divides by 100; the stub never says cents
 
 
 def format_amount(refund_amount_cents: int) -> str:

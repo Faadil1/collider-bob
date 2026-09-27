@@ -9,6 +9,7 @@ browser ──► Worker  collider-semantic-ci  (src/index.ts, src/router.ts)
                 /api/gate   GET  │  session cookie ─► SHA-256 ─► getContainer(COLLIDER, name)
                 /api/decide POST │                               one Container per browser session
                 /api/guard  POST ┘                               cloudflare/container_server.py :8080
+                  {decision_id, probe: IDENTITY_REVERT | COMPATIBLE_CHANGE | MONEY_UNIT_DRIFT}
 ```
 
 ## Deploy
@@ -46,6 +47,47 @@ Local checks without Cloudflare credentials:
   named instance. `getRandom()` is never used: ACTIVE MODE mutates a workspace,
   so a session must always come back to its own runtime. Two sessions never
   share `.collider/` workspaces, decision memory, guard receipts or files.
+
+## Security headers and limits
+
+- Pages and assets: `demo-ui/_headers` (Workers Static Assets) sets a strict
+  CSP (`default-src 'none'`; scripts, styles and `fetch` from the same origin
+  only; no inline script or style; `frame-ancestors 'none'`), `nosniff`,
+  `Referrer-Policy: no-referrer`, `X-Frame-Options: DENY`, COOP and a closed
+  `Permissions-Policy`. `demo-ui/server.py` applies the same block locally, so
+  browser checks run against the shipped policy.
+- API responses: the Worker adds `nosniff`, `Content-Security-Policy:
+  default-src 'none'; frame-ancestors 'none'` and `Referrer-Policy:
+  no-referrer` to every `/api/*` response, including its own 404/405/413/503.
+- Abuse bounds (no dedicated rate limiter): at most 20 container instances
+  (`max_instances`), 4 KiB request bodies, four allow-listed routes, and at most
+  24 decision/abstention runs per container (HTTP 429 after that). Each guard
+  probe runs once per decision. No outbound network from the container.
+
+## Runtime / commit binding
+
+Every `/api/*` response carries `x-collider-worker-version: <Worker Version
+id>` from the `version_metadata` binding, and the UI shows it in
+PROOF → PROVENANCE. To bind a live observation to Git: take that id, open the
+Worker's Deployments / Workers Builds history in the Cloudflare dashboard and
+read the commit recorded for that version. The container image has no git, so
+receipts written inside it report `input_commit: UNKNOWN` rather than guessing.
+
+## Rollback / recovery
+
+- Nothing durable lives in the runtime: container disks are ephemeral and
+  every session restarts from the packaged baseline, so a rollback cannot lose
+  user data and needs no migration.
+- Roll back the Worker to a previous version from the Cloudflare dashboard
+  (Workers → `collider-semantic-ci` → Deployments) or with
+  `npx wrangler rollback <version-id>` from an authenticated machine. Confirm
+  the result by reading `x-collider-worker-version` on `/api/state`.
+- Or revert the offending commit on the deployed branch; Workers Builds
+  redeploys it. Check afterwards that the container image rebuilt from the
+  reverted `Dockerfile` (dashboard → Containers) before re-running the
+  critical path.
+- A session stuck in a bad state is recovered by opening COLLIDER in a new
+  browser session (new cookie → new container).
 
 ## Container lifecycle
 

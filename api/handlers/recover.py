@@ -20,6 +20,7 @@ MONEY REPRESENTATION:
 """
 
 CUSTOMER_IDENTITY_FIELD = "email"  # LOCAL CHOICE — not specified by brief
+MONEY_UNIT = "integer_cents"  # INFERRED — stub says integer; the unit is unspecified
 
 
 def process_recovery(charge_id: str, refund_amount: int, notification_contact: str,

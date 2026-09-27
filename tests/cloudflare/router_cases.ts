@@ -56,6 +56,8 @@ async function call(path: string, init: RequestInit & { cookie?: string } = {}) 
     cookieId,
     allow: res.headers.get("allow"),
     cacheControl: res.headers.get("cache-control"),
+    csp: res.headers.get("content-security-policy"),
+    nosniff: res.headers.get("x-content-type-options"),
     container: containerCalls.length > before ? containerCalls[containerCalls.length - 1] : null,
     body: await res.text(),
   };
@@ -131,6 +133,18 @@ out.routes = API_ROUTES;
 failContainers = true;
 out.down = await call("/api/state");
 failContainers = false;
+
+// Worker Version header on API responses only.
+const versioned = { ...deps, workerVersion: "f946793b-0000-4000-8000-000000000000" };
+const vApi = await handleRequest(new Request(ORIGIN + "/api/state"), versioned);
+const vAsset = await handleRequest(new Request(ORIGIN + "/"), versioned);
+const vBad = await handleRequest(new Request(ORIGIN + "/api/state"), { ...deps, workerVersion: "x\r\nset-cookie: a=b" });
+out.version = {
+  api: vApi.headers.get("x-collider-worker-version"),
+  asset: vAsset.headers.get("x-collider-worker-version"),
+  rejected: vBad.headers.get("x-collider-worker-version"),
+  unknownRoute: (await handleRequest(new Request(ORIGIN + "/api/nope"), versioned)).headers.get("x-collider-worker-version"),
+};
 
 out.containerNames = [...new Set(containerCalls.map((c) => c.name))];
 process.stdout.write(JSON.stringify(out));

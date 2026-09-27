@@ -30,6 +30,7 @@ export class ColliderContainer extends Container {
 interface Env {
   ASSETS: Fetcher;
   COLLIDER: DurableObjectNamespace<ColliderContainer>;
+  CF_VERSION_METADATA?: WorkerVersionMetadata;
 }
 
 export default {
@@ -39,6 +40,7 @@ export default {
       // Stable, per-session named instance. Never getRandom(): Active Mode
       // mutates a workspace, so a session must always reach the same container.
       containerFor: (name) => getContainer(env.COLLIDER, name),
+      workerVersion: env.CF_VERSION_METADATA?.id,
     });
   },
 } satisfies ExportedHandler<Env>;

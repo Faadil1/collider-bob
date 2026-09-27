@@ -34,7 +34,15 @@ export interface RouterDeps {
   assets: FetchTarget;
   containerFor(name: string): FetchTarget;
   randomBytes?(length: number): Uint8Array;
+  // Cloudflare Worker Version id (version_metadata binding), when deployed.
+  workerVersion?: string;
 }
+
+// Every API response names the deployed Worker Version that produced it, so a
+// live observation can be bound to a specific deployment (and, through the
+// Workers Builds record for that version, to a Git commit).
+export const VERSION_HEADER = "x-collider-worker-version";
+const VERSION_RE = /^[0-9a-f-]{8,64}$/;
 
 function toHex(bytes: Uint8Array): string {
   return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
@@ -80,10 +88,21 @@ export function isApiPath(pathname: string): boolean {
   return pathname === "/api" || pathname.startsWith("/api/");
 }
 
+// Every API response is data, never a document: nothing in it may render,
+// frame or load anything. (Pages and assets get demo-ui/_headers.)
+export const API_SECURITY_HEADERS: Readonly<Record<string, string>> = Object.freeze({
+  "x-content-type-options": "nosniff",
+  "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
+  "referrer-policy": "no-referrer",
+});
+
 function json(status: number, body: unknown, extra: Record<string, string> = {}): Response {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { "content-type": "application/json", "cache-control": "no-store", ...extra },
+    headers: {
+      "content-type": "application/json", "cache-control": "no-store",
+      ...API_SECURITY_HEADERS, ...extra,
+    },
   });
 }
 
@@ -94,6 +113,14 @@ export async function handleRequest(request: Request, deps: RouterDeps): Promise
     return deps.assets.fetch(request);
   }
 
+  const response = await handleApi(request, url, deps);
+  if (deps.workerVersion && VERSION_RE.test(deps.workerVersion)) {
+    response.headers.set(VERSION_HEADER, deps.workerVersion);
+  }
+  return response;
+}
+
+async function handleApi(request: Request, url: URL, deps: RouterDeps): Promise<Response> {
   const methods = API_ROUTES[url.pathname];
   if (!methods) return json(404, { error: "not found" });
   if (!methods.includes(request.method)) {
@@ -144,6 +171,7 @@ export async function handleRequest(request: Request, deps: RouterDeps): Promise
     headers: {
       "content-type": upstream.headers.get("content-type") ?? "application/json",
       "cache-control": "no-store",
+      ...API_SECURITY_HEADERS,
     },
   });
   if (minted) out.headers.append("set-cookie", sessionCookie(sessionId));

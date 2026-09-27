@@ -10,9 +10,11 @@ Serves demo-ui/ statically and exposes bounded local actions:
                         USE_ACCOUNT_ID → collider.decision_compiler, for real
                         KEEP_UNKNOWN   → abstention receipt only; no canon,
                                          no spec patch, no repair
-    POST /api/guard     {"decision_id": "<id from a USE_ACCOUNT_ID session>"}
+    POST /api/guard     {"decision_id": "<id from a USE_ACCOUNT_ID session>",
+                         "probe": "IDENTITY_REVERT" | "MONEY_UNIT_DRIFT" | "COMPATIBLE_CHANGE"}
                         → collider.guard_probe in that session's workspace
-                          (fixed probe: customer_identity account_id → email)
+                          (fixed future-agent changes; probe defaults to
+                          IDENTITY_REVERT, customer_identity account_id → email)
     GET  /api/gate?decision=<id>   re-runs the gate on a compiled workspace
 
 HTTP input never carries values or paths: choices are an enum and sessions are
@@ -43,7 +45,7 @@ from collider.decision_compiler import (  # noqa: E402
     display_path,
     record_abstention,
 )
-from collider.guard_probe import run_guard_probe  # noqa: E402
+from collider.guard_probe import DEFAULT_PROBE, PROBES, run_guard_probe  # noqa: E402
 
 UI_DIR = Path(__file__).resolve().parent
 RUNS_DIR = ROOT / ".collider/runs"
@@ -59,10 +61,14 @@ RUNTIME_PROFILES = {
     "LOCAL": {
         "execution_environment": "LOCAL",
         "human_decision_source": "INTERACTIVE_LOCAL_UI",
+        "max_action_sessions": None,
     },
     "CLOUDFLARE_CONTAINER": {
         "execution_environment": "CLOUDFLARE_CONTAINER",
         "human_decision_source": "INTERACTIVE_WEB",
+        # Each decision copies the runtime tree into its own workspace on the
+        # container's ephemeral disk; one container serves one browser session.
+        "max_action_sessions": 24,
     },
 }
 RUNTIME = dict(RUNTIME_PROFILES["LOCAL"])
@@ -104,10 +110,47 @@ def compiled_session(decision_id) -> tuple[Path, Path] | None:
     return workspace, runs
 
 
+def load_page_headers(path: Path = UI_DIR / "_headers") -> list[tuple[str, str]]:
+    """The "/*" block of demo-ui/_headers (the Workers Static Assets policy).
+
+    The Cloudflare container image is API-only and does not ship _headers (the
+    Worker serves pages from Static Assets and adds API headers itself), so a
+    missing file means no page headers, never a crash.
+    """
+    headers, in_block = [], False
+    if not path.is_file():
+        return headers
+    for line in path.read_text().splitlines():
+        if not line.strip() or line.lstrip().startswith("#"):
+            continue
+        if not line[0].isspace():
+            in_block = line.strip() == "/*"
+            continue
+        if in_block:
+            name, _, value = line.strip().partition(":")
+            headers.append((name.strip(), value.strip()))
+    return headers
+
+
+PAGE_HEADERS = load_page_headers()
+
+
+def action_session_count() -> int:
+    if not RUNS_DIR.is_dir():
+        return 0
+    return sum(1 for p in RUNS_DIR.iterdir() if SESSION_ID_RE.fullmatch(p.name))
+
+
 class Handler(SimpleHTTPRequestHandler):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(UI_DIR), **kwargs)
+
+    def end_headers(self):
+        # Same security headers as the deployed Static Assets (demo-ui/_headers).
+        for name, value in PAGE_HEADERS:
+            self.send_header(name, value)
+        super().end_headers()
 
     def _json(self, status: int, obj) -> None:
         body = json.dumps(obj, indent=2).encode()
@@ -160,6 +203,12 @@ class Handler(SimpleHTTPRequestHandler):
             if choice not in CHOICES:
                 raise ValueError(f"REFUSE: choice must be one of {sorted(CHOICES)}")
             concept, value = CHOICES[choice]
+            limit = RUNTIME["max_action_sessions"]
+            if limit is not None and action_session_count() >= limit:
+                return self._json(429, {
+                    "error": "REFUSE: action limit reached for this session; "
+                             "open COLLIDER in a new browser session to start again",
+                })
             session_id = new_session_id()
             if value is None:
                 result = record_abstention(
@@ -191,7 +240,11 @@ class Handler(SimpleHTTPRequestHandler):
 
     def _guard(self):
         try:
-            session = compiled_session(self._payload().get("decision_id"))
+            payload = self._payload()
+            session = compiled_session(payload.get("decision_id"))
+            probe_id = payload.get("probe", DEFAULT_PROBE)
+            if probe_id not in PROBES:
+                raise ValueError(f"REFUSE: probe must be one of {sorted(PROBES)}")
         except ValueError as e:
             return self._json(400, {"error": str(e)})
         if session is None:
@@ -200,6 +253,7 @@ class Handler(SimpleHTTPRequestHandler):
             receipt = run_guard_probe(
                 session[0], session[1],
                 execution_environment=RUNTIME["execution_environment"],
+                probe_id=probe_id,
             )
         except FileExistsError as e:
             return self._json(409, {"error": str(e)})
@@ -207,7 +261,9 @@ class Handler(SimpleHTTPRequestHandler):
             return self._json(400, {"error": str(e)})
         receipt["provenance_mode"] = PROVENANCE_MODE
         receipt["execution_environment"] = RUNTIME["execution_environment"]
-        receipt["receipt_path"] = display_path(session[1] / "guard-probe.json", ROOT)
+        receipt["receipt_path"] = display_path(
+            session[1] / PROBES[probe_id]["receipt_name"], ROOT
+        )
         return self._json(200, receipt)
 
 

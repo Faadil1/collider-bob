@@ -329,6 +329,21 @@ class TestLoopState(unittest.TestCase):
         )
         self.assertEqual(s["GUARD"], "failed")
 
+    def test_each_probe_is_done_only_at_its_own_expected_verdict(self):
+        def status(verdict, expected, phase=4):
+            return run_node(
+                f'L.loopState({{mode: "ACTIVE", decision: {self.READY}, guardPhase: {phase}, '
+                f'guard: {{guard_verdict: "{verdict}", expected_guard_verdict: "{expected}", '
+                f'restoration_verified: true, gate_after_restore: "SEMANTICALLY_READY"}}}}).GUARD'
+            )
+        self.assertEqual(status("MERGE_ALLOWED", "MERGE_ALLOWED"), "done")
+        self.assertEqual(status("DECISION_REQUIRED", "DECISION_REQUIRED"), "done")
+        self.assertEqual(status("MERGE_ALLOWED", "MERGE_BLOCKED"), "failed")
+        self.assertEqual(status("MERGE_BLOCKED", "DECISION_REQUIRED"), "failed")
+        # Only a blocked merge is ever shown as a violation on the rail.
+        self.assertEqual(status("MERGE_ALLOWED", "MERGE_ALLOWED", 2), "running")
+        self.assertEqual(status("MERGE_BLOCKED", "MERGE_BLOCKED", 2), "violation")
+
     def test_guard_never_done_in_evidence_mode_without_probe(self):
         s = run_node(f'L.loopState({{mode: "EVIDENCE", decision: {self.READY}}})')
         self.assertEqual(s["GUARD"], "not-in-evidence")

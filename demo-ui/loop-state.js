@@ -53,9 +53,14 @@
     return Boolean(result) && result.provenance_mode === mode;
   }
 
+  // A guard probe is complete when the gate reached the verdict that probe
+  // exists to prove (MERGE_BLOCKED for the canonical identity revert, which is
+  // also the default for receipts that name no expectation) and the verified
+  // state was restored exactly.
   function guardCompleted(guard) {
+    const expected = (guard && guard.expected_guard_verdict) || "MERGE_BLOCKED";
     return Boolean(guard) &&
-      guard.guard_verdict === "MERGE_BLOCKED" &&
+      guard.guard_verdict === expected &&
       guard.restoration_verified === true &&
       guard.gate_after_restore === "SEMANTICALLY_READY";
   }
@@ -67,14 +72,15 @@
   const COMPILE_ITEMS = 7;
 
   // Display phase of the guard probe, synchronized with what the UI shows:
-  //   0 = request in flight / not yet revealed, 1 = ATTEMPT, 2 = VIOLATION,
-  //   3 = RESTORING, 4 = RESTORED. The receipt is never altered; the rail only
+  //   0 = request in flight / not yet revealed, 1 = ATTEMPT, 2 = VERDICT
+  //   (a violation only when the gate blocked the merge), 3 = RESTORING,
+  //   4 = RESTORED. The receipt is never altered; the rail only
   //   waits until the corresponding phase is actually on screen.
   function guardStatus(guard, guardPhase, guardRunning) {
     if (!guard) return guardRunning ? "running" : null;
     const phase = guardPhase === undefined ? 4 : guardPhase;
     if (phase <= 0) return "running";
-    if (phase <= 2) return "violation";
+    if (phase <= 2) return guard.guard_verdict === "MERGE_BLOCKED" ? "violation" : "running";
     if (phase === 3) return "restoring";
     return guardCompleted(guard) ? "done" : "failed";
   }

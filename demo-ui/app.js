@@ -13,6 +13,21 @@ const API = {
   guard: "./api/guard"
 };
 
+// The fixed future-agent changes the guard can apply (ids match
+// collider/guard_probe.py PROBES). Order: block, allow, discover.
+const FUTURE_CHANGES = [
+  { id: "IDENTITY_REVERT", title: "Revert API identity to email", file: "api/handlers/recover.py" },
+  { id: "COMPATIBLE_CHANGE", title: "Reword the customer notice", file: "notifications/send_credit_notice.py" },
+  { id: "MONEY_UNIT_DRIFT", title: "Store Ledger amounts in dollars", file: "ledger/credit_entry.py" }
+];
+
+const VERDICT_TEXT = {
+  MERGE_BLOCKED: "MERGE BLOCKED",
+  MERGE_ALLOWED: "MERGE ALLOWED",
+  DECISION_REQUIRED: "DECISION REQUIRED"
+};
+const verdictText = (v) => VERDICT_TEXT[v] || v;
+
 const COMPILE_STEP_MS = 230;
 const GUARD_PHASE_MS = 1400;
 
@@ -35,7 +50,9 @@ function freshSession() {
     decision: null,
     abstention: null,
     compileRevealed: 0,
-    guard: null,
+    guards: {},             // probe id → guard receipt
+    guardProbe: null,       // probe id currently shown
+    guard: null,            // receipt currently shown
     guardRunning: false,
     guardPhase: 0
   };
@@ -72,7 +89,10 @@ async function detectServer() {
     clearTimeout(timer);
     if (!res.ok) return null;
     const body = await res.json();
-    return L.acceptsResult("ACTIVE", body) ? body : null;
+    if (!L.acceptsResult("ACTIVE", body)) return null;
+    // Set only by the deployed Cloudflare Worker (absent on the local server).
+    body.worker_version = res.headers.get("x-collider-worker-version");
+    return body;
   } catch {
     return null;
   }
@@ -143,25 +163,45 @@ function revealCompile() {
   }
 }
 
-async function runGuard() {
+function nextUntestedChange() {
+  return FUTURE_CHANGES.find((c) => !active.guards[c.id]) || null;
+}
+
+async function runGuard(probeId) {
   const d = active.decision;
-  if (mode !== "ACTIVE" || active.busy || !d || active.guard || !compileComplete()) return;
+  if (mode !== "ACTIVE" || active.busy || !d || !compileComplete()) return;
   if (d.gate_after.verdict !== "SEMANTICALLY_READY") return;
+  if (!FUTURE_CHANGES.some((c) => c.id === probeId)) return;
+
+  clearTimers();
+  active.screen = "guard";
+  active.guardProbe = probeId;
+  active.error = "";
+
+  // Already judged in this session: show the recorded receipt again.
+  if (active.guards[probeId]) {
+    active.guard = active.guards[probeId];
+    active.guardRunning = false;
+    active.guardPhase = 4;
+    render();
+    return;
+  }
 
   active.busy = true;
+  active.guard = null;
   active.guardRunning = true;
   active.guardPhase = 0;
-  active.screen = "guard";
   render();
 
   try {
-    active.guard = await post(API.guard, { decision_id: d.decision.decision_id });
+    const receipt = await post(API.guard, { decision_id: d.decision.decision_id, probe: probeId });
+    active.guards[probeId] = receipt;
+    active.guard = receipt;
     active.guardRunning = false;
     revealGuard();
   } catch (error) {
     active.guardRunning = false;
     active.error = `Guard probe failed: ${error.message}`;
-    active.screen = "compile";
   } finally {
     active.busy = false;
     render();
@@ -389,6 +429,12 @@ function renderDecide() {
     ? `${Object.values(drift.violations).join(", ")} → ${drift.expected}`
     : "—";
   $("decision-error").textContent = active.error && active.screen === "decide" ? active.error : "";
+  const assumption = g?.assumptions?.[0];
+  $("assumption-strip").classList.toggle("hidden", !assumption);
+  $("g-assume-label").textContent = assumption ? assumption.label : "—";
+  $("g-assume").textContent = assumption
+    ? `${assumption.value} · ${assumption.workstreams.length} of ${assumption.workstreams.length} agree · ${assumption.epistemic_state}`
+    : "—";
 
   const decided = Boolean(active.decision || active.abstention);
   document.querySelectorAll(".decision-option").forEach((b) => {
@@ -485,58 +531,93 @@ function renderCompile() {
     : "03–06 · COMPILE · PATCH · VERIFY · REMEMBER";
 }
 
+// Changed source lines of a unified diff, without the file headers.
+function changedLines(diff) {
+  return String(diff || "").split("\n")
+    .filter((l) => /^[-+]/.test(l) && !/^(---|\+\+\+)/.test(l))
+    .map((l) => l[0] + " " + l.slice(1).trim().replace(/\s+#.*$/, ""));
+}
+
+function renderPrList() {
+  const ready = compileComplete() && active.decision?.gate_after.verdict === "SEMANTICALLY_READY";
+  $("pr-list").innerHTML = FUTURE_CHANGES.map((c, i) => {
+    const r = active.guards[c.id];
+    // The current change shows its verdict only once the panel has revealed it.
+    const revealing = active.guardProbe === c.id && (active.guardRunning || (r && active.guardPhase < 2));
+    const status = revealing ? "judging…" : r ? verdictText(r.guard_verdict) : "not yet judged";
+    const verdict = revealing ? "RUNNING" : r ? r.guard_verdict : "NONE";
+    return `<li data-verdict="${esc(verdict)}" data-current="${active.guardProbe === c.id}">` +
+      `<button type="button" data-probe="${esc(c.id)}" ${!ready || active.busy ? "disabled" : ""}>` +
+      `<b>${String.fromCharCode(65 + i)}</b><span>${esc(c.title)}</span><small>${esc(status)}</small>` +
+      `</button></li>`;
+  }).join("");
+  $("pr-list").querySelectorAll("button").forEach((b) => {
+    b.addEventListener("click", () => runGuard(b.dataset.probe));
+  });
+}
+
 function renderGuard() {
   const g = active.guard;
   const phase = g ? active.guardPhase : 0;
-  $("phase-panel").dataset.phase = String(phase);
+  const panel = $("phase-panel");
+  panel.dataset.phase = String(phase);
+  panel.dataset.verdict = g ? g.guard_verdict : "NONE";
   document.querySelectorAll("#phase-panel .phase").forEach((el) => {
     el.classList.toggle("shown", Number(el.dataset.p) === phase);
   });
 
   const mem = active.decision?.memory;
   $("p-protected").textContent = mem ? `${mem.concept} = ${mem.canonical_value}` : "—";
+  renderPrList();
 
-  const lis = document.querySelectorAll("#phase-list li");
-  lis.forEach((li) => {
-    const p = Number(li.dataset.p);
-    li.dataset.status = !g ? "pending" : p < phase ? "done" : p === phase ? "current" : "pending";
-  });
-  if (!g) {
-    lis.forEach((li) => { li.querySelector("small").textContent = ""; });
-    return;
-  }
+  const change = FUTURE_CHANGES.find((c) => c.id === active.guardProbe);
+  $("p-idle-title").textContent = active.guardRunning
+    ? "JUDGING IN ISOLATED WORKSPACE…"
+    : active.error && active.screen === "guard" ? active.error : "PICK A FUTURE AGENT CHANGE";
+  $("p-idle-text").textContent = active.guardRunning && change
+    ? `${change.title} · ${change.file} — applying the change, running the gate with and without decision memory, running every test, restoring.`
+    : "Each change is applied to this session’s compiled workspace, judged by the gate with and without decision memory, then restored byte for byte.";
+  if (!g) return;
 
-  const c = g.verification_during_probe.regression_contract;
+  const v = g.guard_verdict;
+  const suite = g.verification_during_probe.full_suite;
   const ca = g.verification_after_restore.regression_contract;
-  const summaries = [
-    `${g.canonical_value} → ${g.attempted_value}`,
-    `${g.guard_verdict} · ${g.gate_during_probe}`,
-    `exact bytes ${g.restored_exact_bytes ? "restored" : "NOT restored"}`,
-    `${g.gate_after_restore} · ${g.integration_after_restore.conflict_count} conflicts`
-  ];
-  lis.forEach((li, i) => {
-    li.querySelector("small").textContent = Number(li.dataset.p) <= phase ? summaries[i] : "";
-  });
+  const cf = g.counterfactual_without_memory;
+  const lines = changedLines(g.probe_diff);
 
-  const sourceLines = g.probe_diff.split("\n").filter((l) => /^[-+][A-Z_]/.test(l))
-    .map((l) => l.replace(/\s+#.*$/, "")).join("\n");
-  $("p-attempt").innerHTML = renderDiff(
-    `- ${g.concept} = ${g.canonical_value}\n+ ${g.concept} = ${g.attempted_value}\n\n${sourceLines}`
-  );
+  $("p-attempt-kicker").textContent = `A · FUTURE AGENT CHANGE · ${g.title}`;
+  $("p-attempt").innerHTML = renderDiff(lines.join("\n"));
   $("p-attempt-file").textContent =
     `${g.affected_file} · sha ${short(g.sha_before_probe)} → ${short(g.sha_during_probe)}`;
 
-  $("p-inline").textContent = `${g.concept}: ${g.canonical_value} → ${g.attempted_value}`;
-  $("p-rule").textContent = `${g.concept} must remain ${g.decision_memory_value}`;
+  $("p-verdict-kicker").textContent = {
+    MERGE_BLOCKED: "B · CANON VIOLATION",
+    DECISION_REQUIRED: "B · NEW SPEC GAP · SOURCE SILENT",
+    MERGE_ALLOWED: "B · NO SEMANTIC CONCEPT CHANGED"
+  }[v] || "B · VERDICT";
+  // An undecided concept has no canonical value: show what the other
+  // workstreams still assume.
+  const assumed = g.violation?.candidates
+    ? Object.entries(g.violation.candidates).find(([ws]) => ws !== g.affected_workstream)?.[1]
+    : null;
+  $("p-inline").textContent = g.concept
+    ? `${g.concept}: ${g.canonical_value ?? `${assumed} (assumed)`} → ${g.attempted_value}`
+    : `${g.affected_workstream}: wording only`;
+  $("p-verdict").textContent = verdictText(v);
+  $("p-rule").textContent = v === "MERGE_BLOCKED"
+    ? `${g.concept} must remain ${g.decision_memory_value}`
+    : v === "DECISION_REQUIRED"
+      ? (g.surfaced_question || "The workstreams now disagree where the source is silent.")
+      : `Decision memory still holds: ${g.decision_memory_concept} = ${g.decision_memory_value}`;
+  $("p-cf").textContent =
+    `Same diff without decision memory → ${cf.verdict}` +
+    (g.memory_changed_verdict ? " · decision memory changed the outcome" : " · no decision covers this yet");
   $("p-violation").innerHTML = dl([
-    ["finding", g.violation ? g.violation.kind : "none", "danger"],
-    ["authority", g.violation ? g.violation.authority : "—"],
-    ["gate during probe", g.gate_during_probe],
-    ["regression contract", `${c.passed_count} passed · ${c.failed_count} failed`, c.failed_count ? "danger" : ""],
-    ["integration", `${g.integration_during_probe.conflict_count} conflict · ${g.integration_during_probe.status}`]
+    ["finding", g.violation ? `${g.violation.kind} · ${g.violation.authority}` : "none",
+      v === "MERGE_BLOCKED" ? "danger" : v === "DECISION_REQUIRED" ? "unknown" : ""],
+    ["all tests", `${suite.passed_count} passed · ${suite.failed_count} failed`, suite.failed_count ? "danger" : ""],
+    ["gate", `${g.gate_during_probe} · without memory ${cf.verdict}`]
   ]);
-  document.querySelector('.phase[data-p="2"] .blocked').textContent =
-    g.guard_verdict === "MERGE_BLOCKED" ? "MERGE BLOCKED" : g.guard_verdict;
 
   $("p-restore").innerHTML = dl([
     ["restoration applied", String(g.restoration_applied)],
@@ -546,14 +627,16 @@ function renderGuard() {
   ]);
 
   const tick = (ok, text) => `<li data-ok="${ok}">${ok ? "✓" : "✗"} ${esc(text)}</li>`;
+  $("p-complete-kicker").textContent = `D · ${g.title}`;
+  $("p-complete-verdict").textContent = verdictText(v);
+  $("p-complete-verdict").dataset.verdict = v;
   $("p-complete").innerHTML = [
-    tick(g.restoration_verified && g.restored_exact_bytes, "WORKSPACE RESTORED"),
-    tick(g.gate_after_restore === "SEMANTICALLY_READY", g.gate_after_restore === "SEMANTICALLY_READY" ? "SEMANTICALLY READY" : g.gate_after_restore),
-    tick(g.integration_after_restore.conflict_count === 0, `${g.integration_after_restore.conflict_count} conflicts`),
+    ...(g.as_expected === false ? [tick(false, `expected ${verdictText(g.expected_guard_verdict)}`)] : []),
+    tick(g.restoration_verified && g.restored_exact_bytes, "WORKSPACE RESTORED · EXACT BYTES"),
+    tick(g.gate_after_restore === "SEMANTICALLY_READY", g.gate_after_restore === "SEMANTICALLY_READY" ? "SEMANTICALLY READY AGAIN" : g.gate_after_restore),
     tick(ca.passed && ca.failed_count === 0, `regression contract ${ca.passed_count} / ${ca.passed_count + ca.failed_count}`)
   ].join("");
-  $("p-receipt").textContent =
-    `blocked attempt ${g.canonical_value} → ${g.attempted_value} · ${g.guard_verdict} · receipt ${g.receipt_path}`;
+  $("p-receipt").textContent = `${verdictText(v)} · receipt ${g.receipt_path}`;
 }
 
 // ---------------------------------------------------------------------------
@@ -575,7 +658,7 @@ function renderDrawer() {
 
   const d = active.decision;
   const a = active.abstention;
-  const g = active.guard;
+  const guards = FUTURE_CHANGES.map((c) => active.guards[c.id]).filter(Boolean);
   $("drawer-source").textContent = d
     ? `${activeLabel()} · ${d.receipt_dir}`
     : a ? `${activeLabel()} · ${a.receipt_dir}` : "no action taken yet";
@@ -587,7 +670,7 @@ function renderDrawer() {
     case "CODE DIFF":
       body = d
         ? section("repair.patch · compiled workspace", pre(renderDiff(d.repair_patch), "diff")) +
-          (g ? section("guard probe · future-agent change (restored afterwards)", pre(renderDiff(g.probe_diff), "diff")) : "")
+          guards.map((g) => section(`future agent change · ${g.title} · ${verdictText(g.guard_verdict)} (restored afterwards)`, pre(renderDiff(g.probe_diff), "diff"))).join("")
         : none(a ? "KEEP UNKNOWN: no code was changed." : "No decision yet: no code has been changed.");
       break;
     case "SPEC PATCH":
@@ -609,7 +692,7 @@ function renderDrawer() {
       break;
     case "RECEIPT":
       body =
-        (g ? section("guard-probe.json", pre(json(g))) : "") +
+        guards.map((g) => section(g.receipt_path, pre(json(g)))).join("") +
         (d ? section("manifest.json", pre(json(d.manifest))) +
              section("gate before", findingRows(d.gate_before.findings)) +
              section("gate after", findingRows(d.gate_after.findings)) : "") +
@@ -625,13 +708,13 @@ function renderDrawer() {
                 `<tr><td>${esc(w.workstream)}</td><td><code>${esc(short(w.sha256_before, 16))}</code></td><td><code>${esc(short(w.sha256_after, 16))}</code></td><td>${w.changed ? "CHANGED" : "unchanged"}</td></tr>`
               ).join("")}</tbody></table>` +
             `<p class="muted">source tree untouched: ${esc(d.manifest.source_tree_untouched)}</p>`) +
-          (g ? section("guard probe · api/handlers/recover.py", `<dl class="facts">${dl([
+          guards.map((g) => section(`future agent change · ${g.affected_file}`, `<dl class="facts">${dl([
             ["before probe", g.sha_before_probe],
             ["during probe", g.sha_during_probe],
             ["after restore", g.sha_after_restore],
             ["exact bytes restored", String(g.restored_exact_bytes)],
             ["source tree untouched", String(g.source_tree_untouched)]
-          ])}</dl>`) : "")
+          ])}</dl>`)).join("")
         : a ? section("committed tree", `<dl class="facts">${dl(Object.entries(a.source_sha256))}</dl>`)
           : none("No hashes yet.");
       break;
@@ -641,6 +724,7 @@ function renderDrawer() {
       body = section("truth label", `<p class="truth">${esc([p.label, ...p.detail].join(" · "))}</p>`) +
         section("run", `<dl class="facts">${dl([
           ["execution", server ? server.execution_environment : "—"],
+          ["worker version", server?.worker_version || "none (not served by a Cloudflare Worker)"],
           ["interpretations", "PRESEEDED"],
           ["human decision", d ? d.decision.human_decision_source : a ? `${a.human_decision_source} (abstained)` : "none yet"],
           ["input commit", d ? d.manifest.input_commit : a ? a.input_commit : "—"],
@@ -719,17 +803,24 @@ function renderActiveActions() {
       const ready = done && active.decision.gate_after.verdict === "SEMANTICALLY_READY";
       setButton(secondary, done ? proofLabel : "", toggleProof);
       if (!done) setButton(primary, "COMPILING…", null, { disabled: true });
-      else if (ready && !active.guard) setButton(primary, "TEST FUTURE AGENT CHANGE →", runGuard, { disabled: active.busy });
+      else if (ready) setButton(primary, "TEST FUTURE AGENT CHANGES →", () => runGuard((nextUntestedChange() || FUTURE_CHANGES[0]).id), { disabled: active.busy });
       else setButton(primary, "RESET SESSION ↺", resetSession);
       status = !done ? "compiling in isolated workspace" : ready ? "canon protected · guard waiting" : active.decision.gate_after.verdict;
       break;
     }
     case "guard": {
       const finished = active.guard && active.guardPhase >= 4;
+      const next = nextUntestedChange();
+      const judged = Object.keys(active.guards).length;
+      setButton(back, "← COMPILE", () => { active.screen = "compile"; render(); }, { disabled: active.busy || !finished && active.guardRunning });
       setButton(secondary, finished ? proofLabel : "", toggleProof);
-      if (!finished) setButton(primary, "GUARD PROBE RUNNING…", null, { disabled: true });
+      if (active.guardRunning || (active.guard && !finished)) setButton(primary, "JUDGING…", null, { disabled: true });
+      else if (next) setButton(primary, `NEXT: ${next.title.toUpperCase()} →`, () => runGuard(next.id), { disabled: active.busy });
       else setButton(primary, "RESET SESSION ↺", resetSession);
-      status = !active.guard ? "running probe" : ["", "future agent attempt", "merge blocked", "restoring verified state", "restored · guard complete"][active.guardPhase];
+      status = active.guardRunning ? "judging future change"
+        : !active.guard ? (active.error || "pick a future agent change")
+        : ["", "future agent change", verdictText(active.guard.guard_verdict).toLowerCase(), "restoring verified state",
+           `restored · ${judged} of ${FUTURE_CHANGES.length} changes judged`][active.guardPhase];
       break;
     }
     default:
@@ -900,7 +991,7 @@ document.addEventListener("keydown", (e) => {
 boot().catch((error) => {
   console.error(error);
   document.body.innerHTML = `
-    <main style="padding:40px;font-family:system-ui">
+    <main class="boot-error">
       <h1>Evidence failed to load.</h1>
       <p>${esc(error.message)}</p>
     </main>`;
