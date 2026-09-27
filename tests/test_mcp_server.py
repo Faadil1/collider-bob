@@ -1,4 +1,6 @@
 import json
+import subprocess
+import sys
 
 from collider.mcp_server import TOOLS, call_tool, handle_request
 
@@ -88,3 +90,42 @@ def test_mcp_rejects_path_escape():
     payload = _text_payload(result)
     assert payload["error"] == "ValueError"
     assert "escapes COLLIDER workspace" in payload["message"]
+
+
+def test_mcp_stdio_process_roundtrip():
+    messages = [
+        {
+            "jsonrpc": "2.0",
+            "id": 11,
+            "method": "initialize",
+            "params": {},
+        },
+        {
+            "jsonrpc": "2.0",
+            "id": 12,
+            "method": "tools/list",
+            "params": {},
+        },
+    ]
+    payload = "\n".join(json.dumps(message) for message in messages) + "\n"
+
+    proc = subprocess.run(
+        [sys.executable, "-m", "collider.mcp_server"],
+        input=payload,
+        capture_output=True,
+        text=True,
+        timeout=10,
+    )
+
+    assert proc.returncode == 0, proc.stderr
+    responses = [
+        json.loads(line)
+        for line in proc.stdout.splitlines()
+        if line.strip()
+    ]
+    assert responses[0]["id"] == 11
+    assert responses[0]["result"]["serverInfo"]["name"] == "collider-semantic-ci"
+    assert responses[1]["id"] == 12
+    names = {tool["name"] for tool in responses[1]["result"]["tools"]}
+    assert "collider_pr_gate" in names
+    assert "collider_validate_live_bob" in names
