@@ -1,314 +1,190 @@
-# COLLIDER
+<p align="center">
+  <img src="demo-ui/favicon.svg" alt="COLLIDER logo" width="92" height="92" />
+</p>
 
-> **Semantic CI for Agentic Software Development**  
-> **Fuzz the specification. Repair the decision. Prove the system understands it.**
+<h1 align="center">COLLIDER</h1>
 
-**Live demo:** https://collider-semantic-ci.faadil-casecraft.workers.dev/
+<p align="center"><strong>Semantic CI for agentic software development.</strong></p>
+<p align="center">Find the decision the specification forgot to make.</p>
 
-**Final walkthrough:** https://scrimba.com/explain/guide0tftf2fa4?claim=3geifapic08ivlp9&fullscreen=1
+<p align="center">
+  <a href="https://collider-semantic-ci.faadil-casecraft.workers.dev/"><strong>Live Demo</strong></a>
+  ·
+  <a href="https://scrimba.com/explain/guide0tftf2fa4?claim=3geifapic08ivlp9&fullscreen=1"><strong>Final Walkthrough</strong></a>
+  ·
+  <a href="evidence/bob-sessions/LIVE-BOB-2026-09-27-01.md"><strong>Bob Proof</strong></a>
+  ·
+  <a href="evidence/runtime/PUBLIC-THREE-VERDICT-GUARD-2026-09-27.md"><strong>Runtime Evidence</strong></a>
+</p>
 
-Parallel AI coding agents can all be locally correct and still build incompatible
-assumptions because the specification never made a cross-boundary decision.
+<p align="center"><sub>IBM Bob 2 Hackathon · Cloudflare Worker + per-session Container</sub></p>
 
-COLLIDER turns disagreement into a specification probe:
+## The problem
 
-```text
-PROBE → COLLIDE → ADJUDICATE → DECIDE
-      → COMPILE → PATCH → VERIFY → REMEMBER → GUARD
-```
+Parallel coding agents can all pass their local tests while making incompatible assumptions across service boundaries.
 
-> **When AI agents disagree, COLLIDER finds the decision the specification forgot to make.**
+A conventional CI pipeline sees green tests. COLLIDER asks a different question:
 
-## The 15-second proof
+> **Did the specification actually decide the meaning the agents implemented?**
 
 The canonical fixture starts with:
 
 - **30 local tests passing**
-- **3/3 workstreams locally green**
+- **3/3 workstreams green**
 - **2 integration conflicts**
 
-Two mismatches have different causes:
+One conflict is ordinary agent drift. The other exists because the specification never chose a customer identity.
 
-```text
-refund_amount vs credit_amount
-→ source explicitly says refund_amount
-→ AGENT_DRIFT
-→ repair from source evidence
+## How COLLIDER works
 
-email vs account_id
-→ source never chooses a customer identity
-→ SPEC_GAP / UNKNOWN
-→ one human decision required
-```
+1. **Detect disagreement.** Independent workstreams expose the assumptions they implemented.
+2. **Classify the cause.** Source-explicit contradictions become AGENT_DRIFT; source-silent disagreements become SPEC_GAP / UNKNOWN.
+3. **Ask only where authority ends.** COLLIDER does not convert consensus into truth and does not force a decision.
+4. **Compile the decision.** A human choice becomes a specification patch, targeted repair, regression contract and decision memory.
+5. **Guard future changes.** Later changes are judged against source authority and remembered decisions.
 
-Selecting `account_id` compiles that decision into:
+    PROBE → COLLIDE → ADJUDICATE → DECIDE
+          → COMPILE → PATCH → VERIFY → REMEMBER → GUARD
 
-- a specification patch
-- targeted code repairs
-- a regression contract
-- decision memory
+## The signature proof
 
-The executable integration result moves from:
+The failed-payment fixture contains two superficially similar mismatches with different causes:
 
-```text
-2 conflicts / INTEGRATION_BLOCKED
-→
-0 conflicts / SEMANTICALLY_READY
-```
+| Conflict | Source authority | COLLIDER result |
+|---|---|---|
+| refund_amount vs credit_amount | The source explicitly says refund_amount | AGENT_DRIFT → repair from evidence |
+| email vs account_id | The source never chooses customer identity | SPEC_GAP / UNKNOWN → human decision required |
 
-## The second act: three Semantic CI verdicts
+Selecting account_id moves the executable integration state from:
 
-After the repair, COLLIDER tests controlled future changes against decision memory:
+    2 conflicts / INTEGRATION_BLOCKED
+    →
+    0 conflicts / SEMANTICALLY_READY
 
-| Future change | Tests | Verdict |
+The decision is then stored as executable memory.
+
+## Semantic CI adds a third verdict
+
+After the decision is remembered, COLLIDER tests controlled future changes:
+
+| Future change | Conventional tests | Semantic CI |
 |---|---:|---|
-| API reverts `account_id → email` | 33 pass / 4 fail | **MERGE_BLOCKED** |
-| Notification wording only | 37 pass | **MERGE_ALLOWED** |
-| Ledger changes cents → dollars | **37 pass** | **DECISION_REQUIRED** |
+| API reverts account_id → email | 33 pass / 4 fail | MERGE_BLOCKED |
+| Notification wording only | 37/37 pass | MERGE_ALLOWED |
+| Ledger changes cents → dollars | **37/37 pass** | **DECISION_REQUIRED** |
 
-The third row is the signature moment: **all tests pass, but COLLIDER still refuses
-to merge because the workstreams now disagree where the source is silent.**
+That final row is the core product claim: **ordinary tests can all pass while the meaning is still undecided.**
 
-For the identity revert, the same changed tree without decision memory becomes
-`DECISION_REQUIRED` instead of `MERGE_BLOCKED`. Memory changes the verdict.
+For the identity revert, removing decision memory changes the verdict from MERGE_BLOCKED to DECISION_REQUIRED. Memory changes the result rather than merely storing text.
 
-Every guard probe restores the prior verified workspace exactly.
+## UNKNOWN is a valid outcome
+
+COLLIDER does not force specification decisions.
+
+Choosing KEEP UNKNOWN:
+
+- writes no canon;
+- writes no decision memory;
+- applies no repair;
+- leaves the gate at DECISION_REQUIRED.
+
+Correct abstention is product behavior.
+
+## IBM Bob integration
+
+IBM Bob was used directly in the repository and is also a project-native COLLIDER surface.
+
+The repo ships:
+
+- a COLLIDER Bob custom mode in .bob/custom_modes.yaml;
+- a reusable semantic-review skill;
+- provenance and truth-boundary rules;
+- a project-level MCP server exposing semantic gate, PR gate, decision memory, live-Bob validation, rule export and replay evaluation;
+- lifecycle hooks for session context and receipts.
+
+A real Bob run used **three isolated Bob subagents** to reproduce the source-silent customer_identity ambiguity.
+
+Fresh replay evidence is preserved honestly:
+
+- **Attempt 01:** converged on account_id but failed the withheld compatibility contract, **5/7**;
+- **Attempt 02:** a new isolated targeted-repair replay preserved the public interface and passed **7/7**, producing REPLAY_PASS.
+
+The public demo’s comparative interpretation objects remain **PRESEEDED**. They are never relabeled as live Bob output.
+
+Evidence: [LIVE_BOB run](evidence/bob-sessions/LIVE-BOB-2026-09-27-01.md) · [Attempt 01](evidence/bob-sessions/FRESH-REPLAY-ATTEMPT-01-2026-09-27.md) · [Attempt 02](evidence/bob-sessions/FRESH-REPLAY-ATTEMPT-02-2026-09-27.md).
+
+## Architecture
+
+```mermaid
+flowchart TB
+    B[Browser] --> W[Cloudflare Worker]
+    W --> A[Static demo UI]
+    W --> C[Per-session Cloudflare Container]
+    C --> P[COLLIDER semantic pipeline]
+    P --> D[Decision compiler]
+    P --> G[Semantic guard]
+    G --> V[MERGE_ALLOWED / MERGE_BLOCKED / DECISION_REQUIRED]
+```
+
+The public runtime uses one isolated container per browser session. Guard probes restore the previous verified workspace after each controlled change.
+
+## Try it
+
+**Live:** [collider-semantic-ci.faadil-casecraft.workers.dev](https://collider-semantic-ci.faadil-casecraft.workers.dev/)
+
+**Walkthrough:** [COLLIDER final walkthrough](https://scrimba.com/explain/guide0tftf2fa4?claim=3geifapic08ivlp9&fullscreen=1)
+
+**Local:**
+
+    python3 demo-ui/server.py
+    # open http://127.0.0.1:4173
+
+Core verification:
+
+    python3 -m pytest -q -p no:cacheprovider
+    npx tsc --noEmit
+
+Last recorded full verification:
+
+    271 passed
+    123 subtests passed
+    TypeScript: clean
+
+## Public evidence
+
+- [Three-verdict public guard](evidence/runtime/PUBLIC-THREE-VERDICT-GUARD-2026-09-27.md)
+- [GitHub PR Semantic CI proof](evidence/runtime/GITHUB-SEMANTIC-CI-THREE-VERDICT-2026-09-27.md)
+- [Public session isolation](evidence/runtime/PUBLIC-SESSION-ISOLATION-2026-09-27.md)
+- [Mobile provenance](evidence/runtime/PUBLIC-MOBILE-PROVENANCE-2026-09-27.md)
+- [Runtime / commit binding](evidence/runtime/RUNTIME-COMMIT-BINDING-2026-09-27.md)
+- [LIVE_BOB run](evidence/bob-sessions/LIVE-BOB-2026-09-27-01.md)
+- [Fresh replay Attempt 02](evidence/bob-sessions/FRESH-REPLAY-ATTEMPT-02-2026-09-27.md)
+
+## Repository
+
+- collider/ — semantic gate, compiler, replay and guard logic
+- api/, ledger/, notifications/ — failed-payment workstreams
+- fixtures/ — canonical specification fixture
+- demo-ui/ — interactive product surface
+- evidence/ — reproducible runtime and Bob proof
+- .bob/ — native IBM Bob integration
+- tests/ — regression, integrity and deployment tests
+- cloudflare/, src/ — hosted runtime adapter
 
 ## Truth boundary
 
-COLLIDER deliberately distinguishes evidence from inference:
+COLLIDER distinguishes source evidence, agent inference and human decisions.
 
-```text
-SOURCE EXPLICIT + AGENT DISAGREES
-→ AGENT_DRIFT
-→ evidence-grounded repair
+    SOURCE EXPLICIT + AGENT DISAGREES
+    → AGENT_DRIFT
 
-SOURCE SILENT + AGENTS DISAGREE
-→ SPEC_GAP
-→ UNKNOWN
-→ HUMAN DECISION REQUIRED
+    SOURCE SILENT + AGENTS DISAGREE
+    → SPEC_GAP / UNKNOWN
 
-SOURCE SILENT + AGENTS AGREE
-→ SHARED ASSUMPTION
-→ INFERRED, never fact
-```
+    SOURCE SILENT + AGENTS AGREE
+    → SHARED ASSUMPTION / INFERRED
 
-The comparative fixture interpretation objects remain **PRESEEDED** and are never
-relabeled as live Bob output.
-
-Separately, a real Bob run (`live-bob-2026-09-27-01`) executed three isolated
-Bob subagents, passed LIVE_BOB provenance validation, surfaced
-`customer_identity` as `SPEC_GAP / UNKNOWN`, and stopped for an interactive
-human decision. The decision was then compiled into Bob decision memory.
-
-Fresh-agent replay was also executed for real. Attempt 01 correctly converged on
-`account_id` but failed a withheld compatibility contract (5/7). Attempt 02 ran
-from a new isolated sandbox with a general minimal-change / preserve-public-interface
-constraint and passed the same withheld contract **7/7**, producing
-`REPLAY_PASS`.
-
-The future-change guard probes remain controlled edits, not autonomous agents.
-
-## KEEP UNKNOWN is a valid result
-
-COLLIDER does not force a decision.
-
-`KEEP UNKNOWN`:
-
-- writes no canon
-- writes no decision memory
-- applies no repair
-- leaves the gate at `DECISION_REQUIRED`
-
-Correct abstention is a product behavior, not an error state.
-
-## IBM Bob 2.0
-
-IBM Bob 2.0 was used directly in the repository as a load-bearing development
-agent during implementation and refinement.
-
-COLLIDER now also ships as a **project-native Bob capability**, not only as a
-standalone runtime:
-
-- `.bob/custom_modes.yaml` — **⚛️ COLLIDER Semantic CI** custom mode
-- `.bob/skills/collider-semantic-review/SKILL.md` — reusable semantic-review skill
-- `.bob/rules/collider-truth-boundary.md` — workspace truth/provenance rules
-- `collider/bob_live.py` — rejects fake/relabelled LIVE_BOB inputs and binds real
-  Bob session/task references to interpretation hashes
-- `collider/bob_rules.py` — exports approved COLLIDER decision memory into Bob
-  workspace rules so future Bob agents inherit semantic canon
-- `.bob/mcp.json` + `collider/mcp_server.py` — a project-level **COLLIDER MCP
-  server** that exposes semantic gate, PR gate, decision memory, LIVE_BOB
-  validation, rule export, and replay evaluation as native Bob tools
-- `.bob/settings.json` + `collider/bob_hook.py` — Bob lifecycle hooks that
-  inject semantic context at SessionStart and capture session/gate receipts at Stop
-
-The native live protocol uses **three isolated Bob subagents** as ambiguity
-probes, validates their independent interpretation artifacts, then lets the same
-COLLIDER pipeline classify, decide, compile, verify, remember, and guard.
-
-The integration mechanism is shipped, tested, and now exercised by a real Bob
-session. The observed live run used three isolated Bob subagents, quarantined the
-pre-existing decision-memory rule during ambiguity probing, restored it
-byte-for-byte before classification, validated session/task provenance, and
-stopped on the unresolved human decision instead of auto-resolving it.
-
-A later fresh-agent replay then proved targeted reuse of that decision memory:
-Attempt 01 failed the hidden compatibility contract; Attempt 02 passed it 7/7
-after adding only a general minimal-change / preserve-public-interface engineering
-constraint. Both attempts are preserved as evidence.
-
-See:
-
-- `submission/BOB-USAGE.md`
-- `product/BOB-NATIVE-INTEGRATION.md`
-- `evidence/bob-sessions/README.md`
-
-## Real pull-request Semantic CI
-
-COLLIDER is not only an interactive demo. The repository ships a real GitHub
-pull-request gate in `.github/workflows/semantic-ci.yml`.
-
-For every registered semantic concept changed by a PR, the gate compares the
-new value against explicit source authority and committed decision memory:
-
-```text
-change conforms to source/canon
-→ MERGE_ALLOWED
-
-change violates source/canon
-→ MERGE_BLOCKED / AGENT_DRIFT
-
-change creates disagreement where source is silent
-→ DECISION_REQUIRED / SPEC_GAP
-```
-
-The action posts the verdict directly on the PR, uploads a machine-readable
-receipt, and blocks the merge for `MERGE_BLOCKED` or `DECISION_REQUIRED`.
-It also reports the conventional workstream-test result beside the semantic
-verdict so judges can see when ordinary tests stay green while Semantic CI
-still requires a decision.
-
-## Public runtime
-
-The hosted demo runs on:
-
-```text
-Cloudflare Worker
-├── Workers Static Assets → demo-ui/
-└── /api/* → per-browser-session Cloudflare Container
-    └── Python COLLIDER runtime
-```
-
-Production proof includes:
-
-- public three-verdict guard
-- exact workspace restoration
-- separate browser-session isolation
-- real-iPhone mobile smoke
-- Worker-version ↔ Git-commit binding
-- live CSP/security-header verification
-
-Receipts are under `evidence/runtime/`.
-
-## Run locally
-
-```bash
-python3 demo-ui/server.py
-# open http://127.0.0.1:4173
-```
-
-Core CLI:
-
-```bash
-python3 -m collider.gate
-
-python3 -m collider.decision_compiler \
-  --value account_id \
-  --decision-id demo-decision
-
-python3 -m collider.guard_probe \
-  --workspace .collider/workspaces/demo-decision \
-  --out-dir .collider/runs/demo-decision \
-  --probe IDENTITY_REVERT
-```
-
-## Verify
-
-```bash
-python3 -m pytest -q -p no:cacheprovider
-npx tsc --noEmit
-```
-
-Last full recorded verification before submission packaging:
-
-```text
-271 passed
-123 subtests passed
-TypeScript: clean
-```
-
-The canonical test configuration excludes committed evidence from test collection
-and writes transient test runs outside `evidence/`.
-
-## Evidence
-
-Key receipts:
-
-- `evidence/runs/baseline-001/`
-- `evidence/runs/local-resolved-004/`
-- `evidence/comparisons/baseline-001-vs-local-resolved-004.md`
-- `evidence/runtime/PUBLIC-THREE-VERDICT-GUARD-2026-09-27.md`
-- `evidence/runtime/PUBLIC-SESSION-ISOLATION-2026-09-27.md`
-- `evidence/runtime/PUBLIC-MOBILE-PROVENANCE-2026-09-27.md`
-- `evidence/runtime/RUNTIME-COMMIT-BINDING-2026-09-27.md`
-- `evidence/runtime/LIVE-CSP-HEADERS-2026-09-27.md`
-- `evidence/bob-sessions/LIVE-BOB-2026-09-27-01.md`
-- `evidence/bob-sessions/FRESH-REPLAY-ATTEMPT-01-2026-09-27.md`
-- `evidence/bob-sessions/FRESH-REPLAY-ATTEMPT-02-2026-09-27.md`
-- `evidence/bob-sessions/JUDGE-EVIDENCE-MANIFEST-2026-09-27.md`
-
-## Repository map
-
-```text
-collider/       semantic gate, decision compiler, guard, replay contract
-baseline/       no-COLLIDER executable control
-fixtures/       canonical failed-payment fixture
-evidence/       immutable comparison/runtime receipts
-demo-ui/        interactive judge surface
-demo/           recording script and demo contract
-product/        PRD, truth boundary, architecture, gates
-submission/     hackathon submission copy
-state/          canonical CURRENT / HANDOVER
-tests/          regression, integrity and deployment tests
-cloudflare/     Worker/Container deployment adapter
-```
-
-## Submission status
-
-| Gate | Status |
-|---|---|
-| Creative Depth & Distinctiveness | **PROVEN** |
-| Truth Boundary / Negative Path / Evidence Integrity | **PROVEN** |
-| Runtime / Commit Binding | **PROVEN** |
-| Public Runtime / Live Proof | **PROVEN** |
-| Deterministic Demo | **PROVEN** |
-| Pre-Launch / Ship Assurance | **PROVEN** |
-| Concept Compression | **PROVEN** with documented outsider-test waiver |
-| Judge Performance Assurance | **PROVEN FOR DEMO LOCK** |
-| Submission Integrity | **PENDING final media/package** |
-| LIVE_BOB ambiguity run | **OBSERVED** — 3 isolated Bob subagents + provenance validation |
-| Fresh-agent replay | **PROVEN (Attempt 02 targeted-repair)** — Attempt 01 failure preserved |
-
-Canonical status: `product/GATEWAY-REGISTRY.md`
-
-## Real-world anchor
-
-Mars Climate Orbiter is used only as evidence for the broader class of
-cross-boundary assumption failures. COLLIDER does **not** claim it would have
-prevented that historical incident.
-
-See `product/PROBLEM-EVIDENCE.md` for sources and claim boundaries.
+Consensus does not create authority.
 
 ---
 
