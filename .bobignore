@@ -1,0 +1,19 @@
+.env
+.env.*
+node_modules/
+.wrangler/
+__pycache__/
+*.pyc
+coverage/
+dist/
+build/
+tmp/
+.cache/
+*.log
+
+# Never let Bob treat uploaded/private scratch material as project authority.
+private/
+scratch/
+
+# Keep generated transient action receipts out of broad context unless explicitly requested.
+.collider/runs/
