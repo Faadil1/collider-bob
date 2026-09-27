@@ -10,6 +10,7 @@ The MCP surface turns COLLIDER into a tool Bob can invoke directly:
 - evaluate a pull-request semantic diff
 - read canonical decision memory
 - validate real LIVE_BOB interpretation bundles
+- compile a human decision from that exact LIVE_BOB bundle
 - export decision memory into Bob workspace rules
 - evaluate a fresh-agent replay receipt
 
@@ -30,11 +31,12 @@ from typing import Any
 
 from collider.bob_live import LiveBobEvidenceError, validate_live_bundle
 from collider.bob_rules import export_decision_rules
+from collider.decision_compiler import compile_decision
 from collider.replay import evaluate_replay_result
 
 ROOT = Path(os.environ.get("COLLIDER_ROOT", Path.cwd())).resolve()
 SERVER_NAME = "collider-semantic-ci"
-SERVER_VERSION = "0.2.0"
+SERVER_VERSION = "0.3.0"
 PROTOCOL_VERSION = "2025-06-18"
 
 
@@ -141,6 +143,39 @@ TOOLS = [
         },
     },
     {
+        "name": "collider_compile_live_decision",
+        "description": (
+            "Compile an interactive human decision from the exact validated "
+            "LIVE_BOB interpretation bundle. Binds Bob session + bundle hash "
+            "into decision memory and mutates only an isolated workspace."
+        ),
+        "inputSchema": {
+            "type": "object",
+            "required": [
+                "canonical_value",
+                "decision_id",
+                "interpretations_dir",
+                "session_ref",
+                "workspace",
+                "out_dir"
+            ],
+            "properties": {
+                "concept": {
+                    "type": "string",
+                    "default": "customer_identity"
+                },
+                "canonical_value": {"type": "string"},
+                "decision_id": {"type": "string"},
+                "interpretations_dir": {"type": "string"},
+                "session_ref": {"type": "string"},
+                "workspace": {"type": "string"},
+                "out_dir": {"type": "string"},
+                "rationale": {"type": ["string", "null"]}
+            },
+            "additionalProperties": False
+        },
+    },
+    {
         "name": "collider_export_decision_rule",
         "description": (
             "Export verified COLLIDER decision memory into a Bob workspace rule. "
@@ -218,6 +253,47 @@ def call_tool(name: str, arguments: dict[str, Any] | None = None) -> dict[str, A
             receipt = validate_live_bundle(interpretations_dir, session_ref)
             return _text_result(receipt)
 
+        if name == "collider_compile_live_decision":
+            interpretations_dir = _resolve_inside_root(str(args["interpretations_dir"]))
+            workspace = _resolve_inside_root(str(args["workspace"]))
+            out_dir = _resolve_inside_root(str(args["out_dir"]))
+            session_ref = str(args["session_ref"]).strip()
+            if not session_ref:
+                raise ValueError("session_ref must be non-empty")
+
+            compiled = compile_decision(
+                str(args.get("concept", "customer_identity")),
+                str(args["canonical_value"]),
+                human_decision_source="INTERACTIVE_BOB",
+                decision_id=str(args["decision_id"]),
+                source_root=ROOT,
+                workspace=workspace,
+                out_dir=out_dir,
+                rationale=args.get("rationale"),
+                interpretation_source="LIVE_BOB",
+                interpretation_dir=interpretations_dir,
+                bob_session_ref=session_ref,
+            )
+            memory = compiled["memory"]
+            manifest = compiled["manifest"]
+            return _text_result(
+                {
+                    "status": "COMPILED",
+                    "decision_id": memory["decision_id"],
+                    "concept": memory["concept"],
+                    "canonical_value": memory["canonical_value"],
+                    "human_decision_source": memory["human_decision_source"],
+                    "interpretation_source": memory["provenance"]["interpretation_source"],
+                    "bob_session_ref": memory["provenance"]["bob_session_ref"],
+                    "live_bob_input_bundle_sha256": memory["provenance"]["live_bob_input_bundle_sha256"],
+                    "gate_after": manifest["gate_after"],
+                    "integration_conflicts_after": manifest["integration_conflicts_after"],
+                    "workspace": compiled["workspace"],
+                    "receipts": compiled["out_dir"],
+                    "fresh_agent_replay": memory["replay"],
+                }
+            )
+
         if name == "collider_export_decision_rule":
             memory_path = _resolve_inside_root(str(args["memory_path"]))
             output_path = _resolve_inside_root(
@@ -252,7 +328,7 @@ def call_tool(name: str, arguments: dict[str, Any] | None = None) -> dict[str, A
 
         return _text_result(f"unknown tool: {name}", is_error=True)
 
-    except (KeyError, ValueError, OSError, json.JSONDecodeError, LiveBobEvidenceError) as exc:
+    except (KeyError, ValueError, RuntimeError, OSError, json.JSONDecodeError, LiveBobEvidenceError) as exc:
         return _text_result(
             {
                 "error": type(exc).__name__,
