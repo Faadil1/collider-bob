@@ -1,5 +1,5 @@
 project: collider-bob
-handover_version: 9
+handover_version: 10
 date: 2026-09-27
 source_of_truth: state/CURRENT.yaml
 branch: main
@@ -11,7 +11,7 @@ north_star:
   signature_moment: "37/37 tests pass; COLLIDER returns DECISION_REQUIRED."
 
 current_stage:
-  status: BOB_NATIVE_LIVE_PROOF_OBSERVED_REPLAY_PENDING
+  status: BOB_NATIVE_LIVE_PROOF_OBSERVED_REPLAY_ATTEMPT_01_FAILED
   concept_lock: LOCKED_AFTER_SECOND_CREATIVE_DEPTH_PASS
   demo_lock: EARNED
   submission_status: FINAL_PACKAGING
@@ -25,7 +25,7 @@ canonical_decisions:
   - Decision memory must change future verdicts, not merely store text.
   - Guard probes are controlled changes, not agents.
   - Historical fixture interpretations are PRESEEDED; run live-bob-2026-09-27-01 produced genuine LIVE_BOB interpretations and must be cited by its own provenance.
-  - Fresh-agent replay remains NOT_EXECUTED and is the final Bob proof gate.
+  - Fresh-agent replay attempt 01 executed for real and returned REPLAY_FAIL: semantic convergence succeeded (account_id) but the withheld regression contract failed 5/7 because Bob removed the existing customer_email parameter.
   - No further product feature is required for Demo Lock.
   - From here, changes should be packaging, comprehension, evidence clarity or bug fixes only.
 
@@ -101,7 +101,7 @@ outsider_break_test:
 truth_boundary:
   do_not_claim:
     - PRESEEDED interpretations are LIVE_BOB
-    - fresh-agent replay has executed
+    - fresh-agent replay has passed
     - guard probes are autonomous agents
     - unmeasured time or percentage productivity gains
     - outsider test was executed
@@ -131,17 +131,31 @@ bob_native_integration:
   live_session_execution: OBSERVED
 
 blocking_or_pending:
-  - execute isolated fresh-agent replay and capture literal fresh-session/task evidence
+  - execute isolated fresh-agent replay attempt 02 from a clean sandbox and capture fresh task + withheld-contract evidence
   - final slides and cover
   - final <=3 minute video
   - Submission Integrity
   - final snapshot
 
 next_exact_action: >
-  Build a physically isolated replay workspace from commit 8370a82861cd27eb972700f74c916743e3fa578b.
-  Inject only the interactive canon/spec inputs required for replay, withhold repaired implementation and
-  repair.patch, start a new Bob session, spawn one fresh independent agent, run the regression contract,
-  and evaluate with collider_evaluate_replay. Promote only from observed replay evidence.
+  Preserve attempt 01 as immutable failure evidence. Fix collider/replay.py CLI imports, then create a brand-new
+  attempt-02 sandbox from commit 8370a82861cd27eb972700f74c916743e3fa578b with the same INTERACTIVE canon/spec,
+  no repaired implementation, no prior attempt output, and a neutral minimal-change / preserve-unrelated-interface
+  instruction. Run a new independent Bob task and evaluate only after revealing the withheld regression contract.
+
+fresh_agent_replay_attempt_01:
+  status: REPLAY_FAIL
+  execution_source: LIVE_BOB_SESSION
+  task_id: 4100558a9ec3bb56296149a8388af980
+  inputs_sha256: a3a13447d5392d7369fd5432078e3fc11cedd4fb3b114df93b662458f46e9a26
+  emitted_value: account_id
+  semantic_convergence: true
+  holdout: {passed: 5, failed: 2, failure_class: API_COMPATIBILITY_REGRESSION}
+  reason: >-
+    Bob removed customer_email while switching API identity to account_id. The hidden contract expected
+    compatibility-preserving behavior, so two tests raised TypeError instead of the intended ValueError/valid handoff.
+  receipt_sha256: 17d55906a9b4971e35f6077a5b26c181a33c553b83bfca53a2672e0003cb64b5
+  replay_pass_proven: false
 
 live_bob_observed:
   run_id: live-bob-2026-09-27-01
@@ -161,7 +175,7 @@ live_bob_observed:
     collider_gate still sees SHARED_INFERRED/DECISION_REQUIRED because its canon lookup expects a workspace-root
     canon/decision-memory.json and source marker. Do not report that specific gate as SEMANTICALLY_READY yet.
   bobcoins: {spent: 6, budget: 50, remaining: 44}
-  fresh_agent_replay: NOT_EXECUTED
+  fresh_agent_replay: ATTEMPT_01_REPLAY_FAIL
 
 do_not_forget:
   - "Functional ≠ finished."
