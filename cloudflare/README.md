@@ -114,7 +114,16 @@ receipts written inside it report `input_commit: UNKNOWN` rather than guessing.
 | ACTIVE MODE via Cloudflare | `execution_environment = CLOUDFLARE_CONTAINER`, `interpretation_source = PRESEEDED`, `human_decision_source = INTERACTIVE_WEB` · UI: `CLOUDFLARE CONTAINER ACTIVE DEMO` |
 | ACTIVE MODE via `python3 demo-ui/server.py` | `LOCAL`, `PRESEEDED`, `INTERACTIVE_LOCAL_UI` · UI: `LOCAL ACTIVE DEMO` |
 | EVIDENCE MODE | `COMMITTED EVIDENCE · LOCAL / PRESEEDED` (committed receipts, never executed by the browser) |
-| Fresh-agent replay | `NOT_EXECUTED / PENDING_LIVE_BOB` everywhere |
+| Replay inside the current browser session | `NOT_EXECUTED / PENDING_LIVE_BOB` |
+| Separate Bob evidence | Attempt 01: `REPLAY_FAIL` (5/7); Attempt 02: targeted-repair `REPLAY_PASS` (7/7) |
 
-Nothing is labelled LIVE_BOB. The container image has no git, so
-`provenance.input_commit` reads `UNKNOWN` there rather than guessing a commit.
+The public demo's comparative interpretations are never labelled LIVE_BOB. A
+separate preserved Bob run is genuinely labelled LIVE_BOB in
+`evidence/bob-sessions/`, with its own session/task provenance. The container
+image has no git, so `provenance.input_commit` reads `UNKNOWN` there rather
+than guessing a commit.
+
+Latest verified post-UI deployment:
+- Git snapshot: `a909a682f1b033e41b1e1ef312dffbe24005af67`
+- Worker version: `453a881f-3b9a-4065-b65b-25b3b2ffa369`
+- Runtime: `CLOUDFLARE_CONTAINER / PRESEEDED / INTERACTIVE_WEB`
