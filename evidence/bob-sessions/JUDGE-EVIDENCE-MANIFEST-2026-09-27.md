@@ -63,29 +63,27 @@ Replay Attempt 02:
 - holdout: 7 passed / 0 failed
 - receipt SHA-256: `ed623331edefb259ffc7047a98f3091fd0a0ac0d94566c927c4d4f9da71a12c0`
 
-## Screenshot archive slots
+## Archived screenshot pool
 
-The original screenshots currently live in the working conversation evidence pool.
-When their image files are exported, place them here without alteration:
+The following authentic originals are committed under `evidence/bob-sessions/screenshots/`.
+They were copied byte-for-byte from the captured run evidence and SHA-256 verified before archive commit
+`8e336c8e344d712749b4a886fae349630afc7c4c`.
 
-```text
-evidence/bob-sessions/screenshots/
-  J1-quarantine-original.<ext>
-  J2-three-subagents-original.<ext>
-  J3-live-bob-spec-gap-original.<ext>
-  J4-interactive-decision-original.<ext>
-  J5-replay-attempt-01-fail-original.<ext>
-  J6-replay-attempt-02-pass-original.<ext>
-```
+| ID | File | SHA-256 | Status |
+|---|---|---|---|
+| J1 | [J1-quarantine-original.png](screenshots/J1-quarantine-original.png) | `d5fb5f64182aced3b1d6870a0834b4a5bf2023e81dbd1e9687b922a262b8e631` | AUTHENTIC_ORIGINAL |
+| J2 | [J2-three-subagents-original.png](screenshots/J2-three-subagents-original.png) | `d522c3f2b38650912a42ee0c028fe40c90ddbde96fea44b2f943305c9fcdc06a` | AUTHENTIC_ORIGINAL |
+| J3 | [J3-live-bob-spec-gap-original.png](screenshots/J3-live-bob-spec-gap-original.png) | `9cdd0922c1da3394b62d89116c5f344a8a71fb475f18028f50458e0753955d20` | AUTHENTIC_ORIGINAL |
+| J4 | [J4-interactive-decision-original.png](screenshots/J4-interactive-decision-original.png) | `9c1736f1961f8a2e9ea0da32b22e48cacc65b88f051325948acae52b4306b848` | AUTHENTIC_ORIGINAL |
 
-Then append, for each file:
+### Replay screenshot limitation
 
-```text
-filename:
-sha256:
-captured_from: original Bob/Codespaces screen
-content_summary:
-```
+No authentic J5/J6 image files were found in the accessible captured-image pool during the final seal.
+They are therefore **not reconstructed, redrawn, or fabricated**.
 
-Do not fabricate these filenames or hashes before the original image files are
-actually archived.
+Replay proof remains machine-verifiable in:
+
+- [Attempt 01 — REPLAY_FAIL, 5 passed / 2 failed](FRESH-REPLAY-ATTEMPT-01-2026-09-27.md)
+- [Attempt 02 — TARGETED_REPAIR_REPLAY, REPLAY_PASS, 7/7](FRESH-REPLAY-ATTEMPT-02-2026-09-27.md)
+
+This is a visual-packaging limitation, not a missing replay execution claim.
