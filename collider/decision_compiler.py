@@ -60,7 +60,10 @@ INTERPRETATIONS_RELDIR = "fixtures/failed-payment/interpretations"
 
 HUMAN_DECISION_SOURCES = (
     "PRESEEDED", "CLI_OPERATOR", "INTERACTIVE_LOCAL_UI", "INTERACTIVE_WEB",
+    "INTERACTIVE_BOB",
 )
+
+INTERPRETATION_SOURCES = ("PRESEEDED", "LIVE_BOB")
 
 # Where an action physically executed. Never LIVE_BOB: no Bob session runs here.
 EXECUTION_ENVIRONMENTS = ("LOCAL", "CLOUDFLARE_CONTAINER")
@@ -297,6 +300,9 @@ def compile_decision(
     out_dir: Path | None = None,
     rationale: str | None = None,
     execution_environment: str = "LOCAL",
+    interpretation_source: str = "PRESEEDED",
+    interpretation_dir: Path | None = None,
+    bob_session_ref: str | None = None,
 ) -> dict:
     source_root = Path(source_root).resolve()
     workspace = Path(workspace or source_root / ".collider/workspaces" / decision_id).resolve()
@@ -305,22 +311,92 @@ def compile_decision(
     if concept not in COMPILABLE_CONCEPTS:
         raise ValueError(f"concept {concept!r} is not compilable in this slice")
     check_provenance(human_decision_source, execution_environment)
+    if interpretation_source not in INTERPRETATION_SOURCES:
+        raise ValueError(
+            f"interpretation_source must be one of {INTERPRETATION_SOURCES}"
+        )
+
+    live_bob_input = None
+    if interpretation_source == "LIVE_BOB":
+        if interpretation_dir is None:
+            raise ValueError(
+                "LIVE_BOB compilation requires interpretation_dir; PRESEEDED "
+                "fixture interpretations cannot be relabelled."
+            )
+        if not bob_session_ref:
+            raise ValueError(
+                "LIVE_BOB compilation requires the real Bob session reference."
+            )
+        from collider.bob_live import validate_live_bundle
+
+        live_bob_input = validate_live_bundle(
+            Path(interpretation_dir),
+            bob_session_ref,
+        )
+    elif bob_session_ref:
+        raise ValueError(
+            "bob_session_ref is only valid with interpretation_source=LIVE_BOB"
+        )
+
     if out_dir.exists() and any(out_dir.iterdir()):
         raise FileExistsError(f"REFUSE: receipt directory already exists and is non-empty: {out_dir}")
 
     # --- DETECT ------------------------------------------------------------
     source_before = tracked_files(source_root)
     gate_before = gate_mod.evaluate_gate(source_root)
-    gap = next(
-        (f for f in gate_before["findings"]
-         if f["kind"] == "SPEC_GAP" and f["concept"] == concept),
+
+    # PRESEEDED compilation still requires the committed tree to expose the
+    # unresolved gap. LIVE_BOB may discover a gap through independent agent
+    # interpretations even when the current tree alone cannot express it.
+    source_gap = next(
+        (
+            f for f in gate_before["findings"]
+            if f["kind"] == "SPEC_GAP" and f["concept"] == concept
+        ),
         None,
     )
-    if gap is None:
+    if interpretation_source == "PRESEEDED" and source_gap is None:
         raise RuntimeError(
             f"REFUSE: no unresolved SPEC_GAP for {concept!r} in {source_root}; "
             f"gate verdict is {gate_before['verdict']}"
         )
+
+    # Validate the selected interpretation bundle and the proposed human value
+    # BEFORE creating a workspace. Invalid decisions must leave no side effects.
+    selected_interpretation_dir = (
+        Path(interpretation_dir).resolve()
+        if interpretation_dir is not None
+        else source_root / INTERPRETATIONS_RELDIR
+    )
+    interpretations = [
+        json.loads((selected_interpretation_dir / f"{ws}.json").read_text())
+        for ws in ("api", "ledger", "notifications")
+    ]
+
+    groups_for_decision = reconcile(interpretations)
+    if concept not in groups_for_decision:
+        raise RuntimeError(
+            f"REFUSE: selected interpretations do not contain {concept!r}"
+        )
+
+    bundle_gap = classify_concept(
+        concept,
+        groups_for_decision[concept],
+        source_before["spec"],
+    )
+    if bundle_gap.get("classification") != "SPEC_GAP":
+        raise RuntimeError(
+            f"REFUSE: selected interpretations do not expose an unresolved "
+            f"SPEC_GAP for {concept!r}; got {bundle_gap.get('classification')!r}"
+        )
+
+    gap = {
+        "question": (
+            bundle_gap.get("minimal_question")
+            or (source_gap or {}).get("question")
+        ),
+        "candidates": bundle_gap.get("workstream_values", {}),
+    }
     candidates = sorted(set(gap["candidates"].values()))
     if canonical_value not in candidates:
         raise ValueError(
@@ -328,16 +404,19 @@ def compile_decision(
             f"{concept!r}; candidates: {candidates}"
         )
 
-    # --- COMPILE: workspace + impact routing ---------------------------------
+    # --- COMPILE: workspace + interpretation provenance ----------------------
     materialize_workspace(source_root, workspace)
     ws_before = tracked_files(workspace)
     ws_hash_before = {k: sha256_text(v) for k, v in ws_before.items()}
 
     interp_dir = workspace / INTERPRETATIONS_RELDIR
-    interpretations = [
-        json.loads((interp_dir / f"{ws}.json").read_text())
-        for ws in ("api", "ledger", "notifications")
-    ]
+    if interpretation_dir is not None:
+        for ws in ("api", "ledger", "notifications"):
+            shutil.copyfile(
+                selected_interpretation_dir / f"{ws}.json",
+                interp_dir / f"{ws}.json",
+            )
+
     impact = route_impact(concept, canonical_value, interpretations)
     affected = sorted(
         w["workstream"] for w in impact["workstream_impacts"] if w["consumed_concept"]
@@ -436,7 +515,11 @@ def compile_decision(
         ],
         "provenance": {
             "execution_environment": execution_environment,
-            "interpretation_source": "PRESEEDED",
+            "interpretation_source": interpretation_source,
+            "bob_session_ref": bob_session_ref,
+            "live_bob_input_bundle_sha256": (
+                live_bob_input["bundle_sha256"] if live_bob_input else None
+            ),
             "human_decision_source": human_decision_source,
             "compiler": "collider.decision_compiler",
             "input_commit": input_commit,
@@ -507,7 +590,14 @@ def compile_decision(
         "command": (
             f"python3 -m collider.decision_compiler --concept {concept} "
             f"--value {canonical_value} --decision-id {decision_id} "
-            f"--human-decision-source {human_decision_source}"
+            f"--human-decision-source {human_decision_source} "
+            f"--interpretation-source {interpretation_source}"
+            + (
+                f" --interpretation-dir {interpretation_dir} "
+                f"--bob-session-ref {bob_session_ref}"
+                if interpretation_source == "LIVE_BOB"
+                else ""
+            )
         ),
         "compiled_at": compiled_at,
         "input_commit": input_commit,
@@ -523,10 +613,18 @@ def compile_decision(
         "source_tree_untouched": source_untouched,
         "truth_boundary": {
             "execution": execution_environment,
-            "interpretations": "PRESEEDED",
+            "interpretations": interpretation_source,
+            "bob_session_ref": bob_session_ref,
+            "live_bob_input_bundle_sha256": (
+                live_bob_input["bundle_sha256"] if live_bob_input else None
+            ),
             "human_decision": human_decision_source,
             "fresh_agent_replay": "NOT_EXECUTED / PENDING_LIVE_BOB",
-            "live_bob": "NOT_EXECUTED",
+            "live_bob": (
+                "INTERPRETATION_INPUT_VALIDATED"
+                if interpretation_source == "LIVE_BOB"
+                else "NOT_EXECUTED"
+            ),
             "wall_clock_improvement": "NOT_MEASURED",
             "percentage_improvement": "NOT_CLAIMED",
             "canonical_evidence_modified": False,
@@ -535,6 +633,8 @@ def compile_decision(
 
     # --- Receipts -------------------------------------------------------------
     out_dir.mkdir(parents=True, exist_ok=True)
+    if live_bob_input is not None:
+        write_json(out_dir / "bob-live-input.json", live_bob_input)
     write_json(out_dir / "manifest.json", manifest)
     write_json(out_dir / "decision.json", decision)
     write_json(out_dir / "spec-patch.json", spec_patch)
@@ -654,6 +754,21 @@ if __name__ == "__main__":
     parser.add_argument("--out-dir", default=None)
     parser.add_argument("--workspace", default=None)
     parser.add_argument("--rationale", default=None)
+    parser.add_argument(
+        "--interpretation-source",
+        default="PRESEEDED",
+        choices=INTERPRETATION_SOURCES,
+    )
+    parser.add_argument(
+        "--interpretation-dir",
+        default=None,
+        help="Directory holding api.json, ledger.json, notifications.json.",
+    )
+    parser.add_argument(
+        "--bob-session-ref",
+        default=None,
+        help="Real IBM Bob parent session reference for LIVE_BOB inputs.",
+    )
     args = parser.parse_args()
 
     result = compile_decision(
@@ -663,6 +778,9 @@ if __name__ == "__main__":
         out_dir=Path(args.out_dir) if args.out_dir else None,
         workspace=Path(args.workspace) if args.workspace else None,
         rationale=args.rationale,
+        interpretation_source=args.interpretation_source,
+        interpretation_dir=Path(args.interpretation_dir) if args.interpretation_dir else None,
+        bob_session_ref=args.bob_session_ref,
     )
     m = result["manifest"]
     print(f"DECISION   {args.concept} = {args.value}  ({args.human_decision_source})")

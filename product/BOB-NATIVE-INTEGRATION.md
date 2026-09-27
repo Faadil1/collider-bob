@@ -203,6 +203,7 @@ integration points:
 Bob custom mode / skill / rules            SHIPPED
 LIVE_BOB input validation                  SHIPPED + TESTED
 COLLIDER consumption of LIVE_BOB inputs    SHIPPED + TESTED
+LIVE_BOB decision compilation               SHIPPED + TESTED
 Decision memory → Bob workspace rule       SHIPPED + TESTED
 Real Bob task/session execution            PENDING USER RUN
 Fresh independent Bob replay               PENDING LIVE_BOB
@@ -296,3 +297,28 @@ The architecture now uses the native extension surfaces IBM documents for Bob:
 custom modes, project skills, project rules, project MCP, custom slash commands,
 parallel subagents and lifecycle hooks. The remaining gap is not another design
 artifact; it is the actual Bob execution/capture that promotes runtime evidence.
+
+
+### LIVE_BOB decision compilation
+
+The live path now stays provenance-bound through the human decision itself.
+
+`collider.decision_compiler` accepts a validated live interpretation directory,
+the real Bob parent session reference and `INTERACTIVE_BOB` as the human
+decision source. Before creating a workspace it:
+
+1. validates the exact LIVE_BOB bundle;
+2. classifies the selected bundle itself and refuses non-SPEC_GAP input;
+3. refuses a human value that no selected Bob agent proposed;
+4. copies the exact live interpretations into the compiled workspace;
+5. binds the Bob session reference and interpretation-bundle SHA-256 into
+   decision memory and the immutable decision receipt;
+6. then performs the existing spec patch, targeted repair, regression contract,
+   verification, memory and guard sequence.
+
+The live path therefore cannot silently fall back to PRESEEDED fixture
+interpretations after the human answers.
+
+CI proves this mechanism with a provenance-bound LIVE_BOB-shaped bundle while
+preserving the truth boundary: the CI fixture proves the code path, not that an
+actual IBM Bob session has already executed it.

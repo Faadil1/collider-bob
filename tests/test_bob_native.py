@@ -5,6 +5,9 @@ import pytest
 
 from collider.bob_live import LiveBobEvidenceError, validate_live_bundle
 from collider.bob_rules import render_decision_rules
+from collider.decision_compiler import compile_decision
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 
 def _write_live_bundle(root: Path, session_ref: str = "bob-session-123") -> None:
@@ -121,3 +124,77 @@ def test_decision_memory_exports_as_bob_workspace_rule():
     assert "Decision ID: `decision-live-1`" in rendered
     assert "Run the COLLIDER semantic guard" in rendered
     assert "future Bob agent's compliance is not proven" in rendered
+
+
+
+def _write_fixture_live_bundle(root: Path, session_ref: str) -> None:
+    root.mkdir(parents=True, exist_ok=True)
+    fixture_dir = PROJECT_ROOT / "fixtures/failed-payment/interpretations"
+
+    for workstream in ("api", "ledger", "notifications"):
+        obj = json.loads((fixture_dir / f"{workstream}.json").read_text())
+        obj["agent_id"] = f"bob-live-{workstream}"
+        obj["generation_mode"] = "LIVE_BOB"
+        obj["session_ref"] = session_ref
+        obj["task_summary_ref"] = f"bob-task-summary-{workstream}"
+        obj["run_id"] = "live-compiler-test"
+        (root / f"{workstream}.json").write_text(json.dumps(obj))
+
+
+def test_decision_compiler_consumes_validated_live_bob_bundle(tmp_path):
+    session_ref = "bob-session-live-compiler"
+    interpretations = tmp_path / "interpretations"
+    _write_fixture_live_bundle(interpretations, session_ref)
+
+    result = compile_decision(
+        "customer_identity",
+        "account_id",
+        human_decision_source="INTERACTIVE_BOB",
+        decision_id="live-bob-decision-test",
+        source_root=PROJECT_ROOT,
+        workspace=tmp_path / "workspace",
+        out_dir=tmp_path / "receipts",
+        interpretation_source="LIVE_BOB",
+        interpretation_dir=interpretations,
+        bob_session_ref=session_ref,
+    )
+
+    provenance = result["memory"]["provenance"]
+    assert provenance["interpretation_source"] == "LIVE_BOB"
+    assert provenance["bob_session_ref"] == session_ref
+    assert len(provenance["live_bob_input_bundle_sha256"]) == 64
+    assert provenance["human_decision_source"] == "INTERACTIVE_BOB"
+
+    truth = result["manifest"]["truth_boundary"]
+    assert truth["interpretations"] == "LIVE_BOB"
+    assert truth["live_bob"] == "INTERPRETATION_INPUT_VALIDATED"
+    assert truth["fresh_agent_replay"] == "NOT_EXECUTED / PENDING_LIVE_BOB"
+
+    assert result["gate_after"]["verdict"] == "SEMANTICALLY_READY"
+    assert result["memory"]["verification"]["tests_failed"] == 0
+    assert (tmp_path / "receipts" / "bob-live-input.json").is_file()
+
+    copied_api = json.loads(
+        (tmp_path / "workspace" / "fixtures/failed-payment/interpretations/api.json").read_text()
+    )
+    assert copied_api["generation_mode"] == "LIVE_BOB"
+    assert copied_api["session_ref"] == session_ref
+
+
+def test_decision_compiler_refuses_live_bob_without_real_session_ref(tmp_path):
+    interpretations = tmp_path / "interpretations"
+    _write_fixture_live_bundle(interpretations, "bob-session-required")
+
+    with pytest.raises(ValueError, match="real Bob session reference"):
+        compile_decision(
+            "customer_identity",
+            "account_id",
+            human_decision_source="INTERACTIVE_BOB",
+            decision_id="missing-session-test",
+            source_root=PROJECT_ROOT,
+            workspace=tmp_path / "workspace",
+            out_dir=tmp_path / "receipts",
+            interpretation_source="LIVE_BOB",
+            interpretation_dir=interpretations,
+            bob_session_ref=None,
+        )

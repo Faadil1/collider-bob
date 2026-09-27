@@ -123,6 +123,7 @@ bob_native_integration:
   custom_mode: .bob/custom_modes.yaml
   skill: .bob/skills/collider-semantic-review/SKILL.md
   live_input_validator: collider/bob_live.py
+  live_decision_compiler: "collider/decision_compiler.py — LIVE_BOB + INTERACTIVE_BOB + session/bundle binding"
   decision_rule_exporter: collider/bob_rules.py
   project_mcp: .bob/mcp.json -> collider/mcp_server.py
   mcp_stdio_jsonrpc: PROVEN_IN_CI

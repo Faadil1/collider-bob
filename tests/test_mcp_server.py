@@ -40,10 +40,11 @@ def test_mcp_tools_list_exposes_native_collider_surface():
         "collider_pr_gate",
         "collider_decision_memory",
         "collider_validate_live_bob",
+        "collider_compile_live_decision",
         "collider_export_decision_rule",
         "collider_evaluate_replay",
     } <= names
-    assert len(TOOLS) >= 6
+    assert len(TOOLS) >= 7
 
 
 def test_mcp_notification_has_no_response():
