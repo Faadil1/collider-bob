@@ -1,6 +1,6 @@
 project: collider-bob
 date: 2026-09-27
-stage: BOB_NATIVE_INTEGRATION_SHIPPED_LIVE_PROOF_PENDING
+stage: BOB_NATIVE_LIVE_PROOF_OBSERVED_REPLAY_PENDING
 branch: main
 
 north_star:
@@ -18,7 +18,7 @@ north_star:
   future_step:
     name: REPLAY
     status: NOT_EXECUTED
-    boundary: PENDING_LIVE_BOB
+    boundary: PENDING_FRESH_AGENT_REPLAY
   artifact: product/SEMANTIC-CI-ESCALATION.md
 
 concept_lock:
@@ -154,7 +154,7 @@ bob_native_integration:
     runtime: collider/bob_hook.py
     session_start_context_injection: SHIPPED_AND_TESTED
     session_stop_receipt: SHIPPED_AND_TESTED
-    live_bob_session_receipt: PENDING_ACTUAL_BOB_RUN
+    live_bob_session_receipt: OBSERVED
   pull_request_semantic_ci:
     implementation: collider/pr_gate.py
     workflow: .github/workflows/semantic-ci.yml
@@ -162,12 +162,12 @@ bob_native_integration:
     conventional_tests_visible: true
     live_three_verdict_proof: PROVEN
     live_three_verdict_receipt: evidence/runtime/GITHUB-SEMANTIC-CI-THREE-VERDICT-2026-09-27.md
-  live_session_execution: PENDING_USER_RUN
+  live_session_execution: OBSERVED
   evidence_target: evidence/bob-sessions/
 
 bob_boundary:
   implementation_and_architecture_use: REAL
-  canonical_interpretation_generation: PRESEEDED
+  canonical_interpretation_generation: LIVE_BOB_OBSERVED_FOR_RUN_2026_09_27_01
   fresh_live_parallel_replay: NOT_EXECUTED
 
 submission:
@@ -177,13 +177,13 @@ submission:
     - submission/PROBLEM-SOLUTION.md
     - submission/BOB-USAGE.md
   pending:
-    - execute Bob-native live protocol and capture literal Bob Task Session Summary + subagent evidence
+    - execute fresh-agent replay in a physically isolated workspace
     - slides and cover
     - final <=3 min video from demo/DEMO-SCRIPT-ACTIVE.md
     - Submission Integrity Gate
     - final snapshot
   truth_boundary:
-    - do not claim LIVE_BOB canonical interpretations
+    - LIVE_BOB claims are allowed only for run live-bob-2026-09-27-01 and its captured provenance
     - do not call controlled guard probes agents
     - do not claim unmeasured time or percentage gains
 
@@ -197,8 +197,47 @@ do_not_redo:
   - repo publication audit
 
 next_exact_action: >
-  Open the repository in IBM Bob, select the COLLIDER Semantic CI custom mode, invoke the
-  collider-semantic-review skill, quarantine the pre-existing decision-memory rule for the
-  probe phase, execute the live isolated-subagent protocol, restore/hash-verify the rule, and capture the
-  Task Session Summary/subagent evidence. Only then promote Bob-Native Integration and continue
-  to Claude visual redesign + final media packaging.
+  Create a fresh isolated replay workspace from commit 8370a82861cd27eb972700f74c916743e3fa578b,
+  inject only the interactive decision memory / patched specification needed for replay, withhold repaired
+  implementation files and repair.patch, start a new Bob session, run one fresh independent agent, and
+  evaluate the actual replay receipt with collider_evaluate_replay. Do not promote REPLAY_PASS until the
+  live execution source, fresh session/task provenance, derived account_id, and regression test pass are observed.
+
+live_bob_observed_run:
+  run_id: live-bob-2026-09-27-01
+  status: OBSERVED
+  session_ref: e6b660eb207144f0953d24bbc49f2a87
+  git_commit: 8370a82861cd27eb972700f74c916743e3fa578b
+  pre_post_quarantine_sha256: c3b359a9501ce07c8b00f4b1fadf4ce7626902cf6e6de9696d27b2a2d7d31888
+  bundle_sha256: 56921cc86b212bf8c2c52677cdf43fd99961ca39c9b7890169e760b33fa3a438
+  unique_agents: 3
+  task_summary_refs:
+    api: bob-task-api-e6b660eb-live-bob-2026-09-27-01
+    ledger: bob-task-ledger-e6b660eb-live-bob-2026-09-27-01
+    notifications: bob-task-notifications-e6b660eb-live-bob-2026-09-27-01
+  contamination_check: CLEAN
+  detect:
+    customer_identity: SPEC_GAP
+    customer_identity_state: UNKNOWN
+    api_value: email
+    ledger_value: account_id
+  human_decision:
+    concept: customer_identity
+    canonical_value: account_id
+    human_decision_source: INTERACTIVE
+    decided_at: 2026-09-27T11:47:03Z
+  resolved_path:
+    integration_status: INTEGRATION_READY
+    integration_conflicts: 0
+    workstream_tests: "30 passed, 0 failed"
+    pr_gate_vs_origin_main: MERGE_ALLOWED
+  truth_boundary_note: >-
+    The root collider_gate invocation still reports DECISION_REQUIRED/SHARED_INFERRED because its current
+    canon loader expects canon/decision-memory.json plus a source marker in the workspace root. The resolved
+    pipeline and PR gate do observe zero integration conflicts and MERGE_ALLOWED. Do not narrate the root
+    collider_gate itself as SEMANTICALLY_READY until that canon-path mismatch is fixed and re-observed.
+  fresh_agent_replay: NOT_EXECUTED
+  bobcoin_usage_after_run:
+    spent: 6
+    budget: 50
+    remaining: 44
