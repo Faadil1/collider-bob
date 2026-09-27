@@ -5,6 +5,8 @@
 
 **Live demo:** https://collider-semantic-ci.faadil-casecraft.workers.dev/
 
+**Final walkthrough:** https://scrimba.com/explain/guide0tftf2fa4?claim=3geifapic08ivlp9&fullscreen=1
+
 Parallel AI coding agents can all be locally correct and still build incompatible
 assumptions because the specification never made a cross-boundary decision.
 
