@@ -136,6 +136,14 @@ bob_native_integration:
   live_input_validator: collider/bob_live.py
   live_pipeline_ingestion: SHIPPED
   decision_memory_to_bob_rules: collider/bob_rules.py
+  live_probe_decision_memory_quarantine:
+    status: REQUIRED
+    reason: >-
+      Bob workspace rules apply across modes; the pre-existing PRESEEDED
+      customer_identity canon must be quarantined while independent live probes run
+      or the probe would be context-contaminated.
+    restore_before_detect: true
+    hash_verification_required: true
   project_mcp:
     config: .bob/mcp.json
     server: collider/mcp_server.py
@@ -190,6 +198,7 @@ do_not_redo:
 
 next_exact_action: >
   Open the repository in IBM Bob, select the COLLIDER Semantic CI custom mode, invoke the
-  collider-semantic-review skill, execute the live isolated-subagent protocol, and capture the
+  collider-semantic-review skill, quarantine the pre-existing decision-memory rule for the
+  probe phase, execute the live isolated-subagent protocol, restore/hash-verify the rule, and capture the
   Task Session Summary/subagent evidence. Only then promote Bob-Native Integration and continue
   to Claude visual redesign + final media packaging.
