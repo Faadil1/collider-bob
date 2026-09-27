@@ -879,6 +879,8 @@ def run_pipeline(
     execution_environment: str = "LOCAL",
     interpretation_source: str = "PRESEEDED",
     human_decision_source: str = "PRESEEDED",
+    interpretation_dir: str | None = None,
+    bob_session_ref: str | None = None,
     apply_repair: bool = True,            # False for abstain run (no canon patch → no repair)
     force: bool = False,                  # test-only escape hatch; NEVER for canonical runs
 ) -> dict:
@@ -924,17 +926,75 @@ def run_pipeline(
     brief_text = Path(brief_path).read_text()
 
     # --- Load interpretations ---
+    source_interpretation_dir = (
+        interpretation_dir
+        if interpretation_dir is not None
+        else os.path.join(fixture_dir, "interpretations")
+    )
+
+    live_bob_input_receipt = None
+    if interpretation_source == "LIVE_BOB":
+        if interpretation_dir is None:
+            raise ValueError(
+                "LIVE_BOB requires --interpretation-dir; fixture PRESEEDED "
+                "interpretations cannot be relabeled as live."
+            )
+        if not bob_session_ref:
+            raise ValueError(
+                "LIVE_BOB requires --bob-session-ref from the real Bob task/session."
+            )
+        from collider.bob_live import validate_live_bundle
+
+        live_bob_input_receipt = validate_live_bundle(
+            source_interpretation_dir,
+            bob_session_ref,
+        )
+        write_json(
+            os.path.join(run_dir, "bob-live-input.json"),
+            live_bob_input_receipt,
+        )
+    elif bob_session_ref:
+        raise ValueError(
+            "--bob-session-ref is only valid when --interpretation-source LIVE_BOB"
+        )
+
     interp_files = {
-        "api": os.path.join(fixture_dir, "interpretations", "api.json"),
-        "ledger": os.path.join(fixture_dir, "interpretations", "ledger.json"),
-        "notifications": os.path.join(fixture_dir, "interpretations", "notifications.json"),
+        "api": os.path.join(source_interpretation_dir, "api.json"),
+        "ledger": os.path.join(source_interpretation_dir, "ledger.json"),
+        "notifications": os.path.join(source_interpretation_dir, "notifications.json"),
     }
     interpretations = []
     for ws, path in interp_files.items():
         obj = load_json(path)
         interpretations.append(obj)
-        # Copy into run interpretations dir
+        # Copy the exact consumed interpretation into the run receipt.
         write_json(os.path.join(run_dir, "interpretations", f"{ws}.json"), obj)
+
+    live_source = interpretation_source == "LIVE_BOB"
+    known_limitations = [
+        (
+            "LIVE_BOB interpretation artifacts passed COLLIDER's provenance "
+            "validator; live subagent/task evidence remains externally auditable "
+            "through session_ref and task_summary_ref."
+            if live_source
+            else "Interpretation objects are PRESEEDED fixtures, not live Bob agent output."
+        ),
+        (
+            "Human clarification for customer_identity SPEC_GAP is pre-supplied "
+            "via human_decisions parameter."
+        ) if human_decisions and human_decision_source == "PRESEEDED" else (
+            "Human clarification was provided interactively."
+        ) if human_decisions and human_decision_source == "INTERACTIVE" else (
+            "No human decision supplied — PENDING_HUMAN_DECISION state preserved."
+        ),
+        "classifier_judgment_used=false for all fixture concepts (deterministic exact-match resolver).",
+        (
+            "A validated LIVE_BOB interpretation run does not by itself prove "
+            "fresh-agent replay; replay has its own independent evidence contract."
+            if live_source
+            else "Fresh-agent replay remains a separate proof boundary."
+        ),
+    ]
 
     # --- Manifest ---
     manifest = {
@@ -949,18 +1009,14 @@ def run_pipeline(
         "execution_environment": execution_environment,
         "interpretation_source": interpretation_source,
         "human_decision_source": human_decision_source if human_decisions else "NONE",
-        "bob_session_ref": None,
+        "bob_session_ref": bob_session_ref,
+        "live_bob_input_bundle_sha256": (
+            live_bob_input_receipt["bundle_sha256"]
+            if live_bob_input_receipt is not None
+            else None
+        ),
         "test_command": test_command,
-        "known_limitations": [
-            "Interpretation objects are PRESEEDED fixtures, not live Bob agent output.",
-            (
-                "Human clarification for customer_identity SPEC_GAP is pre-supplied "
-                "via human_decisions parameter."
-            ) if human_decisions else (
-                "No human decision supplied — PENDING_HUMAN_DECISION state preserved."
-            ),
-            "classifier_judgment_used=false for all fixture concepts (deterministic exact-match resolver).",
-        ],
+        "known_limitations": known_limitations,
     }
     write_json(os.path.join(run_dir, "manifest.json"), manifest)
 
@@ -1568,6 +1624,19 @@ if __name__ == "__main__":
         default="PRESEEDED",
         help="How the human decision arrived (PRESEEDED / INTERACTIVE / NONE)",
     )
+    parser.add_argument(
+        "--interpretation-dir",
+        default=None,
+        help=(
+            "Optional directory containing api.json, ledger.json and "
+            "notifications.json. Required for LIVE_BOB."
+        ),
+    )
+    parser.add_argument(
+        "--bob-session-ref",
+        default=None,
+        help="Real IBM Bob task/session reference. Required for LIVE_BOB.",
+    )
     args = parser.parse_args()
 
     run_id = args.run_id
@@ -1583,12 +1652,16 @@ if __name__ == "__main__":
         brief_path=args.brief,
         run_id=run_id,
         run_dir=run_dir,
-        generation_mode="LOCAL",
+        generation_mode=(
+            "LIVE_BOB" if args.interpretation_source == "LIVE_BOB" else "LOCAL"
+        ),
         test_command=f"python3 -m pytest api/tests/ ledger/tests/ notifications/tests/ -v",
         human_decisions=human_decisions,
         execution_environment=args.execution_environment,
         interpretation_source=args.interpretation_source,
         human_decision_source=args.human_decision_source if human_decisions else "NONE",
+        interpretation_dir=args.interpretation_dir,
+        bob_session_ref=args.bob_session_ref,
         apply_repair=True,
         force=args.force,
     )
