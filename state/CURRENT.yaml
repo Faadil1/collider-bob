@@ -72,7 +72,7 @@ public_runtime:
 
 verification:
   last_full_suite:
-    result: "271 passed, 123 subtests passed"
+    result: "273 passed, 123 subtests passed"
     command: python3 -m pytest -q -p no:cacheprovider
   typecheck: npx tsc --noEmit (clean)
   note: >
@@ -135,6 +135,12 @@ bob_native_integration:
   workspace_truth_rules: .bob/rules/collider-truth-boundary.md
   live_input_validator: collider/bob_live.py
   live_pipeline_ingestion: SHIPPED
+  live_decision_compiler:
+    runtime: collider/decision_compiler.py
+    interpretation_source: LIVE_BOB
+    human_decision_source: INTERACTIVE_BOB
+    session_and_bundle_hash_binding: SHIPPED_AND_CI_TESTED
+    preseeded_fallback_on_live_path: REFUSED
   decision_memory_to_bob_rules: collider/bob_rules.py
   live_probe_decision_memory_quarantine:
     status: REQUIRED
