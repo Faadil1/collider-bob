@@ -13,7 +13,9 @@ What to show:
 Truth boundary:
 - canonical interpretations are PRESEEDED, not LIVE_BOB;
 - guard probes are controlled changes, not agents;
-- fresh-agent replay is NOT_EXECUTED / PENDING_LIVE_BOB.
+- the public demo session itself does not execute replay;
+- separate Bob evidence preserves Attempt 01 as REPLAY_FAIL (5/7) and proves Attempt 02 as a targeted-repair REPLAY_PASS (7/7);
+- do not narrate Attempt 02 as an unconstrained first-try replay.
 
 ## Presentation
 
