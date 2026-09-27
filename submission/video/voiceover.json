@@ -1,0 +1,113 @@
+{
+  "voice": "af_heart",
+  "speed": 1.0,
+  "scenes": [
+    {
+      "id": "hook",
+      "lines": [
+        "Three workstreams built one feature from one sentence.",
+        "Thirty tests pass. All three are green.",
+        "Integration still finds two conflicts."
+      ],
+      "captions": [
+        "Three workstreams built one feature from one sentence.",
+        "Thirty tests pass. All three are green.",
+        "Integration still finds two conflicts."
+      ]
+    },
+    {
+      "id": "problem",
+      "lines": [
+        "Each workstream was locally right.",
+        "API keys the customer by email. Ledger uses account_id. Notifications never touches it.",
+        "COLLIDER checks each collision against the source.",
+        "Where the brief already decided, it is agent drift. Where the brief is silent, it is a spec gap."
+      ],
+      "captions": [
+        "Each workstream was locally right.",
+        "API keys the customer by email. Ledger uses account_id. Notifications never touches it.",
+        "COLLIDER checks each collision against the source.",
+        "Where the brief already decided: AGENT_DRIFT. Where the brief is silent: SPEC_GAP."
+      ]
+    },
+    {
+      "id": "decide",
+      "lines": [
+        "The brief names refund_amount, so Ledger is repaired from source.",
+        "It never names a customer identity. So COLLIDER stops at UNKNOWN, and asks one question.",
+        "Keeping UNKNOWN is a valid answer. Here, we choose account_id."
+      ],
+      "captions": [
+        "The brief names refund_amount, so Ledger is repaired from source.",
+        "It never names a customer identity. So COLLIDER stops at UNKNOWN, and asks one question.",
+        "Keeping UNKNOWN is a valid answer. Here, we choose account_id."
+      ]
+    },
+    {
+      "id": "compile",
+      "lines": [
+        "That answer compiles.",
+        "The spec is patched, API and Ledger are repaired, a regression contract is written, and the decision is stored as memory.",
+        "Two conflicts become zero."
+      ],
+      "captions": [
+        "That answer compiles.",
+        "The spec is patched, API and Ledger are repaired, a regression contract is written, and the decision is stored as memory.",
+        "Two conflicts become zero."
+      ]
+    },
+    {
+      "id": "guardA",
+      "lines": [
+        "Now a future change puts email back. Tests fail, and decision memory blocks the merge."
+      ],
+      "captions": [
+        "A future change puts email back. Tests fail, and decision memory blocks the merge: MERGE_BLOCKED."
+      ]
+    },
+    {
+      "id": "guardB",
+      "lines": [
+        "A wording change to the customer notice touches no decision. Merge allowed."
+      ],
+      "captions": [
+        "A wording change to the customer notice touches no decision: MERGE_ALLOWED."
+      ]
+    },
+    {
+      "id": "guardC",
+      "lines": [
+        "Then Ledger switches to dollars. All thirty seven tests pass.",
+        "COLLIDER still returns decision required, because nobody ever decided the money unit."
+      ],
+      "captions": [
+        "Then Ledger switches to dollars. All 37 tests pass.",
+        "COLLIDER still returns DECISION_REQUIRED, because nobody ever decided the money unit."
+      ]
+    },
+    {
+      "id": "bob",
+      "lines": [
+        "The demo data is preseeded, and labelled that way.",
+        "Separately, IBM Bob ran the protocol live, with three independent agents.",
+        "The first replay passed five of seven checks, and we kept that failure. A targeted replay passed seven of seven."
+      ],
+      "captions": [
+        "The demo data is preseeded, and labelled that way.",
+        "Separately, IBM Bob ran the protocol live, with three independent agents.",
+        "The first replay passed five of seven checks, and we kept that failure. A targeted replay passed seven of seven."
+      ]
+    },
+    {
+      "id": "close",
+      "lines": [
+        "COLLIDER is semantic CI for AI agents.",
+        "When agents disagree, it finds the decision the specification forgot to make."
+      ],
+      "captions": [
+        "COLLIDER is semantic CI for AI agents.",
+        "When agents disagree, it finds the decision the specification forgot to make."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,88 @@
+1
+00:00:02,000 --> 00:00:05,048
+Three workstreams built one feature from one sentence.
+
+2
+00:00:05,100 --> 00:00:07,735
+Thirty tests pass. All three are green.
+
+3
+00:00:07,800 --> 00:00:10,278
+Integration still finds two conflicts.
+
+4
+00:00:10,600 --> 00:00:12,719
+Each workstream was locally right.
+
+5
+00:00:12,750 --> 00:00:19,663
+API keys the customer by email. Ledger uses account_id. Notifications never touches it.
+
+6
+00:00:20,000 --> 00:00:22,766
+COLLIDER checks each collision against the source.
+
+7
+00:00:22,800 --> 00:00:28,729
+Where the brief already decided: AGENT_DRIFT. Where the brief is silent: SPEC_GAP.
+
+8
+00:00:29,000 --> 00:00:32,919
+The brief names refund_amount, so Ledger is repaired from source.
+
+9
+00:00:32,950 --> 00:00:39,036
+It never names a customer identity. So COLLIDER stops at UNKNOWN, and asks one question.
+
+10
+00:00:39,100 --> 00:00:43,381
+Keeping UNKNOWN is a valid answer. Here, we choose account_id.
+
+11
+00:00:43,700 --> 00:00:45,223
+That answer compiles.
+
+12
+00:00:45,300 --> 00:00:53,121
+The spec is patched, API and Ledger are repaired, a regression contract is written, and the decision is stored as memory.
+
+13
+00:00:53,200 --> 00:00:55,033
+Two conflicts become zero.
+
+14
+00:00:57,000 --> 00:01:02,682
+A future change puts email back. Tests fail, and decision memory blocks the merge: MERGE_BLOCKED.
+
+15
+00:01:06,300 --> 00:01:11,112
+A wording change to the customer notice touches no decision: MERGE_ALLOWED.
+
+16
+00:01:12,000 --> 00:01:15,962
+Then Ledger switches to dollars. All 37 tests pass.
+
+17
+00:01:16,000 --> 00:01:21,413
+COLLIDER still returns DECISION_REQUIRED, because nobody ever decided the money unit.
+
+18
+00:01:24,300 --> 00:01:27,504
+The demo data is preseeded, and labelled that way.
+
+19
+00:01:27,550 --> 00:01:32,621
+Separately, IBM Bob ran the protocol live, with three independent agents.
+
+20
+00:01:32,700 --> 00:01:39,640
+The first replay passed five of seven checks, and we kept that failure. A targeted replay passed seven of seven.
+
+21
+00:01:40,300 --> 00:01:43,492
+COLLIDER is semantic CI for AI agents.
+
+22
+00:01:43,500 --> 00:01:48,458
+When agents disagree, it finds the decision the specification forgot to make.
+
