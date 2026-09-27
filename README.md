@@ -14,7 +14,7 @@
   ·
   <a href="https://scrimba.com/explain/guide0fr8krhbe?claim=dmn31o0nk830ujs6&fullscreen=1"><strong>Technical / Judge Story</strong></a>
   ·
-  <a href="evidence/bob-sessions/LIVE-BOB-2026-09-27-01.md"><strong>Bob Proof</strong></a>
+  <a href="bob_sessions/README.md"><strong>Bob Proof</strong></a>
   ·
   <a href="evidence/runtime/PUBLIC-THREE-VERDICT-GUARD-2026-09-27.md"><strong>Runtime Evidence</strong></a>
 </p>
@@ -120,7 +120,7 @@ Fresh replay evidence is preserved honestly:
 
 The public demo’s comparative interpretation objects remain **PRESEEDED**. They are never relabeled as live Bob output.
 
-Evidence: [LIVE_BOB run](evidence/bob-sessions/LIVE-BOB-2026-09-27-01.md) · [Attempt 01](evidence/bob-sessions/FRESH-REPLAY-ATTEMPT-01-2026-09-27.md) · [Attempt 02](evidence/bob-sessions/FRESH-REPLAY-ATTEMPT-02-2026-09-27.md).
+Evidence: [Judge-first Bob proof index](bob_sessions/README.md) · [LIVE_BOB run](evidence/bob-sessions/LIVE-BOB-2026-09-27-01.md) · [Attempt 01](evidence/bob-sessions/FRESH-REPLAY-ATTEMPT-01-2026-09-27.md) · [Attempt 02](evidence/bob-sessions/FRESH-REPLAY-ATTEMPT-02-2026-09-27.md).
 
 ## Architecture
 
@@ -191,7 +191,9 @@ Last recorded full verification:
 - [GitHub PR Semantic CI proof](evidence/runtime/GITHUB-SEMANTIC-CI-THREE-VERDICT-2026-09-27.md)
 - [Public session isolation](evidence/runtime/PUBLIC-SESSION-ISOLATION-2026-09-27.md)
 - [Mobile provenance](evidence/runtime/PUBLIC-MOBILE-PROVENANCE-2026-09-27.md)
-- [Runtime / commit binding](evidence/runtime/RUNTIME-COMMIT-BINDING-2026-09-27.md)
+- [Final runtime / product-tree binding](evidence/runtime/RUNTIME-COMMIT-BINDING-FINAL-2026-09-27.md)
+- [Historical runtime / commit binding](evidence/runtime/RUNTIME-COMMIT-BINDING-2026-09-27.md)
+- [Bob judge proof index + authentic screenshots](bob_sessions/README.md)
 - [LIVE_BOB run](evidence/bob-sessions/LIVE-BOB-2026-09-27-01.md)
 - [Fresh replay Attempt 02](evidence/bob-sessions/FRESH-REPLAY-ATTEMPT-02-2026-09-27.md)
 
@@ -202,6 +204,7 @@ Last recorded full verification:
 - fixtures/ — canonical specification fixture
 - demo-ui/ — interactive product surface
 - evidence/ — reproducible runtime and Bob proof
+- bob_sessions/ — judge-first index into authentic Bob screenshots and receipts
 - .bob/ — native IBM Bob integration
 - tests/ — regression, integrity and deployment tests
 - cloudflare/, src/ — hosted runtime adapter
