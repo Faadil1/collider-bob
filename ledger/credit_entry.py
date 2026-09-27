@@ -19,7 +19,7 @@ MONEY REPRESENTATION:
   Epistemic state: INFERRED — consistent with stub's integer type, not proven.
 """
 
-CUSTOMER_IDENTITY_FIELD = "account_id"  # LOCAL CHOICE — not specified by brief
+CUSTOMER_IDENTITY_FIELD = "email"  # LOCAL CHOICE — not specified by brief
 CREDIT_FIELD_NAME = "credit_amount"     # AGENT DRIFT vs source stub's 'refund_amount'
 MONEY_UNIT = "integer_cents"          # INFERRED — stub says integer; the unit is unspecified
 
