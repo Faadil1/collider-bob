@@ -56,6 +56,8 @@ public_runtime:
   deploy_path: push to claude/sharp-planck-vfqz40 -> Workers Builds -> npx wrangler deploy
   binding_mechanism: x-collider-worker-version on every /api/* response; PROOF -> PROVENANCE shows it
   exact_commit_binding: PENDING
+  session_isolation: PROVEN
+  session_isolation_receipt: evidence/runtime/PUBLIC-SESSION-ISOLATION-2026-09-27.md
   rollback: cloudflare/README.md "Rollback / recovery"
 
 gateway_status:
@@ -112,9 +114,8 @@ blocking_or_pending:
   - final snapshot
 
 next_exact_action: >
-  Keep the resolved public session open, open a second independent InPrivate session and verify it
-  starts at DECISION_REQUIRED with 2 conflicts; then run a mobile viewport smoke and capture
-  PROOF -> PROVENANCE showing x-collider-worker-version.
+  Run a mobile viewport smoke on the public URL and capture PROOF -> PROVENANCE showing
+  x-collider-worker-version; then confirm live CSP/headers and match the version to Workers Builds.
 
 do_not_forget:
   - "Functional ≠ finished."
