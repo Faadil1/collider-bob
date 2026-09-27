@@ -18,6 +18,19 @@ locally valid but semantically incompatible.
 - Do not rewrite committed evidence. Use `.collider/` for transient live runs.
 - A live Bob interpretation run and a fresh-agent replay are different proofs.
 
+## Native Bob entry sequence
+
+Before the live protocol:
+
+1. Use the project MCP tool `collider_decision_memory` to load current canon.
+2. Use `collider_gate` to inspect the current semantic state.
+3. Confirm the session-start hook injected a real Bob `session_id` and wrote a
+   transient receipt under `.collider/bob-hooks/`.
+4. Keep the MCP server, lifecycle hooks, and this skill active for the run.
+
+The MCP tools are part of the product surface. CLI commands below are fallback
+and evidence-friendly equivalents, not the preferred Bob interaction path.
+
 ## Live Bob protocol
 
 Follow `LIVE-RUN-PROTOCOL.md` exactly.
@@ -25,12 +38,17 @@ Follow `LIVE-RUN-PROTOCOL.md` exactly.
 For the canonical failed-payment scenario:
 
 1. Read `fixtures/failed-payment/BRIEF.md`.
-2. Spawn three independent Bob subagents in parallel:
+2. Spawn three independent **general** Bob subagents in parallel:
    - API
    - Ledger
    - Notifications
+
+   Keep `fork_context: false` for all three. Their isolated context windows are
+   the ambiguity-probe mechanism, not a token-saving convenience.
+
 3. Give each subagent the same authoritative brief plus only the files for its
-   assigned workstream. Do not reveal sibling interpretations.
+   assigned workstream. Do not reveal sibling interpretations, summaries, or
+   chosen values until all three have returned.
 4. Require each subagent to return one JSON interpretation object following
    `INTERPRETATION-TEMPLATE.json` and
    `schemas/interpretation.schema.json`.
@@ -41,7 +59,8 @@ For the canonical failed-payment scenario:
    - the same real `session_ref`
    - a real `task_summary_ref`
    - a unique `agent_id`
-7. Validate before COLLIDER is allowed to consume them:
+7. Validate before COLLIDER is allowed to consume them. Prefer the native MCP
+   tool `collider_validate_live_bob`. For a terminal receipt, run:
 
    ```bash
    python3 -m collider.bob_live validate \
@@ -70,7 +89,8 @@ For the canonical failed-payment scenario:
     with `--human-decision ... --human-decision-source INTERACTIVE`.
 
 11. When decision memory exists in the compiled workspace, export it into Bob
-    workspace rules:
+    workspace rules. Prefer the approval-gated MCP tool
+    `collider_export_decision_rule`; CLI equivalent:
 
     ```bash
     python3 -m collider.bob_rules \
@@ -80,6 +100,15 @@ For the canonical failed-payment scenario:
 
 12. Run the COLLIDER guard. Show the three possible outcomes:
     `MERGE_ALLOWED`, `MERGE_BLOCKED`, `DECISION_REQUIRED`.
+
+13. For fresh-agent proof, start a new independent Bob `general` subagent with
+    repaired implementation withheld. Evaluate its real result with
+    `collider_evaluate_replay`. Never infer replay success from the original
+    session.
+
+14. Let the Bob `Stop` lifecycle hook write the final session/gate receipt.
+    This receipt proves session lifecycle + semantic state only; the subagent
+    interpretation bundle remains the source for LIVE_BOB provenance.
 
 ## Evidence capture
 
