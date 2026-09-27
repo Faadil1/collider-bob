@@ -29,7 +29,7 @@ This gate applies to the real production runtime. Repository correctness alone i
 | Session safety | PROVEN LIVE | 256-bit opaque id, HttpOnly/Secure/SameSite=Lax, malformed or duplicate cookie replaced, container name hashed at the Worker; a fresh InPrivate context started independently at DECISION_REQUIRED instead of inheriting the resolved normal-browser session. |
 | Request boundary | PROVEN IN CODE | Four allow-listed routes, 4 KiB bodies, only content-type/accept forwarded, probe id is an enum. |
 | Container network | PROVEN IN CONFIG | `enableInternet = false`. |
-| Security headers / CSP | PROVEN LOCALLY | demo-ui/_headers: strict same-origin CSP and hardening headers; browser runs at three viewports had zero CSP violations. Live header read still pending. |
+| Security headers / CSP | PROVEN LIVE | Production response exposes the intended strict CSP plus COOP, Permissions-Policy, no-referrer, nosniff, and DENY framing headers. Receipt: evidence/runtime/LIVE-CSP-HEADERS-2026-09-27.md. |
 | Abuse / rate limiting | ACCEPTED WITH BOUNDS | No dedicated rate limiter. Bounded by max_instances=20, body cap, route allowlist, 24 decision runs per container, one run per guard probe. |
 | Metadata | PASS | Title, description, viewport, favicon. |
 | Canonical / OG | N/A | Not needed for a judged single-purpose demo. |
@@ -69,8 +69,8 @@ The production recording showed:
 
 ## Ship blockers
 
-1. Read live page headers and confirm the CSP from demo-ui/_headers is served.
+None remaining for this gate.
 
 ## Gate verdict
 
-**ACTIVE — PUBLIC RUNTIME / MOBILE / ISOLATION / VERSION BINDING PROVEN; LIVE CSP HEADER CONFIRMATION REMAINS; SHIP NOT YET EARNED**
+**PROVEN — PRE_LAUNCH_CODE_OK → DEPLOY → LIVE_RUNTIME_CHECK → CRITICAL_PATH_PASS → PROOF_CAPTURED completed for the current judged demo scope.**
