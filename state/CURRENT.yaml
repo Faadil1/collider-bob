@@ -152,7 +152,8 @@ bob_native_integration:
     workflow: .github/workflows/semantic-ci.yml
     verdicts: [MERGE_ALLOWED, MERGE_BLOCKED, DECISION_REQUIRED]
     conventional_tests_visible: true
-    live_three_verdict_proof: IN_PROGRESS
+    live_three_verdict_proof: PROVEN
+    live_three_verdict_receipt: evidence/runtime/GITHUB-SEMANTIC-CI-THREE-VERDICT-2026-09-27.md
   live_session_execution: PENDING_USER_RUN
   evidence_target: evidence/bob-sessions/
 
