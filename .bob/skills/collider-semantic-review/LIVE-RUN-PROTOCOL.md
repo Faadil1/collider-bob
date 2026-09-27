@@ -17,9 +17,19 @@ session-ref: <copy from Bob task/session UI>
 
 Do not invent a session reference.
 
-## 2. Isolation contract
+## 2. Plan decomposition
 
-Spawn API, Ledger, and Notifications as separate Bob subagents.
+Use Bob Plan mode to create a bounded decomposition artifact for API, Ledger,
+and Notifications. The plan may define scopes and inputs but must not decide
+source-silent semantic values. This prevents the planner from contaminating the
+independent probes.
+
+Return to COLLIDER Semantic CI mode before execution.
+
+## 3. Isolation contract
+
+Spawn API, Ledger, and Notifications as separate Bob `general` subagents with
+`fork_context: false`.
 
 Each receives:
 
@@ -32,7 +42,7 @@ Each receives:
 The parent may know all three tasks. The subagents must not know each other's
 choices before returning their own interpretation.
 
-## 3. Output contract
+## 4. Output contract
 
 Each subagent returns a JSON object with:
 
@@ -46,7 +56,7 @@ Each subagent returns a JSON object with:
 An OBSERVED claim must cite source evidence. An INFERRED claim must not be
 promoted because other agents agree. UNKNOWN is valid.
 
-## 4. Validation
+## 5. Validation
 
 The parent writes the three objects to the transient live directory and runs
 `python3 -m collider.bob_live validate`.
@@ -54,20 +64,28 @@ The parent writes the three objects to the transient live directory and runs
 If validation fails, repair the evidence metadata or rerun the affected
 subagent. Do not bypass validation.
 
-## 5. Detect before decide
+## 6. Detect before decide
 
 Run COLLIDER without a human decision first. Preserve that receipt.
 
 If a SPEC_GAP appears, surface the minimal question to the human.
 
-## 6. Compile the human decision
+## 7. Compile the human decision
 
-Run a second immutable live directory with the human answer explicitly marked
-`INTERACTIVE`.
+Compile the human answer with `collider.decision_compiler` using:
 
-Never label a prefilled answer as interactive.
+- `--human-decision-source INTERACTIVE_BOB`;
+- `--interpretation-source LIVE_BOB`;
+- the same validated `--interpretation-dir`;
+- the same real `--bob-session-ref`.
 
-## 7. Persist the decision into Bob
+The compiler must copy the exact validated live interpretations into its
+workspace and persist the LIVE_BOB bundle hash in decision memory.
+
+Never label a prefilled answer as interactive and never compile a live decision
+from PRESEEDED fixture interpretations.
+
+## 8. Persist the decision into Bob
 
 Export COLLIDER decision memory to `.bob/rules/collider-decision-memory.md`.
 This makes the approved semantic decision part of Bob's workspace rules for
@@ -76,13 +94,13 @@ future sessions.
 This rule export is a product behavior. It is not evidence that a future agent
 obeyed the rule until such an agent is actually run.
 
-## 8. Fresh-agent replay
+## 9. Fresh-agent replay
 
 A fresh-agent replay is a separate proof. Start a new independent Bob agent with
 the patched specification and decision rule, while withholding repaired code.
 Only then may `collider.replay` accept `LIVE_BOB_SESSION` evidence.
 
-## 9. Capture
+## 10. Capture
 
 Capture:
 - parent task/session summary;
