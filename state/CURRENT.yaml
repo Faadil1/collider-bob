@@ -137,8 +137,8 @@ bob_native_integration:
   live_pipeline_ingestion: SHIPPED
   live_decision_compiler:
     runtime: collider/decision_compiler.py
-    interpretation_source: LIVE_BOB
-    human_decision_source: INTERACTIVE_BOB
+    accepted_live_source_label: LIVE_BOB
+    accepted_human_source_label: INTERACTIVE_BOB
     session_and_bundle_hash_binding: SHIPPED_AND_CI_TESTED
     preseeded_fallback_on_live_path: REFUSED
   decision_memory_to_bob_rules: collider/bob_rules.py
