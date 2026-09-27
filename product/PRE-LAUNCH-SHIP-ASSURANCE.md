@@ -34,7 +34,7 @@ This gate applies to the real production runtime. Repository correctness alone i
 | robots.txt | REVIEWED | Cloudflare-served; no indexing claim. |
 | Accessibility | PARTIAL_PASS | Reduced-motion path, real buttons, focus-visible outlines, radiogroup mode switch. No formal audit. |
 | Performance | PARTIAL_PASS | Static assets only, no external fonts/scripts. Guard probes execute test suite server-side. No Core Web Vitals recorded. |
-| Responsive / mobile | PROVEN LOCALLY | 390×844 full flow with no horizontal overflow. Public mobile smoke pending. |
+| Responsive / mobile | PROVEN LIVE | Real iPhone public-runtime recording completed the full core flow, guard states, proof drawer, Evidence Mode, and return to Active Mode without visible layout breakage. Receipt: evidence/runtime/PUBLIC-MOBILE-PROVENANCE-2026-09-27.md. |
 | Error / loading / empty states | PASS | Unavailable runtime, action failure, 409 re-run, 429 cap, 503 container unreachable, abstention, judging and restore states. |
 | Input/action safety | PROVEN | Mutations only in session workspace; every probe restores exact bytes. |
 | Retry / idempotency | PASS FOR PROBES | Probe re-run returns 409; UI re-shows recorded receipt. Decisions create new isolated runs. |
@@ -45,9 +45,9 @@ This gate applies to the real production runtime. Repository correctness alone i
 | Negative path | PROVEN LIVE + LOCAL | KEEP UNKNOWN previously observed live; current escalated guard now also proves harmless change → MERGE_ALLOWED. |
 | Second act | PROVEN LIVE | Public runtime visibly executed MERGE_BLOCKED / MERGE_ALLOWED / DECISION_REQUIRED with exact restore after each probe. Receipt: evidence/runtime/PUBLIC-THREE-VERDICT-GUARD-2026-09-27.md. |
 | Session isolation | PROVEN LIVE | Normal browser session and fresh InPrivate context remained independent. Receipt: evidence/runtime/PUBLIC-SESSION-ISOLATION-2026-09-27.md. |
-| Runtime / commit binding | MECHANISM SHIPPED | `x-collider-worker-version` on every API response, shown in PROOF → PROVENANCE. Live value still must be matched to Workers Builds commit. |
+| Runtime / commit binding | LIVE VERSION CAPTURED | PROOF → PROVENANCE exposed Worker version `364ad4fd-7eb3-4918-aef8-f9ad049ee20a` on the public iPhone run. It still must be matched to the Workers Builds commit. |
 | Rollback / deployment recovery | DOCUMENTED | cloudflare/README.md §Rollback / recovery. Not rehearsed. |
-| Proof capture | PARTIAL_PASS | Public desktop capture includes all three guard verdicts, restore, code diffs/hashes, plus separate-session isolation. Mobile/version/header receipts remain. |
+| Proof capture | PARTIAL_PASS | Public desktop + real-iPhone captures include three verdicts, restore, diffs/hashes, session isolation, mobile flow, and Worker version. Only version↔commit match and live header/CSP receipt remain. |
 
 ## Public escalated-build observation
 
@@ -67,9 +67,8 @@ The production recording showed:
 ## Ship blockers
 
 1. Read `x-collider-worker-version` live and match it to the Workers Builds commit.
-2. Mobile smoke on the public URL.
-3. Read live page headers and confirm the CSP from demo-ui/_headers is served.
+2. Read live page headers and confirm the CSP from demo-ui/_headers is served.
 
 ## Gate verdict
 
-**ACTIVE — LIVE_RUNTIME_CHECK PARTIALLY PROVEN; CORE SECOND ACT PROVEN LIVE; SHIP NOT YET EARNED**
+**ACTIVE — CORE PUBLIC RUNTIME + REAL-DEVICE MOBILE PROVEN; VERSION BINDING + LIVE CSP REMAIN; SHIP NOT YET EARNED**
