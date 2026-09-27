@@ -1,17 +1,84 @@
 # IBM Bob Usage Statement
 
-IBM Bob 2.0 was used as a load-bearing development agent during the implementation and refinement of COLLIDER.
+IBM Bob 2.0 was used as a load-bearing development agent during the implementation,
+hardening, and live proof of COLLIDER.
 
-Bob worked directly inside the project repository in GitHub Codespaces. Preserved Bob task evidence shows it reading the existing project state, creating and modifying project files, and contributing executable runtime and test work. The recorded session includes work on files such as `collider/__init__.py` and `tests/test_fixture.py`, and continued into a second preserved task after the first task reached its configured turn limit.
+Bob worked directly inside the project repository in GitHub Codespaces. COLLIDER
+ships a Bob-native integration layer: a custom Semantic CI mode, reusable semantic
+review skill, workspace truth/decision-memory rules, project MCP server, lifecycle
+hooks, LIVE_BOB provenance validator, and decision-memory exporter.
 
-Bob's contribution was not limited to code generation. The build process used Bob to help shape and harden the system around specification-gap detection, agent-drift classification, correct abstention on unresolved ambiguity, dependency-aware repair, executable verification, and evidence/provenance discipline. Weak proof paths were deliberately rejected during development—for example, schema validity alone was not treated as evidence that workstreams behaved correctly.
+## Observed LIVE_BOB run
 
-The finished product now demonstrates an active Semantic CI loop: source-aware classification, one bounded human decision, decision compilation into specification/code/tests/memory, and a three-verdict future-change guard (`MERGE_BLOCKED`, `MERGE_ALLOWED`, `DECISION_REQUIRED`).
+A real Bob session executed the canonical ambiguity protocol as
+`live-bob-2026-09-27-01`.
 
-COLLIDER also ships as a native Bob project capability. The repository contains a project custom mode (`.bob/custom_modes.yaml`), a reusable `collider-semantic-review` skill, workspace truth-boundary and decision-memory rules, a project-level MCP server (`.bob/mcp.json`) exposing COLLIDER as native Bob tools, workspace lifecycle hooks (`.bob/settings.json`) that inject semantic context and capture Bob session receipts, a LIVE_BOB provenance validator, and an exporter that turns approved COLLIDER decision memory into Bob workspace rules. The live protocol is designed to spawn isolated Bob subagents for API, Ledger, and Notifications, validate their session-bound interpretation artifacts, then feed those exact artifacts into the normal COLLIDER pipeline. Bob can also call COLLIDER's gate, PR gate, decision memory, live-input validator, rule exporter, and replay evaluator through MCP. These mechanisms are implemented and covered by the repository test suite.
+Before the three probes ran, the existing `customer_identity` decision-memory rule
+was quarantined and SHA-256 recorded so it could not leak the known answer into the
+independent probes. Three isolated Bob subagents then interpreted API, Ledger, and
+Notifications separately. None cited the quarantined canon. The rule was restored
+byte-for-byte and its SHA-256 reverified before classification.
 
-The remaining proof boundary is empirical: until a real Bob task/session executes that protocol and its Task Session Summary/subagent evidence is captured, no new interpretation run is called LIVE_BOB.
+The resulting bundle passed COLLIDER's LIVE_BOB provenance validator with three
+unique agents and real session/task references. Before any human answer,
+COLLIDER classified `customer_identity` as `SPEC_GAP / UNKNOWN`: API chose
+`email`, Ledger chose `account_id`, and the source was silent. Bob stopped on
+the minimum human clarification instead of inventing an answer.
 
-The provenance boundary is explicit. The canonical interpretation objects used in the comparative evidence are **PRESEEDED**, not live Bob-generated. The three future guard probes are controlled edits, not autonomous agents. Fresh-agent replay is **NOT_EXECUTED / PENDING_LIVE_BOB**.
+The user then selected `account_id` interactively. COLLIDER recorded
+`human_decision_source=INTERACTIVE`, compiled the decision, exported Bob decision
+memory, repaired the resolved path, reached zero integration conflicts, passed the
+30 workstream tests, and produced `MERGE_ALLOWED` on the PR semantic gate.
 
-That separation is intentional: COLLIDER treats provenance and uncertainty as product requirements, so the submission applies the same standard to its own IBM Bob claims.
+## Fresh-agent replay
+
+The replay proof deliberately preserved failures instead of retrying invisibly.
+
+**Attempt 01** ran a new headless Bob task in a physically isolated workspace with
+the stale implementation, authoritative INTERACTIVE decision memory/specification,
+no repaired implementation, no prior `repair.patch`, no MCP, no subagents, and no
+tests or regression contract visible during execution.
+
+The fresh task correctly derived `account_id`, but over-repaired the API by
+removing the existing `customer_email` parameter. When the previously withheld
+canonical contract was revealed afterward, the result was **5 passed / 2 failed**.
+COLLIDER recorded `REPLAY_FAIL`. That attempt remains immutable evidence.
+
+**Attempt 02** started from a new isolated sandbox and did not receive Attempt 01's
+implementation, failure details, prior outputs, tests, or hidden contract. The only
+added instruction was a general engineering constraint: make the narrowest
+authoritative change and preserve existing public signatures/unrelated behavior
+unless the sources require a breaking change.
+
+Bob again derived `account_id`, preserved the public API signature, and changed
+the stale API behavior. Only after Bob finished was the same canonical regression
+contract generated and revealed. It passed **7/7**, and COLLIDER deterministically
+returned:
+
+```text
+REPLAY_PASS
+runtime_state: LIVE_BOB_SESSION
+accepted: true
+```
+
+This is therefore claimed precisely as a **targeted fresh-agent repair replay**,
+not an unconstrained first-try replay.
+
+## Provenance boundary
+
+The older comparative fixture interpretations remain **PRESEEDED**. They are not
+relabeled as Bob output. The observed LIVE_BOB run and both replay attempts are
+separate, session-bound evidence.
+
+The three future guard probes are controlled edits, not autonomous agents. No
+unmeasured time-saving or percentage-productivity claim is made.
+
+Canonical evidence:
+
+- `evidence/bob-sessions/LIVE-BOB-2026-09-27-01.md`
+- `evidence/bob-sessions/FRESH-REPLAY-ATTEMPT-01-2026-09-27.md`
+- `evidence/bob-sessions/FRESH-REPLAY-ATTEMPT-02-2026-09-27.md`
+- `evidence/bob-sessions/JUDGE-EVIDENCE-MANIFEST-2026-09-27.md`
+
+COLLIDER applies its own standard to its IBM Bob claims: **real failure > fake
+success**.
