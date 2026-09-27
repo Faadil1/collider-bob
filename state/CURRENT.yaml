@@ -1,6 +1,6 @@
 project: collider-bob
 date: 2026-09-27
-stage: PUBLIC_RUNTIME_PROVEN_SHIP_HEADER_CHECK_PENDING
+stage: PUBLIC_RUNTIME_AND_SHIP_ASSURANCE_PROVEN
 branch: claude/sharp-planck-vfqz40
 
 north_star:
@@ -132,8 +132,9 @@ public_runtime:
     - proof drawer code diffs and restoration hashes visible
   runtime_commit_binding_mechanism: x-collider-worker-version header on every /api/* response (version_metadata binding)
   remaining_before_PROVEN: []
-  ship_assurance_remaining:
-    - live page headers show the demo-ui/_headers CSP
+  ship_assurance_remaining: []
+  live_csp_headers: PROVEN
+  live_csp_headers_receipt: evidence/runtime/LIVE-CSP-HEADERS-2026-09-27.md
 
 verification:
   command: python3 -m pytest -q -p no:cacheprovider   # suite pinned by pytest.ini
@@ -164,7 +165,7 @@ gateway_status:
   "Public Runtime / Live Proof": PROVEN
   "Deterministic Demo": PROVEN
   "Judge Performance Assurance": PENDING
-  "Pre-Launch / Ship Assurance": ACTIVE
+  "Pre-Launch / Ship Assurance": PROVEN
   "Submission Integrity": PENDING
   "Final Snapshot / CURRENT / HANDOVER": ACTIVE
   "x402": N/A
@@ -184,7 +185,6 @@ submission:
   status: NOT_EARNED
   demo_lock: NOT_EARNED
   pending:
-    - close final Pre-Launch / Ship Assurance header/CSP check
     - external Real-User / Outsider Break Test
     - Judge Performance Assurance
     - refresh submission/ copy to the three-verdict Semantic CI truth
@@ -202,4 +202,4 @@ do_not_redo:
   - creative depth passes one and two
 
 next_exact_action: >
-  Confirm the live page response headers/CSP match demo-ui/_headers. Then run the Outsider Break Test and Judge Performance Assurance.
+  Run the external Real-User / Outsider Break Test, then Judge Performance Assurance.
