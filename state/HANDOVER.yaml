@@ -1,5 +1,5 @@
 project: collider-bob
-handover_version: 14
+handover_version: 15
 date: 2026-09-27
 source_of_truth: state/CURRENT.yaml
 branch: main
@@ -11,10 +11,10 @@ north_star:
   signature_moment: "37/37 tests pass; COLLIDER returns DECISION_REQUIRED."
 
 current_stage:
-  status: UIUX_MERGED_FINAL_PACKAGING
+  status: SUBMISSION_EVIDENCE_SEALED
   concept_lock: LOCKED_AFTER_SECOND_CREATIVE_DEPTH_PASS
   demo_lock: EARNED
-  submission_status: FINAL_PACKAGING
+  submission_status: SEALED
 
 canonical_decisions:
   - Bob-native integration is now a real product surface, not a README claim: custom mode, skill, isolated-subagent live protocol, provenance validator, and decision-memory rule export.
@@ -28,7 +28,9 @@ canonical_decisions:
   - Fresh-agent replay attempt 01 executed for real and returned REPLAY_FAIL: semantic convergence succeeded (account_id) but the withheld regression contract failed 5/7 because Bob removed the existing customer_email parameter.
   - Fresh-agent replay attempt 02 executed in a new isolated sandbox and returned REPLAY_PASS: Bob derived account_id, preserved the public signature under a general minimal-change / preserve-interface constraint, and the previously withheld canonical contract passed 7/7.
   - No further product feature is required for Demo Lock.
-  - From here, changes should be packaging, comprehension, evidence clarity or bug fixes only.
+  - Authentic Bob screenshots J1-J4 are archived publicly with SHA-256 bindings; missing J5/J6 images were not fabricated and replay receipts remain canonical.
+  - Final runtime binding is scoped to the unchanged product asset tree at 91795b67dc8dfeec51e485ec7cea8ada0bace60c, not falsely to later documentation-only HEADs.
+  - Submission evidence is sealed. Product and pipeline changes stop unless a relevant gate is explicitly reopened.
 
 proven:
   - Creative Depth & Product Ambition
@@ -50,8 +52,11 @@ public_runtime:
   session_isolation: PROVEN
   real_device_mobile: PROVEN
   live_csp_headers: PROVEN
-  bound_worker_version: 364ad4fd-7eb3-4918-aef8-f9ad049ee20a
-  bound_git_commit: e185e84d9d1cf00dfa1700b6bd2439e57887a291
+  bound_worker_version: 453a881f-3b9a-4065-b65b-25b3b2ffa369
+  bound_git_commit: 91795b67dc8dfeec51e485ec7cea8ada0bace60c
+  binding_scope: PRODUCT_ASSET_TREE
+  binding_receipt: evidence/runtime/RUNTIME-COMMIT-BINDING-FINAL-2026-09-27.md
+  documentation_head_verified: 8e336c8e344d712749b4a886fae349630afc7c4c
 
 judge_assurance:
   status: PROVEN
@@ -84,8 +89,8 @@ gateway_status:
   "Deterministic Demo": PROVEN
   "Judge Performance Assurance": PROVEN
   "Pre-Launch / Ship Assurance": PROVEN
-  "Submission Integrity": PENDING
-  "Final Snapshot / CURRENT / HANDOVER": ACTIVE
+  "Submission Integrity": PROVEN
+  "Final Snapshot / CURRENT / HANDOVER": PROVEN
   "x402": N/A
   "Nanopayments": N/A
   "Wallets": N/A
@@ -131,26 +136,23 @@ bob_native_integration:
   live_probe_decision_memory_quarantine: REQUIRED_BEFORE_SUBAGENT_SPAWN
   live_session_execution: OBSERVED
 
-blocking_or_pending:
-  - verify merged UI on public Cloudflare runtime after Workers Build deployment
-  - archive selected Bob screenshots + hashes
-  - final slides
-  - submission cover and screenshot package already prepared locally
-  - final <=3 minute video
-  - Submission Integrity
-  - final snapshot
+blocking_or_pending: []
+
+declared_non_blocking_limitations:
+  - J1-J4 authentic Bob screenshots are public and hash-bound; no authentic J5/J6 image was found, so replay proof remains machine-receipt based and no image was fabricated.
+  - The pitch deck exists as an external prepared artifact; repository presence is not asserted.
+  - The outsider break test remains waived and must not be narrated as executed.
 
 next_exact_action: >
-  UI/UX is merged at main commit 91795b67dc8dfeec51e485ec7cea8ada0bace60c. Verify the automatic Cloudflare
-  Workers Build on the public origin, capture the new worker version / commit binding, then use the prepared cover
-  and screenshot package for the Lablab submission. Replace captures only if the deployed UI differs. Then finish
-  slides, final <=3 minute video, Submission Integrity, and final snapshot.
+  STOP product and pipeline changes. The runtime/product-tree binding is refreshed, authentic Bob J1-J4 screenshots
+  are archived publicly, the judge-first Bob index is live, and Submission Integrity is sealed. Reopen only for a
+  concrete factual correction, judge-discoverability issue, or explicitly reopened gate.
 
 uiux_final:
   status: MERGED
   main_commit: 91795b67dc8dfeec51e485ec7cea8ada0bace60c
-  deployment: PENDING_PUBLIC_VERIFICATION
-  submission_assets: PREPARED_LOCAL
+  deployment: PUBLIC_VERIFIED
+  submission_assets: EVIDENCE_ARCHIVED_AND_EXTERNAL_PACK_PREPARED
 
 fresh_agent_replay_attempt_02:
   status: REPLAY_PASS
