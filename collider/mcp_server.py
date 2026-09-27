@@ -84,7 +84,16 @@ TOOLS = [
         ),
         "inputSchema": {
             "type": "object",
-            "properties": {},
+            "properties": {
+                "root": {
+                    "type": "string",
+                    "default": ".",
+                    "description": (
+                        "Workspace root to evaluate, relative to the project root. "
+                        "Use the compiled workspace after a human decision."
+                    ),
+                }
+            },
             "additionalProperties": False,
         },
     },
@@ -191,7 +200,12 @@ def call_tool(name: str, arguments: dict[str, Any] | None = None) -> dict[str, A
 
     try:
         if name == "collider_gate":
-            _, payload = _run_json_command(["-m", "collider.gate", "--json"])
+            gate_root = _resolve_inside_root(str(args.get("root", ".")))
+            if not gate_root.is_dir():
+                raise ValueError(f"gate root is not a directory: {args.get('root', '.')}")
+            _, payload = _run_json_command([
+                "-m", "collider.gate", "--root", str(gate_root), "--json"
+            ])
             return _text_result(payload)
 
         if name == "collider_pr_gate":
