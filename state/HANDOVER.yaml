@@ -1,5 +1,5 @@
 project: collider-bob
-handover_version: 10
+handover_version: 11
 date: 2026-09-27
 source_of_truth: state/CURRENT.yaml
 branch: main
@@ -11,7 +11,7 @@ north_star:
   signature_moment: "37/37 tests pass; COLLIDER returns DECISION_REQUIRED."
 
 current_stage:
-  status: BOB_NATIVE_LIVE_PROOF_OBSERVED_REPLAY_ATTEMPT_01_FAILED
+  status: BOB_NATIVE_LIVE_PROOF_AND_TARGETED_REPLAY_PROVEN
   concept_lock: LOCKED_AFTER_SECOND_CREATIVE_DEPTH_PASS
   demo_lock: EARNED
   submission_status: FINAL_PACKAGING
@@ -26,6 +26,7 @@ canonical_decisions:
   - Guard probes are controlled changes, not agents.
   - Historical fixture interpretations are PRESEEDED; run live-bob-2026-09-27-01 produced genuine LIVE_BOB interpretations and must be cited by its own provenance.
   - Fresh-agent replay attempt 01 executed for real and returned REPLAY_FAIL: semantic convergence succeeded (account_id) but the withheld regression contract failed 5/7 because Bob removed the existing customer_email parameter.
+  - Fresh-agent replay attempt 02 executed in a new isolated sandbox and returned REPLAY_PASS: Bob derived account_id, preserved the public signature under a general minimal-change / preserve-interface constraint, and the previously withheld canonical contract passed 7/7.
   - No further product feature is required for Demo Lock.
   - From here, changes should be packaging, comprehension, evidence clarity or bug fixes only.
 
@@ -101,7 +102,7 @@ outsider_break_test:
 truth_boundary:
   do_not_claim:
     - PRESEEDED interpretations are LIVE_BOB
-    - fresh-agent replay has passed
+    - targeted fresh-agent replay attempt 02 passed under a general minimal-change / preserve-public-interface constraint; do not narrate it as an unconstrained first-try replay
     - guard probes are autonomous agents
     - unmeasured time or percentage productivity gains
     - outsider test was executed
@@ -131,17 +132,32 @@ bob_native_integration:
   live_session_execution: OBSERVED
 
 blocking_or_pending:
-  - execute isolated fresh-agent replay attempt 02 from a clean sandbox and capture fresh task + withheld-contract evidence
   - final slides and cover
   - final <=3 minute video
   - Submission Integrity
   - final snapshot
 
 next_exact_action: >
-  Preserve attempt 01 as immutable failure evidence. Fix collider/replay.py CLI imports, then create a brand-new
-  attempt-02 sandbox from commit 8370a82861cd27eb972700f74c916743e3fa578b with the same INTERACTIVE canon/spec,
-  no repaired implementation, no prior attempt output, and a neutral minimal-change / preserve-unrelated-interface
-  instruction. Run a new independent Bob task and evaluate only after revealing the withheld regression contract.
+  Preserve both replay attempts and package the authentic Bob proof. Refresh judge-facing copy so it says Attempt 01
+  failed the hidden compatibility contract, while Attempt 02 passed after adding a general minimal-change /
+  preserve-public-interface engineering constraint. Then finish slides/cover, <=3 minute video, Submission Integrity,
+  and final snapshot.
+
+fresh_agent_replay_attempt_02:
+  status: REPLAY_PASS
+  attempt_type: TARGETED_REPAIR_REPLAY
+  execution_source: LIVE_BOB_SESSION
+  task_id: 9a6ec967e19713910d16b99184b15307
+  inputs_sha256: 27d48a346c7801ba2f2d4e18157c2fa1ef36508f07370ca83839fde915a8b1b2
+  emitted_value: account_id
+  semantic_convergence: true
+  prompt_constraint: narrowest canonical change; preserve existing public signatures and unrelated behavior
+  holdout: {passed: 7, failed: 0, contract_sha256: df25451d2298d74d22251b92d6ac855b03b377ea4dc85e950c8073caaa15fcae}
+  receipt_sha256: ed623331edefb259ffc7047a98f3091fd0a0ac0d94566c927c4d4f9da71a12c0
+  replay_pass_proven: true
+  raw_receipt_caveat: >-
+    The embedded replay request object retained stale scaffold wording from before live Bob execution. It is preserved
+    as raw history, but it is not the source of truth for Attempt 02 execution status.
 
 fresh_agent_replay_attempt_01:
   status: REPLAY_FAIL
@@ -175,7 +191,7 @@ live_bob_observed:
     collider_gate still sees SHARED_INFERRED/DECISION_REQUIRED because its canon lookup expects a workspace-root
     canon/decision-memory.json and source marker. Do not report that specific gate as SEMANTICALLY_READY yet.
   bobcoins: {spent: 6, budget: 50, remaining: 44}
-  fresh_agent_replay: ATTEMPT_01_REPLAY_FAIL
+  fresh_agent_replay: PROVEN_ATTEMPT_02_TARGETED_REPAIR
 
 do_not_forget:
   - "Functional ≠ finished."
