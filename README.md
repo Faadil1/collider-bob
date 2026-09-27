@@ -130,6 +130,8 @@ standalone runtime:
 - `.bob/mcp.json` + `collider/mcp_server.py` — a project-level **COLLIDER MCP
   server** that exposes semantic gate, PR gate, decision memory, LIVE_BOB
   validation, rule export, and replay evaluation as native Bob tools
+- `.bob/settings.json` + `collider/bob_hook.py` — Bob lifecycle hooks that
+  inject semantic context at SessionStart and capture session/gate receipts at Stop
 
 The native live protocol uses **three isolated Bob subagents** as ambiguity
 probes, validates their independent interpretation artifacts, then lets the same
