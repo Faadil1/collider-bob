@@ -10,7 +10,9 @@
 <p align="center">
   <a href="https://collider-semantic-ci.faadil-casecraft.workers.dev/"><strong>Live Demo</strong></a>
   ·
-  <a href="https://scrimba.com/explain/guide0fr8krhbe?claim=dmn31o0nk830ujs6&fullscreen=1"><strong>Technical Walkthrough</strong></a>
+  <a href="https://youtu.be/hlGGJA5Z_e4"><strong>Live Product Proof</strong></a>
+  ·
+  <a href="https://scrimba.com/explain/guide0fr8krhbe?claim=dmn31o0nk830ujs6&fullscreen=1"><strong>Technical / Judge Story</strong></a>
   ·
   <a href="evidence/bob-sessions/LIVE-BOB-2026-09-27-01.md"><strong>Bob Proof</strong></a>
   ·
@@ -163,7 +165,9 @@ The hosted demo is therefore a bounded, reproducible judge surface; the GitHub P
 
 **Live:** [collider-semantic-ci.faadil-casecraft.workers.dev](https://collider-semantic-ci.faadil-casecraft.workers.dev/)
 
-**Walkthrough:** [COLLIDER technical walkthrough](https://scrimba.com/explain/guide0fr8krhbe?claim=dmn31o0nk830ujs6&fullscreen=1)
+**Live Product Proof:** [YouTube — COLLIDER live product walkthrough](https://youtu.be/hlGGJA5Z_e4)
+
+**Technical / Judge Story:** [COLLIDER technical walkthrough](https://scrimba.com/explain/guide0fr8krhbe?claim=dmn31o0nk830ujs6&fullscreen=1)
 
 **Local:**
 
