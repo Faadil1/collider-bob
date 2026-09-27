@@ -71,6 +71,20 @@ def test_mcp_unknown_method_returns_jsonrpc_error():
     assert response["error"]["code"] == -32601
 
 
+def test_mcp_gate_schema_accepts_explicit_workspace_root():
+    gate = next(tool for tool in TOOLS if tool["name"] == "collider_gate")
+    props = gate["inputSchema"]["properties"]
+    assert props["root"]["default"] == "."
+
+
+def test_mcp_gate_rejects_workspace_escape():
+    result = call_tool("collider_gate", {"root": "../outside"})
+    assert result["isError"] is True
+    payload = _text_payload(result)
+    assert payload["error"] == "ValueError"
+    assert "escapes COLLIDER workspace" in payload["message"]
+
+
 def test_mcp_reads_canonical_decision_memory():
     result = call_tool("collider_decision_memory")
     payload = _text_payload(result)
