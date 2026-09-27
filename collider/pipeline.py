@@ -1622,7 +1622,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--human-decision-source",
         default="PRESEEDED",
-        help="How the human decision arrived (PRESEEDED / INTERACTIVE / NONE)",
+        help="How the human decision arrived (PRESEEDED / INTERACTIVE / INTERACTIVE_BOB / NONE)",
     )
     parser.add_argument(
         "--interpretation-dir",
