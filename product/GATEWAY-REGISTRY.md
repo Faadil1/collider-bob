@@ -11,7 +11,7 @@ Every registered gateway receives an explicit status. Nothing is silently forgot
 | Competitive Novelty / Kill Gate | PROVISIONAL_PASS | Continue monitoring; kill condition remains documented in DIFFERENTIATOR.md. |
 | Creative Depth & Product Ambition | PROVEN | product/CREATIVE-DEPTH-AND-DISTINCTIVENESS.md — Semantic CI / specification fuzzing category locked; North Star preserved. |
 | Distinctiveness Escalation | PROVEN | Active repair loop, second act, memory consequence, KEEP UNKNOWN, MERGE_BLOCKED, and feature-bloat guard formally passed. |
-| Concept Compression & Validation | ACTIVE | Wedge and before→after are strong; external Real-User / Outsider Break Test still pending. |
+| Concept Compression & Validation | ACTIVE | product/CONCEPT-COMPRESSION-VALIDATION.md — internal compression checks passed; external Real-User / Outsider Break Test still pending. |
 | Technical Reality Check | PROVEN | product/TECHNICAL-REALITY-CHECK.md — 15 questions answered with epistemic labels. |
 | Demo-First Architecture | PROVEN | product/DEMO-FIRST-ARCHITECTURE.md — fixture, classifier, canon routing, demo sequence. |
 | Fixture Design | PROVEN | fixtures/failed-payment/BRIEF.md, EXPECTED-TRUTH.md, BASELINE-CONTRACT.md. |
