@@ -18,3 +18,12 @@ tmp/
 
 # Wrangler local state and dry-run output
 .wrangler/
+
+# Generated test artifacts (tests write to temp dirs; never commit these)
+evidence/runs/test-run/
+
+# Local/private scratch material must never enter the public submission tree
+private/
+scratch/
+*.private.md
+*.local.md
