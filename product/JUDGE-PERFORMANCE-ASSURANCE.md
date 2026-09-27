@@ -7,9 +7,10 @@
 The current public build has enough product depth, runtime proof, narrative compression,
 and evidence integrity to enter final media packaging.
 
-This does **not** mean the final submission package is complete. Slides, cover,
-final video, Bob Task Session Summary evidence, and Submission Integrity remain
-separate gates.
+The hackathon submission package was delivered at the deadline. The exact submitted
+repository snapshot is preserved at `archive/submission-deadline-2026-09-27`.
+Any later walkthrough or README polish is post-submission presentation material,
+not new product functionality.
 
 ---
 
@@ -43,7 +44,9 @@ Boundary that must stay visible:
 
 - the canonical interpretation objects are **PRESEEDED**, not live Bob-generated;
 - the three guard probes are controlled future changes, not autonomous agents;
-- fresh-agent replay remains **NOT_EXECUTED / PENDING_LIVE_BOB**.
+- replay in the public demo session remains unexecuted;
+- separate Bob evidence records Attempt 01 as REPLAY_FAIL and Attempt 02 as a
+  targeted-repair REPLAY_PASS with a 7/7 withheld contract.
 
 Judge risk:
 A judge may confuse "built with Bob" with "canonical proof generated live by Bob."
