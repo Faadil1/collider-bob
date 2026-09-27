@@ -8,6 +8,10 @@ Bob's contribution was not limited to code generation. The build process used Bo
 
 The finished product now demonstrates an active Semantic CI loop: source-aware classification, one bounded human decision, decision compilation into specification/code/tests/memory, and a three-verdict future-change guard (`MERGE_BLOCKED`, `MERGE_ALLOWED`, `DECISION_REQUIRED`).
 
+COLLIDER also ships as a native Bob project capability. The repository contains a project custom mode (`.bob/custom_modes.yaml`), a reusable `collider-semantic-review` skill, workspace truth-boundary rules, a LIVE_BOB provenance validator, and an exporter that turns approved COLLIDER decision memory into Bob workspace rules. The live protocol is designed to spawn isolated Bob subagents for API, Ledger, and Notifications, validate their session-bound interpretation artifacts, then feed those exact artifacts into the normal COLLIDER pipeline. These mechanisms are implemented and covered by the repository test suite.
+
+The remaining proof boundary is empirical: until a real Bob task/session executes that protocol and its Task Session Summary/subagent evidence is captured, no new interpretation run is called LIVE_BOB.
+
 The provenance boundary is explicit. The canonical interpretation objects used in the comparative evidence are **PRESEEDED**, not live Bob-generated. The three future guard probes are controlled edits, not autonomous agents. Fresh-agent replay is **NOT_EXECUTED / PENDING_LIVE_BOB**.
 
 That separation is intentional: COLLIDER treats provenance and uncertainty as product requirements, so the submission applies the same standard to its own IBM Bob claims.
