@@ -125,6 +125,8 @@ standalone runtime:
 - `.bob/rules/collider-truth-boundary.md` — workspace truth/provenance rules
 - `collider/bob_live.py` — rejects fake/relabelled LIVE_BOB inputs and binds real
   Bob session/task references to interpretation hashes
+- `collider/decision_compiler.py` — compiles a human decision directly from the
+  same validated LIVE_BOB bundle, binding Bob session + bundle hash into memory
 - `collider/bob_rules.py` — exports approved COLLIDER decision memory into Bob
   workspace rules so future Bob agents inherit semantic canon
 - `.bob/mcp.json` + `collider/mcp_server.py` — a project-level **COLLIDER MCP
@@ -226,7 +228,7 @@ npx tsc --noEmit
 Last full recorded verification before submission packaging:
 
 ```text
-267 passed
+273 passed
 123 subtests passed
 TypeScript: clean
 ```
