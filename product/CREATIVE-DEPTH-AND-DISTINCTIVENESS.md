@@ -143,7 +143,8 @@ same-diff counterfactual.
 The build may move forward only with these truths preserved:
 
 - PRESEEDED interpretations are never narrated as LIVE_BOB.
-- Fresh-agent replay remains `NOT_EXECUTED / PENDING_LIVE_BOB`.
+- The public demo session does not execute replay; separate Bob evidence preserves
+  Attempt 01 as REPLAY_FAIL and Attempt 02 as targeted-repair REPLAY_PASS.
 - Consensus does not become truth.
 - UNKNOWN remains first-class.
 - Public runtime proof, session isolation, mobile smoke, Judge Performance Assurance, Pre-Launch / Ship Assurance, Submission Integrity, and Final Snapshot remain separate gates.
