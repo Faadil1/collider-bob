@@ -1,0 +1,23 @@
+{
+  "agent_id": "bob-subagent-<unique>",
+  "workstream": "api",
+  "generation_mode": "LIVE_BOB",
+  "session_ref": "<real-bob-session-ref>",
+  "task_summary_ref": "<real-bob-task-summary-ref>",
+  "run_id": "<live-run-id>",
+  "git_commit": "<git-sha-observed-by-bob>",
+  "timestamp": "<ISO-8601>",
+  "claims": [
+    {
+      "concept": "customer_identity",
+      "value": "<chosen-value>",
+      "epistemic_state": "INFERRED",
+      "evidence_refs": [
+        "fixtures/failed-payment/BRIEF.md — source is silent on customer identity"
+      ],
+      "evidence_relation": "INFERRED",
+      "consumed_by": ["ledger"],
+      "artifact_refs": ["api/handlers/recover.py"]
+    }
+  ]
+}
