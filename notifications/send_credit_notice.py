@@ -23,7 +23,7 @@ STRUCTURAL INDEPENDENCE:
   Impact router will find no dependency on customer_identity.
 """
 
-# Semantic-CI proof: implementation comment only; no registered semantic value changes.\nNOTIFICATION_CONTACT_TYPE = "email_address"  # INFERRED — stub says string, type unspecified
+NOTIFICATION_CONTACT_TYPE = "email_address"  # INFERRED — stub says string, type unspecified
 MONEY_UNIT = "integer_cents"  # INFERRED — format_amount divides by 100; the stub never says cents
 
 
