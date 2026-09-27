@@ -72,7 +72,7 @@ public_runtime:
 
 verification:
   last_full_suite:
-    result: "255 passed, 123 subtests passed"
+    result: "267 passed, 123 subtests passed"
     command: python3 -m pytest -q -p no:cacheprovider
   typecheck: npx tsc --noEmit (clean)
   note: >
@@ -136,6 +136,17 @@ bob_native_integration:
   live_input_validator: collider/bob_live.py
   live_pipeline_ingestion: SHIPPED
   decision_memory_to_bob_rules: collider/bob_rules.py
+  project_mcp:
+    config: .bob/mcp.json
+    server: collider/mcp_server.py
+    tools: [collider_gate, collider_pr_gate, collider_decision_memory, collider_validate_live_bob, collider_export_decision_rule, collider_evaluate_replay]
+    stdio_jsonrpc_test: PROVEN_IN_CI
+  pull_request_semantic_ci:
+    implementation: collider/pr_gate.py
+    workflow: .github/workflows/semantic-ci.yml
+    verdicts: [MERGE_ALLOWED, MERGE_BLOCKED, DECISION_REQUIRED]
+    conventional_tests_visible: true
+    live_three_verdict_proof: IN_PROGRESS
   live_session_execution: PENDING_USER_RUN
   evidence_target: evidence/bob-sessions/
 
