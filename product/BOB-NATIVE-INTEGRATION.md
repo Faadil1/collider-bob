@@ -249,3 +249,50 @@ distinction visible in the developer workflow: conventional tests can remain
 green while COLLIDER still requires a missing decision.
 
 A machine-readable semantic receipt is uploaded as a workflow artifact.
+
+
+### Lifecycle-hook surface
+
+COLLIDER now uses Bob's workspace lifecycle hooks through `.bob/settings.json`:
+
+- `SessionStart` runs `python3 -m collider.bob_hook session-start`.
+  It captures Bob's real `session_id`, current Git commit/branch, semantic-gate
+  verdict and canonical decisions, writes a transient receipt under
+  `.collider/bob-hooks/`, and injects concise truth-bounded context into Bob.
+- `Stop` runs `python3 -m collider.bob_hook stop` and writes the final
+  session/gate receipt for the same Bob session.
+
+This makes semantic context persistent at the Bob session boundary instead of
+depending on a user remembering to paste decision history.
+
+The hook code and receipt semantics are tested. A hook receipt is explicitly
+**not** treated as LIVE_BOB interpretation proof or fresh-agent replay proof.
+
+### Bob capability stack now shipped
+
+```text
+CUSTOM MODE
+  ↓
+MODE-SPECIFIC + WORKSPACE RULES
+  ↓
+SKILL
+  ↓
+PARALLEL GENERAL SUBAGENTS (fork_context=false)
+  ↓
+PROJECT MCP TOOLS
+  ↓
+LIVE_BOB PROVENANCE VALIDATION
+  ↓
+COLLIDER PIPELINE
+  ↓
+DECISION MEMORY → BOB WORKSPACE RULE
+  ↓
+GITHUB PR SEMANTIC CI
+  ↓
+FRESH BOB REPLAY CONTRACT
+```
+
+The architecture now uses the native extension surfaces IBM documents for Bob:
+custom modes, project skills, project rules, project MCP, custom slash commands,
+parallel subagents and lifecycle hooks. The remaining gap is not another design
+artifact; it is the actual Bob execution/capture that promotes runtime evidence.
