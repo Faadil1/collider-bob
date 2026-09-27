@@ -14,7 +14,10 @@ This gate applies to the real production runtime. Repository correctness alone i
 - Public receipt: `evidence/runtime/PUBLIC-THREE-VERDICT-GUARD-2026-09-27.md`
 - Active provenance: `CLOUDFLARE_CONTAINER / PRESEEDED / INTERACTIVE_WEB`
 - Fresh LIVE_BOB generation: **NOT CLAIMED**
-- Exact Workers version ↔ Git commit binding: **PENDING**
+- Exact Workers version ↔ Git commit binding: **PROVEN**
+- Binding receipt: `evidence/runtime/RUNTIME-COMMIT-BINDING-2026-09-27.md`
+- Bound Worker UUID: `364ad4fd-7eb3-4918-aef8-f9ad049ee20a`
+- Bound Git commit: `e185e84d9d1cf00dfa1700b6bd2439e57887a291`
 
 ## Audit
 
@@ -45,9 +48,9 @@ This gate applies to the real production runtime. Repository correctness alone i
 | Negative path | PROVEN LIVE + LOCAL | KEEP UNKNOWN previously observed live; current escalated guard now also proves harmless change → MERGE_ALLOWED. |
 | Second act | PROVEN LIVE | Public runtime visibly executed MERGE_BLOCKED / MERGE_ALLOWED / DECISION_REQUIRED with exact restore after each probe. Receipt: evidence/runtime/PUBLIC-THREE-VERDICT-GUARD-2026-09-27.md. |
 | Session isolation | PROVEN LIVE | Normal browser session and fresh InPrivate context remained independent. Receipt: evidence/runtime/PUBLIC-SESSION-ISOLATION-2026-09-27.md. |
-| Runtime / commit binding | LIVE VERSION CAPTURED | PROOF → PROVENANCE exposed Worker version `364ad4fd-7eb3-4918-aef8-f9ad049ee20a` on the public iPhone run. It still must be matched to the Workers Builds commit. |
+| Runtime / commit binding | PROVEN | Public PROVENANCE UUID `364ad4fd-7eb3-4918-aef8-f9ad049ee20a` maps to Cloudflare Version History `364ad4fd`, whose build detail shows Git commit `e185e84d`; GitHub resolves it to `e185e84d9d1cf00dfa1700b6bd2439e57887a291`. Receipt: evidence/runtime/RUNTIME-COMMIT-BINDING-2026-09-27.md. |
 | Rollback / deployment recovery | DOCUMENTED | cloudflare/README.md §Rollback / recovery. Not rehearsed. |
-| Proof capture | PARTIAL_PASS | Public desktop + real-iPhone captures include three verdicts, restore, diffs/hashes, session isolation, mobile flow, and Worker version. Only version↔commit match and live header/CSP receipt remain. |
+| Proof capture | PARTIAL_PASS | Public desktop + real-iPhone captures include three verdicts, restore, diffs/hashes, session isolation, mobile flow, Worker version, and version↔commit binding. Only live header/CSP receipt remains. |
 
 ## Public escalated-build observation
 
@@ -66,9 +69,8 @@ The production recording showed:
 
 ## Ship blockers
 
-1. Read `x-collider-worker-version` live and match it to the Workers Builds commit.
-2. Read live page headers and confirm the CSP from demo-ui/_headers is served.
+1. Read live page headers and confirm the CSP from demo-ui/_headers is served.
 
 ## Gate verdict
 
-**ACTIVE — CORE PUBLIC RUNTIME + REAL-DEVICE MOBILE PROVEN; VERSION BINDING + LIVE CSP REMAIN; SHIP NOT YET EARNED**
+**ACTIVE — PUBLIC RUNTIME / MOBILE / ISOLATION / VERSION BINDING PROVEN; LIVE CSP HEADER CONFIRMATION REMAINS; SHIP NOT YET EARNED**
