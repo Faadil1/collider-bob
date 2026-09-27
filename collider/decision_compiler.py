@@ -616,6 +616,8 @@ def compile_decision(
 
     # --- Receipts -------------------------------------------------------------
     out_dir.mkdir(parents=True, exist_ok=True)
+    if live_bob_input is not None:
+        write_json(out_dir / "bob-live-input.json", live_bob_input)
     write_json(out_dir / "manifest.json", manifest)
     write_json(out_dir / "decision.json", decision)
     write_json(out_dir / "spec-patch.json", spec_patch)
