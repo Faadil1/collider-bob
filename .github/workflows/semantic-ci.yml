@@ -1,0 +1,151 @@
+name: COLLIDER Semantic CI
+
+on:
+  pull_request:
+    paths:
+      - "api/**"
+      - "ledger/**"
+      - "notifications/**"
+      - "fixtures/**"
+      - "collider/**"
+      - "evidence/decisions/**"
+      - ".github/workflows/semantic-ci.yml"
+  workflow_dispatch:
+    inputs:
+      base_ref:
+        description: "Git ref to compare against"
+        required: true
+        default: "origin/main"
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  semantic-ci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run COLLIDER three-verdict PR gate
+        id: gate
+        shell: bash
+        env:
+          BASE_REF: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || inputs.base_ref }}
+        run: |
+          set +e
+          python -m collider.pr_gate --base-ref "$BASE_REF" --json > semantic-ci.json
+          code=$?
+          set -e
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          cat semantic-ci.json
+
+      - name: Render job summary
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+
+          report = json.loads(Path("semantic-ci.json").read_text())
+          verdict = report["verdict"]
+          findings = report["findings"]
+          changed = report["changed_concepts"]
+
+          lines = [
+              "# COLLIDER Semantic CI",
+              "",
+              f"**Verdict: {verdict}**",
+              "",
+              "Git sees text. Tests see behavior. COLLIDER checks whether the change",
+              "violates a decision already made or exposes one nobody made.",
+              "",
+              "## Changed semantic concepts",
+          ]
+          if changed:
+              for item in changed:
+                  ws = ", ".join(item["changed_workstreams"])
+                  lines.append(f"- `{item['concept']}` — {ws}")
+          else:
+              lines.append("- none")
+
+          lines.extend(["", "## Findings"])
+          if findings:
+              for finding in findings:
+                  lines.append(
+                      f"- **{finding['kind']}** · `{finding['concept']}` · "
+                      f"{finding['authority']}"
+                  )
+          else:
+              lines.append("- none")
+
+          Path(os.environ["GITHUB_STEP_SUMMARY"]).write_text("\n".join(lines) + "\n")
+          PY
+
+      - name: Upload semantic receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: collider-semantic-ci
+          path: semantic-ci.json
+          retention-days: 30
+
+      - name: Comment PR with semantic verdict
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = JSON.parse(fs.readFileSync('semantic-ci.json', 'utf8'));
+            const findings = report.findings.length
+              ? report.findings.map(f => `- **${f.kind}** · \`${f.concept}\` · ${f.authority}`).join('\n')
+              : '- none';
+            const changed = report.changed_concepts.length
+              ? report.changed_concepts.map(c => `- \`${c.concept}\` — ${c.changed_workstreams.join(', ')}`).join('\n')
+              : '- none';
+
+            const body = [
+              '## ⚛️ COLLIDER Semantic CI',
+              '',
+              `**Verdict: ${report.verdict}**`,
+              '',
+              '**Changed semantic concepts**',
+              changed,
+              '',
+              '**Findings**',
+              findings,
+              '',
+              '> Git sees text. Tests see behavior. COLLIDER checks whether the change violates a decision already made or exposes one nobody made.',
+              '',
+              '<!-- collider-semantic-ci -->'
+            ].join('\n');
+
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+            const comments = await github.rest.issues.listComments({ owner, repo, issue_number });
+            const existing = comments.data.find(c => c.body && c.body.includes('<!-- collider-semantic-ci -->'));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner, repo, comment_id: existing.id, body
+              });
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body });
+            }
+
+      - name: Enforce semantic verdict
+        shell: bash
+        run: |
+          case "${{ steps.gate.outputs.exit_code }}" in
+            0) echo "MERGE_ALLOWED";;
+            1) echo "MERGE_BLOCKED"; exit 1;;
+            2) echo "DECISION_REQUIRED"; exit 1;;
+            *) echo "Unexpected COLLIDER exit code"; exit 1;;
+          esac

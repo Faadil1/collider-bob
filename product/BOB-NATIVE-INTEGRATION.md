@@ -1,8 +1,14 @@
 # COLLIDER — Bob-Native Integration
 
-**Status:** INFERRED — architecture designed; runtime proof pending. No Bob capability is
-claimed as load-bearing until a canonical session provides session evidence. All statements
-below describe the designed role of each capability, not a proven role.
+**Status:** NATIVE INTEGRATION SHIPPED / LIVE SESSION PROOF PENDING.
+
+The project now contains a real IBM Bob custom mode, reusable skill, workspace
+truth rules, a LIVE_BOB provenance validator, and decision-memory → Bob-rule
+export. These mechanisms are verified in the repository test suite.
+
+What remains pending is **session evidence**: no interpretation artifact becomes
+LIVE_BOB until an actual Bob task/session and subagent summaries are captured and
+pass `collider.bob_live`.
 
 ## The question
 
@@ -166,3 +172,42 @@ each capability is actually load-bearing in the working product — is PENDING. 
 OBSERVED when a canonical session produces evidence artifacts that demonstrate each property.
 
 Until then: Bob-native architecture designed; runtime proof pending.
+
+
+---
+
+## Shipped Bob-native surface — 2026-09-27
+
+The designed architecture above is now represented by executable/project-native
+integration points:
+
+- `.bob/custom_modes.yaml` — COLLIDER Semantic CI mode with read/edit/execute,
+  Skill and Subagent tool groups.
+- `.bob/skills/collider-semantic-review/` — live run protocol and output
+  contract for isolated API/Ledger/Notifications Bob subagents.
+- `.bob/rules/collider-truth-boundary.md` — project-wide provenance and
+  abstention constraints automatically injected into Bob conversations.
+- `collider/bob_live.py` — validates three unique LIVE_BOB agents, one real
+  parent session reference, real task-summary references, claim evidence, and
+  hashes the exact interpretation bundle before COLLIDER can consume it.
+- `collider.pipeline --interpretation-dir ... --interpretation-source LIVE_BOB
+  --bob-session-ref ...` — the normal COLLIDER pipeline can consume validated
+  Bob outputs instead of PRESEEDED fixtures.
+- `collider/bob_rules.py` — turns verified decision memory into
+  `.bob/rules/collider-decision-memory.md`, making approved semantic canon
+  automatically available to future Bob sessions.
+
+### Current truth state
+
+```text
+Bob custom mode / skill / rules            SHIPPED
+LIVE_BOB input validation                  SHIPPED + TESTED
+COLLIDER consumption of LIVE_BOB inputs    SHIPPED + TESTED
+Decision memory → Bob workspace rule       SHIPPED + TESTED
+Real Bob task/session execution            PENDING USER RUN
+Fresh independent Bob replay               PENDING LIVE_BOB
+```
+
+The code path exists now; the remaining gate is empirical, not architectural.
+A real Bob session must execute it before the corresponding runtime claims are
+promoted to OBSERVED.

@@ -97,3 +97,61 @@ def evaluate_replay_result(request: dict, result: dict | None,
             f"tests_passed={result['tests_passed']!r}"
         ],
     }
+
+
+def _write_json(path: str | None, obj: dict) -> None:
+    rendered = json.dumps(obj, indent=2)
+    if path:
+        out = Path(path)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(rendered + "\n")
+        print(f"wrote {out}")
+    else:
+        print(rendered)
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        description="Build or evaluate COLLIDER fresh-agent replay evidence"
+    )
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    req = sub.add_parser("request")
+    req.add_argument("--memory", required=True)
+    req.add_argument("--spec", required=True)
+    req.add_argument("--contract", required=True)
+    req.add_argument("--out")
+
+    ev = sub.add_parser("evaluate")
+    ev.add_argument("--request", required=True)
+    ev.add_argument("--result", required=True)
+    ev.add_argument("--canonical-value", required=True)
+    ev.add_argument("--receipt")
+
+    args = parser.parse_args()
+
+    if args.command == "request":
+        memory = json.loads(Path(args.memory).read_text())
+        decisions = memory.get("decisions", [])
+        if not decisions:
+            print("REPLAY REQUEST REJECTED: no decision memory")
+            return 2
+        request = build_replay_request(decisions[0], args.spec, args.contract)
+        _write_json(args.out, request)
+        return 0
+
+    request = json.loads(Path(args.request).read_text())
+    result = json.loads(Path(args.result).read_text())
+    verdict = evaluate_replay_result(request, result, args.canonical_value)
+    receipt = {
+        "schema": "collider.fresh-agent-replay-receipt/v1",
+        "request": request,
+        "result": result,
+        "verdict": verdict,
+    }
+    _write_json(args.receipt, receipt)
+    return 0 if verdict["accepted"] else 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -1,8 +1,8 @@
 project: collider-bob
-handover_version: 7
+handover_version: 8
 date: 2026-09-27
 source_of_truth: state/CURRENT.yaml
-branch: claude/sharp-planck-vfqz40
+branch: main
 
 north_star:
   category: Semantic CI for Agentic Software Development
@@ -11,12 +11,14 @@ north_star:
   signature_moment: "37/37 tests pass; COLLIDER returns DECISION_REQUIRED."
 
 current_stage:
-  status: DEMO_LOCK_EARNED_FINAL_PACKAGING
+  status: BOB_NATIVE_INTEGRATION_SHIPPED_LIVE_PROOF_PENDING
   concept_lock: LOCKED_AFTER_SECOND_CREATIVE_DEPTH_PASS
   demo_lock: EARNED
   submission_status: FINAL_PACKAGING
 
 canonical_decisions:
+  - Bob-native integration is now a real product surface, not a README claim: custom mode, skill, isolated-subagent live protocol, provenance validator, and decision-memory rule export.
+  - No Bob runtime claim promotes until an actual Bob session executes the protocol and evidence is captured.
   - Category stays Semantic CI; DECISION_REQUIRED is the strongest judge-facing differentiator.
   - KEEP UNKNOWN remains a correct product outcome.
   - Decision memory must change future verdicts, not merely store text.
@@ -109,16 +111,26 @@ truth_boundary:
     - session isolation, mobile and security headers were verified
     - exact runtime-to-commit binding was captured
 
+bob_native_integration:
+  mechanism_status: SHIPPED_AND_CI_TESTED
+  custom_mode: .bob/custom_modes.yaml
+  skill: .bob/skills/collider-semantic-review/SKILL.md
+  live_input_validator: collider/bob_live.py
+  decision_rule_exporter: collider/bob_rules.py
+  live_session_execution: PENDING_USER_RUN
+
 blocking_or_pending:
-  - literal Bob Task Session Summary evidence
+  - execute Bob-native live protocol + capture literal Task Session Summary/subagent evidence
   - final slides and cover
   - final <=3 minute video
   - Submission Integrity
   - final snapshot
 
 next_exact_action: >
-  Capture literal Bob Task Session Summary evidence if available. Then produce slides/cover and the
-  final video from demo/DEMO-SCRIPT-ACTIVE.md, run Submission Integrity, and take the final snapshot.
+  Run the COLLIDER Semantic CI custom mode + collider-semantic-review skill inside IBM Bob.
+  Capture the real Task Session Summary and parallel subagent evidence. Promote Bob-Native
+  Integration only from that evidence, then hand the product to Claude for the visual/metaphor
+  redesign before final video/slides/Submission Integrity.
 
 do_not_forget:
   - "Functional ≠ finished."

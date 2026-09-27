@@ -20,7 +20,7 @@ Every registered gateway receives an explicit status. Nothing is silently forgot
 | Truth Boundary | PROVEN | product/TRUTH-BOUNDARY.md; shared assumptions remain INFERRED, not fact. |
 | Negative Path | PROVEN | KEEP UNKNOWN + MERGE_ALLOWED false-positive control. |
 | Evidence Integrity | PROVEN | Canonical evidence hashes are pinned; tests no longer write into committed evidence. |
-| Bob-Native Integration | ACTIVE | Bob was load-bearing in development; canonical interpretations remain PRESEEDED, not LIVE_BOB. |
+| Bob-Native Integration | ACTIVE | Native Bob mode + skill + workspace rules + LIVE_BOB validator + decision-memory rule export are SHIPPED and CI-tested. Promotion to PROVEN requires an actual Bob session/subagent run with captured Task Session Summary evidence. Canonical historical interpretations remain PRESEEDED. |
 | Runtime / Commit Binding | PROVEN | evidence/runtime/RUNTIME-COMMIT-BINDING-2026-09-27.md. |
 | Public Runtime / Live Proof | PROVEN | Three-verdict guard, session isolation, real-iPhone smoke and runtime binding are proven. |
 | Deterministic Demo | PROVEN | Public desktop + real-device runs reproduce the intended demo states and restoration. |

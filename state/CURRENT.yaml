@@ -1,7 +1,7 @@
 project: collider-bob
 date: 2026-09-27
-stage: DEMO_LOCK_EARNED_FINAL_PACKAGING
-branch: claude/sharp-planck-vfqz40
+stage: BOB_NATIVE_INTEGRATION_SHIPPED_LIVE_PROOF_PENDING
+branch: main
 
 north_star:
   name: COLLIDER
@@ -72,12 +72,13 @@ public_runtime:
 
 verification:
   last_full_suite:
-    result: "249 passed, 117 subtests passed"
+    result: "255 passed, 123 subtests passed"
     command: python3 -m pytest -q -p no:cacheprovider
   typecheck: npx tsc --noEmit (clean)
   note: >
-    Final packaging changes after this verification are documentation/repository-hygiene only;
-    no product runtime code was changed.
+    Bob-native product integration added after Demo Lock: custom mode, skill, LIVE_BOB
+    provenance validator, pipeline ingestion path, and decision-memory rule export.
+    GitHub Actions verification passed after these changes.
 
 outsider_break_test:
   status: PROVISIONAL_PASS
@@ -127,6 +128,17 @@ gateway_status:
   "App Kit / sponsor gateway": N/A
   "LIVE_GATEWAY promotion": N/A
 
+bob_native_integration:
+  mechanism_status: SHIPPED_AND_CI_TESTED
+  custom_mode: .bob/custom_modes.yaml
+  skill: .bob/skills/collider-semantic-review/SKILL.md
+  workspace_truth_rules: .bob/rules/collider-truth-boundary.md
+  live_input_validator: collider/bob_live.py
+  live_pipeline_ingestion: SHIPPED
+  decision_memory_to_bob_rules: collider/bob_rules.py
+  live_session_execution: PENDING_USER_RUN
+  evidence_target: evidence/bob-sessions/
+
 bob_boundary:
   implementation_and_architecture_use: REAL
   canonical_interpretation_generation: PRESEEDED
@@ -139,7 +151,7 @@ submission:
     - submission/PROBLEM-SOLUTION.md
     - submission/BOB-USAGE.md
   pending:
-    - literal Bob Task Session Summary evidence
+    - execute Bob-native live protocol and capture literal Bob Task Session Summary + subagent evidence
     - slides and cover
     - final <=3 min video from demo/DEMO-SCRIPT-ACTIVE.md
     - Submission Integrity Gate
@@ -159,6 +171,7 @@ do_not_redo:
   - repo publication audit
 
 next_exact_action: >
-  Capture the literal IBM Bob Task Session Summary evidence if available, then create the final
-  slides/cover and record the <=3 minute video using demo/DEMO-SCRIPT-ACTIVE.md. After those assets
-  exist, run Submission Integrity and take the final CURRENT/HANDOVER snapshot.
+  Open the repository in IBM Bob, select the COLLIDER Semantic CI custom mode, invoke the
+  collider-semantic-review skill, execute the live isolated-subagent protocol, and capture the
+  Task Session Summary/subagent evidence. Only then promote Bob-Native Integration and continue
+  to Claude visual redesign + final media packaging.
