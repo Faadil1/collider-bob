@@ -1,6 +1,6 @@
 project: collider-bob
 date: 2026-09-27
-stage: BOB_NATIVE_LIVE_PROOF_AND_TARGETED_REPLAY_PROVEN
+stage: PRE_FINAL_UIUX_REDESIGN_WITH_CLAUDE
 branch: main
 
 north_star:
@@ -180,6 +180,9 @@ submission:
     - demo/DEMO-SCRIPT-ACTIVE.md
     - evidence/bob-sessions/JUDGE-EVIDENCE-MANIFEST-2026-09-27.md
   pending:
+    - Claude UI/UX redesign pass on demo-ui (judge-facing visual system only; no semantic/runtime regressions)
+    - post-redesign visual + responsive + reduced-motion validation
+    - archive selected Bob screenshots and bind hashes after final UI direction is locked
     - slides and cover
     - final <=3 min video from demo/DEMO-SCRIPT-ACTIVE.md
     - Submission Integrity Gate
@@ -201,10 +204,12 @@ do_not_redo:
   - repo publication audit
 
 next_exact_action: >
-  Bob evidence packaging copy and judge-selection manifest are now refreshed. Preserve the raw Bob transcripts,
-  receipts and all original screenshots. Next archive the selected original screenshot files into the Bob evidence
-  folder without reconstruction, bind their SHA-256 values into the judge manifest, then proceed to final slides/cover,
-  <=3 minute video, Submission Integrity Gate, and final snapshot.
+  Run the pre-final Claude UI/UX redesign pass before slides/video. Claude must treat the current product logic,
+  Bob truth boundaries, public runtime behavior and demo flow as locked, while redesigning demo-ui into a more
+  distinctive COLLIDER-native visual instrument: collision metaphor, dramatic UNKNOWN/judgment state, three-agent
+  trajectories, tests-green-vs-semantic-conflict contrast, purposeful motion, stronger above-the-fold hierarchy and
+  non-generic visual identity. Use product/CLAUDE-UIUX-HANDOFF-2026-09-27.md as the execution contract. After the UI
+  pass, rerun visual/responsive/reduced-motion validation, then archive selected screenshots and continue media packaging.
 
 fresh_agent_replay_attempt_02:
   status: REPLAY_PASS
