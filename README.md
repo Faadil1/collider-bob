@@ -122,6 +122,23 @@ The public demo’s comparative interpretation objects remain **PRESEEDED**. The
 
 Evidence: [Judge-first Bob proof index](bob_sessions/README.md) · [LIVE_BOB run](evidence/bob-sessions/LIVE-BOB-2026-09-27-01.md) · [Attempt 01](evidence/bob-sessions/FRESH-REPLAY-ATTEMPT-01-2026-09-27.md) · [Attempt 02](evidence/bob-sessions/FRESH-REPLAY-ATTEMPT-02-2026-09-27.md).
 
+## Reusable Bob integration
+
+COLLIDER is structured as composable Bob-native infrastructure, not only as a hosted demo.
+
+The repository includes:
+
+- a reusable semantic-review Skill;
+- a COLLIDER Custom Mode;
+- a project-level MCP server exposing the semantic gate, PR gate, decision memory, live-Bob validation, rule export and replay evaluation;
+- workspace truth and decision-memory rules;
+- SessionStart / Stop lifecycle hooks;
+- a GitHub Semantic CI workflow.
+
+Today, these pieces can be adopted manually into another Bob workspace. The current repository is still specialized around the failed-payment reference fixture and its registered semantic concepts, so this is **not yet** a one-command generic installer.
+
+The generalized direction is to package the same surfaces behind a future installer such as `collider init`, while preserving the existing truth boundary: models may propose interpretations, but source authority and human decisions remain explicit.
+
 ## Architecture
 
 ```mermaid
