@@ -224,7 +224,7 @@ npx tsc --noEmit
 Last full recorded verification before submission packaging:
 
 ```text
-255 passed
+267 passed
 123 subtests passed
 TypeScript: clean
 ```
