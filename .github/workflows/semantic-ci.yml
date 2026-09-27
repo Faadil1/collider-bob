@@ -35,6 +35,19 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Install conventional test dependency
+        run: python -m pip install --upgrade pytest
+
+      - name: Run conventional workstream tests
+        id: conventional
+        shell: bash
+        run: |
+          set +e
+          python -m pytest api/tests/ ledger/tests/ notifications/tests/ -q -p no:cacheprovider | tee conventional-tests.txt
+          code=${PIPESTATUS[0]}
+          set -e
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+
       - name: Run COLLIDER three-verdict PR gate
         id: gate
         shell: bash
@@ -59,11 +72,18 @@ jobs:
           verdict = report["verdict"]
           findings = report["findings"]
           changed = report["changed_concepts"]
+          conventional_lines = [
+              line.strip()
+              for line in Path("conventional-tests.txt").read_text().splitlines()
+              if line.strip()
+          ]
+          conventional = conventional_lines[-1] if conventional_lines else "no output"
 
           lines = [
               "# COLLIDER Semantic CI",
               "",
               f"**Verdict: {verdict}**",
+              f"**Conventional workstream tests: {conventional}**",
               "",
               "Git sees text. Tests see behavior. COLLIDER checks whether the change",
               "violates a decision already made or exposes one nobody made.",
@@ -94,7 +114,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: collider-semantic-ci
-          path: semantic-ci.json
+          path: |
+            semantic-ci.json
+            conventional-tests.txt
           retention-days: 30
 
       - name: Comment PR with semantic verdict
@@ -104,6 +126,8 @@ jobs:
           script: |
             const fs = require('fs');
             const report = JSON.parse(fs.readFileSync('semantic-ci.json', 'utf8'));
+            const conventionalLines = fs.readFileSync('conventional-tests.txt', 'utf8').split('\n').map(s => s.trim()).filter(Boolean);
+            const conventional = conventionalLines.length ? conventionalLines[conventionalLines.length - 1] : 'no output';
             const findings = report.findings.length
               ? report.findings.map(f => `- **${f.kind}** · \`${f.concept}\` · ${f.authority}`).join('\n')
               : '- none';
@@ -115,6 +139,7 @@ jobs:
               '## ⚛️ COLLIDER Semantic CI',
               '',
               `**Verdict: ${report.verdict}**`,
+              `**Conventional workstream tests: ${conventional}**`,
               '',
               '**Changed semantic concepts**',
               changed,

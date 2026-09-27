@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "collider-semantic-ci": {
+      "command": "python3",
+      "args": [
+        "-m",
+        "collider.mcp_server"
+      ],
+      "alwaysAllow": [
+        "collider_gate",
+        "collider_pr_gate",
+        "collider_decision_memory",
+        "collider_validate_live_bob"
+      ],
+      "disabled": false,
+      "cwd": "."
+    }
+  }
+}

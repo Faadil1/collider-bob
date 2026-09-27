@@ -27,7 +27,12 @@ customModes:
       - read
       - edit
       - execute
+      - mcp
       - skill
       - todo
       - subtask
       - subagent
+      - mode
+    allowedSubagents:
+      - explore
+      - general

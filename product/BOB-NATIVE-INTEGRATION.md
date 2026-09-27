@@ -211,3 +211,88 @@ Fresh independent Bob replay               PENDING LIVE_BOB
 The code path exists now; the remaining gate is empirical, not architectural.
 A real Bob session must execute it before the corresponding runtime claims are
 promoted to OBSERVED.
+
+
+### Native MCP surface
+
+IBM Bob supports project-scoped MCP configuration through `.bob/mcp.json`.
+COLLIDER now ships a zero-third-party-dependency STDIO MCP server at
+`collider/mcp_server.py`.
+
+Bob discovers six structured tools:
+
+- `collider_gate`
+- `collider_pr_gate`
+- `collider_decision_memory`
+- `collider_validate_live_bob`
+- `collider_export_decision_rule`
+- `collider_evaluate_replay`
+
+Read-only checks and provenance validation are auto-approved in project config.
+Rule export and replay evaluation are deliberately not auto-approved.
+
+The test suite launches the MCP server as a real subprocess and completes a
+newline-delimited JSON-RPC initialize/tools-list round trip. This proves the
+project MCP process surface itself; an actual Bob IDE connection is still
+separate empirical evidence.
+
+### Real pull-request Semantic CI surface
+
+`.github/workflows/semantic-ci.yml` runs COLLIDER on pull requests and posts
+one of the three product verdicts directly into the PR:
+
+`MERGE_ALLOWED · MERGE_BLOCKED · DECISION_REQUIRED`
+
+The action also executes the conventional API/Ledger/Notifications test suite
+and reports its result beside the semantic verdict. This makes the core
+distinction visible in the developer workflow: conventional tests can remain
+green while COLLIDER still requires a missing decision.
+
+A machine-readable semantic receipt is uploaded as a workflow artifact.
+
+
+### Lifecycle-hook surface
+
+COLLIDER now uses Bob's workspace lifecycle hooks through `.bob/settings.json`:
+
+- `SessionStart` runs `python3 -m collider.bob_hook session-start`.
+  It captures Bob's real `session_id`, current Git commit/branch, semantic-gate
+  verdict and canonical decisions, writes a transient receipt under
+  `.collider/bob-hooks/`, and injects concise truth-bounded context into Bob.
+- `Stop` runs `python3 -m collider.bob_hook stop` and writes the final
+  session/gate receipt for the same Bob session.
+
+This makes semantic context persistent at the Bob session boundary instead of
+depending on a user remembering to paste decision history.
+
+The hook code and receipt semantics are tested. A hook receipt is explicitly
+**not** treated as LIVE_BOB interpretation proof or fresh-agent replay proof.
+
+### Bob capability stack now shipped
+
+```text
+CUSTOM MODE
+  ↓
+MODE-SPECIFIC + WORKSPACE RULES
+  ↓
+SKILL
+  ↓
+PARALLEL GENERAL SUBAGENTS (fork_context=false)
+  ↓
+PROJECT MCP TOOLS
+  ↓
+LIVE_BOB PROVENANCE VALIDATION
+  ↓
+COLLIDER PIPELINE
+  ↓
+DECISION MEMORY → BOB WORKSPACE RULE
+  ↓
+GITHUB PR SEMANTIC CI
+  ↓
+FRESH BOB REPLAY CONTRACT
+```
+
+The architecture now uses the native extension surfaces IBM documents for Bob:
+custom modes, project skills, project rules, project MCP, custom slash commands,
+parallel subagents and lifecycle hooks. The remaining gap is not another design
+artifact; it is the actual Bob execution/capture that promotes runtime evidence.

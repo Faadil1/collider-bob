@@ -127,6 +127,11 @@ standalone runtime:
   Bob session/task references to interpretation hashes
 - `collider/bob_rules.py` — exports approved COLLIDER decision memory into Bob
   workspace rules so future Bob agents inherit semantic canon
+- `.bob/mcp.json` + `collider/mcp_server.py` — a project-level **COLLIDER MCP
+  server** that exposes semantic gate, PR gate, decision memory, LIVE_BOB
+  validation, rule export, and replay evaluation as native Bob tools
+- `.bob/settings.json` + `collider/bob_hook.py` — Bob lifecycle hooks that
+  inject semantic context at SessionStart and capture session/gate receipts at Stop
 
 The native live protocol uses **three isolated Bob subagents** as ambiguity
 probes, validates their independent interpretation artifacts, then lets the same
@@ -141,6 +146,31 @@ See:
 - `submission/BOB-USAGE.md`
 - `product/BOB-NATIVE-INTEGRATION.md`
 - `evidence/bob-sessions/README.md`
+
+## Real pull-request Semantic CI
+
+COLLIDER is not only an interactive demo. The repository ships a real GitHub
+pull-request gate in `.github/workflows/semantic-ci.yml`.
+
+For every registered semantic concept changed by a PR, the gate compares the
+new value against explicit source authority and committed decision memory:
+
+```text
+change conforms to source/canon
+→ MERGE_ALLOWED
+
+change violates source/canon
+→ MERGE_BLOCKED / AGENT_DRIFT
+
+change creates disagreement where source is silent
+→ DECISION_REQUIRED / SPEC_GAP
+```
+
+The action posts the verdict directly on the PR, uploads a machine-readable
+receipt, and blocks the merge for `MERGE_BLOCKED` or `DECISION_REQUIRED`.
+It also reports the conventional workstream-test result beside the semantic
+verdict so judges can see when ordinary tests stay green while Semantic CI
+still requires a decision.
 
 ## Public runtime
 
@@ -196,7 +226,7 @@ npx tsc --noEmit
 Last full recorded verification before submission packaging:
 
 ```text
-255 passed
+267 passed
 123 subtests passed
 TypeScript: clean
 ```
