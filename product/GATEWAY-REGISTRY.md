@@ -24,7 +24,7 @@ Every registered gateway receives an explicit status. Nothing is silently forgot
 | Public Runtime / Live Proof | ACTIVE | Cloudflare ACTIVE runtime, DECISION_REQUIRED, 2→0 compile, SEMANTICALLY_READY, MERGE_BLOCKED/restore, and KEEP UNKNOWN proven. Session isolation + mobile smoke remain. |
 | Deterministic Demo | ACTIVE | Main path and abstention path are repeatable; final deterministic capture still requires session-isolation/mobile closure. |
 | Judge Performance Assurance | PENDING | Run after final public-runtime closure and before video/submission lock. |
-| Pre-Launch / Ship Assurance | ACTIVE | Real production runtime verified; remaining relevant checks include session isolation, mobile/responsive, accessibility/security/observability sanity, rollback/recovery, and final critical-path receipt. |
+| Pre-Launch / Ship Assurance | ACTIVE | product/PRE-LAUNCH-SHIP-ASSURANCE.md — production core path proven; session isolation, mobile, headers/CSP, runtime binding, rollback and final receipt remain. |
 | Submission Integrity | PENDING | Final copy/video/slides must reflect exact proven truth boundary. |
 | Final Snapshot / CURRENT / HANDOVER | ACTIVE | Canonical state is being reconciled now; final snapshot required after remaining gates. |
 | x402 | N/A | No payment rail. |
