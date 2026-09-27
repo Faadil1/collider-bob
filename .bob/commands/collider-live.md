@@ -8,8 +8,18 @@ Switch to the `collider-semantic-ci` custom mode and activate the
 Run the skill's **Live Bob protocol** using `$1` as the run id.
 
 Requirements:
-- spawn API, Ledger, and Notifications as independent Bob subagents;
-- do not disclose sibling interpretations before each subagent returns;
+- before spawning probes for `customer_identity`, quarantine
+  `.bob/rules/collider-decision-memory.md` into
+  `.collider/bob-live/$1/quarantine/`, record its SHA-256, and confirm the rule is
+  absent from `.bob/rules/`; this prevents the pre-existing PRESEEDED canon from
+  contaminating the ambiguity probe;
+- spawn API, Ledger, and Notifications as independent Bob subagents only after that
+  quarantine is active;
+- keep `fork_context: false` and do not disclose sibling interpretations or the
+  parent agent's remembered canonical value before each subagent returns;
+- reject/rerun the probe if any subagent cites the quarantined decision-memory rule;
+- after all three subagents return, restore the rule byte-for-byte and verify its
+  SHA-256 before running DETECT;
 - record the real parent Bob session reference and each real task-summary reference;
 - save only genuine LIVE_BOB interpretation objects under
   `.collider/bob-live/$1/interpretations/`;
