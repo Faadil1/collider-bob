@@ -111,6 +111,12 @@ truth_boundary:
     - session isolation, mobile and security headers were verified
     - exact runtime-to-commit binding was captured
 
+github_pr_semantic_ci:
+  status: PROVEN
+  receipt: evidence/runtime/GITHUB-SEMANTIC-CI-THREE-VERDICT-2026-09-27.md
+  verdicts: [MERGE_ALLOWED, MERGE_BLOCKED, DECISION_REQUIRED]
+  signature_proof: "30 conventional workstream tests pass; COLLIDER returns DECISION_REQUIRED"
+
 bob_native_integration:
   mechanism_status: SHIPPED_AND_CI_TESTED
   custom_mode: .bob/custom_modes.yaml
