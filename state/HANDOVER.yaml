@@ -11,7 +11,7 @@ north_star:
   signature_moment: "37/37 tests pass; COLLIDER returns DECISION_REQUIRED."
 
 current_stage:
-  status: PRE_FINAL_UIUX_REDESIGN_WITH_CLAUDE
+  status: UIUX_REDESIGN_IMPLEMENTED_PENDING_REVIEW
   concept_lock: LOCKED_AFTER_SECOND_CREATIVE_DEPTH_PASS
   demo_lock: EARNED
   submission_status: FINAL_PACKAGING
@@ -132,8 +132,8 @@ bob_native_integration:
   live_session_execution: OBSERVED
 
 blocking_or_pending:
-  - Claude UI/UX redesign pass on demo-ui
-  - post-redesign visual/responsive/reduced-motion validation
+  - review + merge design/claude-uiux-pass (redesign implemented and locally validated)
+  - observe the redesigned UI on the public runtime after deploy
   - archive selected Bob screenshots + hashes after UI lock
   - final slides and cover
   - final <=3 minute video
@@ -141,10 +141,8 @@ blocking_or_pending:
   - final snapshot
 
 next_exact_action: >
-  Execute the pre-final Claude UI/UX redesign using product/CLAUDE-UIUX-HANDOFF-2026-09-27.md. Do not reopen product
-  semantics or Bob proof. Improve only the judge-facing visual system and interaction presentation, then rerun
-  visual/responsive/reduced-motion checks. Only after the UI is locked should screenshot archival, slides, cover and
-  final video packaging proceed.
+  Review design/claude-uiux-pass (product/UIUX-COLLISION-CHAMBER-2026-09-27.md). After merge and deploy, run the
+  public flow once on desktop and phone, then archive screenshots and proceed to slides, cover and final video.
 
 fresh_agent_replay_attempt_02:
   status: REPLAY_PASS

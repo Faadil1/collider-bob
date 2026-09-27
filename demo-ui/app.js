@@ -298,6 +298,7 @@ function activeLabel() {
 
 function renderChrome() {
   document.body.dataset.mode = mode;
+  document.body.dataset.screen = active.screen;
   if (mode === "ACTIVE" && !server) {
     $("truth-badge").textContent = serverChecked ? "ACTIVE MODE UNAVAILABLE" : "ACTIVE MODE · CONNECTING…";
   } else {
@@ -405,13 +406,27 @@ function renderScreens() {
   renderGuard();
 }
 
+// Replace markup only when it changed, so running reveal animations are not
+// restarted by unrelated re-renders.
+function html(el, markup) {
+  if (el.dataset.rendered !== markup) {
+    el.innerHTML = markup;
+    el.dataset.rendered = markup;
+  }
+}
+
+// Values shown in more than one place (desktop and mobile chamber).
+function bind(key, value) {
+  document.querySelectorAll(`[data-bind="${key}"]`).forEach((el) => { el.textContent = value; });
+}
+
 function renderDetect() {
   const g = server?.gate;
   $("d-tests").textContent = data.baseline.testsPassed;
   $("d-suites").textContent = `${data.baseline.suitesGreen}/3`;
   $("d-conflicts").textContent = g ? g.integration.conflict_count : "—";
-  $("d-api").textContent = g ? g.facts.api_customer_identity_field : "—";
-  $("d-ledger").textContent = g ? g.facts.ledger_customer_identity_field : "—";
+  bind("api-identity", g ? g.facts.api_customer_identity_field : "—");
+  bind("ledger-identity", g ? g.facts.ledger_customer_identity_field : "—");
   $("d-status").textContent = g
     ? `${g.integration.status} · GATE ${g.verdict}`
     : serverChecked ? "no live gate" : "checking local gate…";
@@ -487,10 +502,11 @@ function renderCompile() {
   const shown = d ? active.compileRevealed : 0;
   const items = d ? compileItems(d) : CHECK_LABELS.map((l) => [l, null, ""]);
 
-  $("checklist").innerHTML = items.map(([label, ok, detail], i) => {
-    const st = i < shown ? (ok ? "done" : "failed") : (i === shown ? "running" : "pending");
-    return `<li data-status="${st}"><i></i><b>${esc(label)}</b><small>${esc(i < shown ? detail : "")}</small></li>`;
-  }).join("");
+  $("checklist").dataset.shown = String(shown);
+  html($("checklist"), items.map(([label, ok, detail], i) => {
+    const st = i < shown ? (ok ? "done" : "failed") : (i === shown && d ? "running" : "pending");
+    return `<li data-status="${st}" data-step="${i + 1}"><i></i><b>${esc(label)}</b><small>${esc(i < shown ? detail : "")}</small></li>`;
+  }).join(""));
 
   const done = compileComplete();
   const ready = done && d.gate_after.verdict === "SEMANTICALLY_READY";
@@ -499,7 +515,8 @@ function renderCompile() {
   if (done) {
     const m = d.manifest;
     const v = d.memory.verification;
-    $("r-number").textContent = `${m.integration_conflicts_before} → ${m.integration_conflicts_after}`;
+    html($("r-number"),
+      `<span class="rn-from">${esc(m.integration_conflicts_before)}</span><i>→</i><span class="rn-to">${esc(m.integration_conflicts_after)}</span>`);
     $("r-verdict").textContent = d.gate_after.verdict.replace("_", " ");
     $("r-tests").textContent =
       v.tests_passed === null ? "verification not run" : `${v.tests_passed} passed · ${v.tests_failed} failed`;
@@ -513,22 +530,23 @@ function renderCompile() {
     $("m-protected").textContent = ready
       ? `protected for ${mem.affected_dependents.join(", ")} · ${mem.regression_artifact_ref}`
       : "not protected: verification did not pass";
-    $("ws-mini").innerHTML = m.workstreams.map((w) =>
-      `<li data-changed="${w.changed}"><b>${esc(w.workstream)}</b><span>${w.changed ? "CHANGED" : "UNCHANGED"}</span></li>`
-    ).join("");
+    // The canonical trace reaches only the workstreams the decision repaired.
+    html($("ws-mini"), m.workstreams.map((w) =>
+      `<li data-changed="${w.changed}" data-ws="${esc(w.workstream)}"><b>${esc(w.workstream)}</b><i aria-hidden="true"></i><span>${w.changed ? "CANON APPLIED" : "UNTOUCHED"}</span></li>`
+    ).join(""));
   } else {
-    $("r-number").textContent = "2 → ·";
+    html($("r-number"), `<span class="rn-from">2</span><i>→</i><span class="rn-to">·</span>`);
     $("r-verdict").textContent = d ? "VERIFYING…" : "COMPILING IN ISOLATED WORKSPACE…";
     $("r-tests").innerHTML = "&nbsp;";
     $("m-check").textContent = "";
     $("m-value").textContent = "—";
     $("m-source").innerHTML = "&nbsp;";
     $("m-protected").innerHTML = "&nbsp;";
-    $("ws-mini").innerHTML = "";
+    html($("ws-mini"), "");
   }
   $("c-eyebrow").textContent = active.error && active.screen === "compile"
     ? active.error
-    : "03–06 · COMPILE · PATCH · VERIFY · REMEMBER";
+    : "COMPILE · PATCH · VERIFY · REMEMBER — one human answer becomes durable system state";
 }
 
 // Changed source lines of a unified diff, without the file headers.
@@ -547,8 +565,8 @@ function renderPrList() {
     const status = revealing ? "judging…" : r ? verdictText(r.guard_verdict) : "not yet judged";
     const verdict = revealing ? "RUNNING" : r ? r.guard_verdict : "NONE";
     return `<li data-verdict="${esc(verdict)}" data-current="${active.guardProbe === c.id}">` +
-      `<button type="button" data-probe="${esc(c.id)}" ${!ready || active.busy ? "disabled" : ""}>` +
-      `<b>${String.fromCharCode(65 + i)}</b><span>${esc(c.title)}</span><small>${esc(status)}</small>` +
+      `<button type="button" data-probe="${esc(c.id)}" aria-pressed="${active.guardProbe === c.id}" ${!ready || active.busy ? "disabled" : ""}>` +
+      `<b>${String.fromCharCode(65 + i)}</b><span>${esc(c.title)}</span><code>${esc(c.file)}</code><small>${esc(status)}</small>` +
       `</button></li>`;
   }).join("");
   $("pr-list").querySelectorAll("button").forEach((b) => {
@@ -559,12 +577,10 @@ function renderPrList() {
 function renderGuard() {
   const g = active.guard;
   const phase = g ? active.guardPhase : 0;
-  const panel = $("phase-panel");
-  panel.dataset.phase = String(phase);
-  panel.dataset.verdict = g ? g.guard_verdict : "NONE";
-  document.querySelectorAll("#phase-panel .phase").forEach((el) => {
-    el.classList.toggle("shown", Number(el.dataset.p) === phase);
-  });
+  const court = $("phase-panel");
+  court.dataset.phase = String(phase);
+  court.dataset.verdict = g ? g.guard_verdict : "NONE";
+  court.dataset.running = String(active.guardRunning);
 
   const mem = active.decision?.memory;
   $("p-protected").textContent = mem ? `${mem.concept} = ${mem.canonical_value}` : "—";
@@ -572,29 +588,30 @@ function renderGuard() {
 
   const change = FUTURE_CHANGES.find((c) => c.id === active.guardProbe);
   $("p-idle-title").textContent = active.guardRunning
-    ? "JUDGING IN ISOLATED WORKSPACE…"
+    ? "JUDGING IN AN ISOLATED WORKSPACE…"
     : active.error && active.screen === "guard" ? active.error : "PICK A FUTURE AGENT CHANGE";
   $("p-idle-text").textContent = active.guardRunning && change
-    ? `${change.title} · ${change.file} — applying the change, running the gate with and without decision memory, running every test, restoring.`
-    : "Each change is applied to this session’s compiled workspace, judged by the gate with and without decision memory, then restored byte for byte.";
-  if (!g) return;
+    ? `${change.title} · ${change.file}. Applying the change, running every test, running the gate with and without decision memory, then restoring.`
+    : "Each change is applied to this session’s compiled workspace, judged with and without decision memory, then restored byte for byte. These are controlled future changes, not autonomous agents.";
+  if (!g) {
+    $("p-attempt-kicker").textContent = change ? `FUTURE CHANGE · ${change.title}` : "FUTURE CHANGE";
+    $("p-inline").textContent = change ? change.file : "";
+    $("p-attempt").innerHTML = "";
+    $("p-attempt-file").textContent = "";
+    return;
+  }
 
   const v = g.guard_verdict;
   const suite = g.verification_during_probe.full_suite;
   const ca = g.verification_after_restore.regression_contract;
   const cf = g.counterfactual_without_memory;
   const lines = changedLines(g.probe_diff);
+  const total = suite.passed_count + suite.failed_count;
 
-  $("p-attempt-kicker").textContent = `A · FUTURE AGENT CHANGE · ${g.title}`;
+  $("p-attempt-kicker").textContent = `FUTURE CHANGE · ${g.title}`;
   $("p-attempt").innerHTML = renderDiff(lines.join("\n"));
   $("p-attempt-file").textContent =
     `${g.affected_file} · sha ${short(g.sha_before_probe)} → ${short(g.sha_during_probe)}`;
-
-  $("p-verdict-kicker").textContent = {
-    MERGE_BLOCKED: "B · CANON VIOLATION",
-    DECISION_REQUIRED: "B · NEW SPEC GAP · SOURCE SILENT",
-    MERGE_ALLOWED: "B · NO SEMANTIC CONCEPT CHANGED"
-  }[v] || "B · VERDICT";
   // An undecided concept has no canonical value: show what the other
   // workstreams still assume.
   const assumed = g.violation?.candidates
@@ -603,40 +620,49 @@ function renderGuard() {
   $("p-inline").textContent = g.concept
     ? `${g.concept}: ${g.canonical_value ?? `${assumed} (assumed)`} → ${g.attempted_value}`
     : `${g.affected_workstream}: wording only`;
+
+  // Conventional CI: exactly what the test suite said about the changed tree.
+  $("p-ci-count").textContent = `${suite.passed_count}/${total}`;
+  $("p-ci-state").textContent = suite.failed_count ? `${suite.failed_count} FAILED` : "ALL TESTS PASS";
+  court.dataset.tests = suite.failed_count ? "red" : "green";
+
+  $("p-verdict-kicker").textContent = {
+    MERGE_BLOCKED: "SEMANTIC CI · CANON VIOLATION",
+    DECISION_REQUIRED: "SEMANTIC CI · NEW SPEC_GAP · SOURCE SILENT",
+    MERGE_ALLOWED: "SEMANTIC CI · NO CONCEPT CHANGED"
+  }[v] || "SEMANTIC CI";
   $("p-verdict").textContent = verdictText(v);
   $("p-rule").textContent = v === "MERGE_BLOCKED"
     ? `${g.concept} must remain ${g.decision_memory_value}`
     : v === "DECISION_REQUIRED"
       ? (g.surfaced_question || "The workstreams now disagree where the source is silent.")
       : `Decision memory still holds: ${g.decision_memory_concept} = ${g.decision_memory_value}`;
-  $("p-cf").textContent =
-    `Same diff without decision memory → ${cf.verdict}` +
-    (g.memory_changed_verdict ? " · decision memory changed the outcome" : " · no decision covers this yet");
+  $("p-cf").innerHTML =
+    `<b>Same diff without decision memory →</b> ${esc(cf.verdict)}` +
+    (g.memory_changed_verdict ? " <em>· memory changed the verdict</em>" : " <em>· no decision covers this yet</em>");
   $("p-violation").innerHTML = dl([
     ["finding", g.violation ? `${g.violation.kind} · ${g.violation.authority}` : "none",
       v === "MERGE_BLOCKED" ? "danger" : v === "DECISION_REQUIRED" ? "unknown" : ""],
-    ["all tests", `${suite.passed_count} passed · ${suite.failed_count} failed`, suite.failed_count ? "danger" : ""],
     ["gate", `${g.gate_during_probe} · without memory ${cf.verdict}`]
   ]);
 
   $("p-restore").innerHTML = dl([
-    ["restoration applied", String(g.restoration_applied)],
-    ["sha before probe", short(g.sha_before_probe)],
+    ["sha before", short(g.sha_before_probe)],
     ["sha after restore", short(g.sha_after_restore)],
-    ["exact bytes restored", String(g.restored_exact_bytes)]
+    ["exact bytes", String(g.restored_exact_bytes)]
   ]);
 
   const tick = (ok, text) => `<li data-ok="${ok}">${ok ? "✓" : "✗"} ${esc(text)}</li>`;
-  $("p-complete-kicker").textContent = `D · ${g.title}`;
+  $("p-complete-kicker").textContent = phase >= 4 ? "RESTORED" : phase === 3 ? "RESTORING…" : "RESTORE";
   $("p-complete-verdict").textContent = verdictText(v);
   $("p-complete-verdict").dataset.verdict = v;
   $("p-complete").innerHTML = [
     ...(g.as_expected === false ? [tick(false, `expected ${verdictText(g.expected_guard_verdict)}`)] : []),
-    tick(g.restoration_verified && g.restored_exact_bytes, "WORKSPACE RESTORED · EXACT BYTES"),
-    tick(g.gate_after_restore === "SEMANTICALLY_READY", g.gate_after_restore === "SEMANTICALLY_READY" ? "SEMANTICALLY READY AGAIN" : g.gate_after_restore),
-    tick(ca.passed && ca.failed_count === 0, `regression contract ${ca.passed_count} / ${ca.passed_count + ca.failed_count}`)
+    tick(g.restoration_verified && g.restored_exact_bytes, "exact bytes restored"),
+    tick(g.gate_after_restore === "SEMANTICALLY_READY", g.gate_after_restore === "SEMANTICALLY_READY" ? "semantically ready again" : g.gate_after_restore),
+    tick(ca.passed && ca.failed_count === 0, `contract ${ca.passed_count}/${ca.passed_count + ca.failed_count}`)
   ].join("");
-  $("p-receipt").textContent = `${verdictText(v)} · receipt ${g.receipt_path}`;
+  $("p-receipt").textContent = `receipt ${g.receipt_path}`;
 }
 
 // ---------------------------------------------------------------------------
@@ -730,7 +756,14 @@ function renderDrawer() {
           ["input commit", d ? d.manifest.input_commit : a ? a.input_commit : "—"],
           ["receipts", d ? d.receipt_dir : a ? a.receipt_dir : "—"]
         ])}</dl>`) +
-        section("fresh-agent replay", `<dl class="facts">${dl([
+        section("separate LIVE_BOB evidence run — not this session", `<dl class="facts">${dl([
+          ["run", "live-bob-2026-09-27-01 · three independent Bob agents · contamination CLEAN"],
+          ["observed", "customer_identity → SPEC_GAP / UNKNOWN before any human decision"],
+          ["replay attempt 01", "REPLAY_FAIL · 5 passed / 2 failed (preserved)", "danger"],
+          ["replay attempt 02", "REPLAY_PASS · 7 / 7 · targeted-repair replay under a general minimal-change constraint"],
+          ["this demo's interpretations", "PRESEEDED — not generated live by Bob", "unknown"]
+        ])}</dl><p class="muted">evidence/bob-sessions/ · cited, not re-executed by this page.</p>`) +
+        section("fresh-agent replay · this session", `<dl class="facts">${dl([
           ["status", "NOT_EXECUTED", "unknown"],
           ["runtime state", "PENDING_LIVE_BOB", "unknown"],
           ["reason", r ? r.reason : "Replay requires an independent live agent session; none exists in this environment."],
@@ -922,12 +955,17 @@ function renderExplorer() {
           ["canonical evidence modified", String(R.manifest.truth_boundary.canonical_evidence_modified)]
         ])}</dl>`)}
         ${section("not claimed", `<dl class="facts">${dl([
-          ["LIVE_BOB generation", "NOT CLAIMED", "unknown"],
-          ["fresh-agent replay", `${R.replay.status} / ${R.replay.runtime_state}`, "unknown"],
+          ["LIVE_BOB generation (these receipts)", "NOT CLAIMED", "unknown"],
+          ["fresh-agent replay (these receipts)", `${R.replay.status} / ${R.replay.runtime_state}`, "unknown"],
           ["wall-clock improvement", R.manifest.truth_boundary.wall_clock_improvement, "unknown"],
           ["percentage improvement", R.manifest.truth_boundary.percentage_improvement, "unknown"],
           ["browser execution", "none: this explorer only reads committed receipts", "unknown"]
-        ])}</dl>`)}`;
+        ])}</dl>`)}
+        ${section("separate observed evidence — not this receipt", `<dl class="facts">${dl([
+          ["LIVE_BOB run", "live-bob-2026-09-27-01 · three independent Bob agents · SPEC_GAP / UNKNOWN observed"],
+          ["replay attempt 01", "REPLAY_FAIL · 5 / 7 (preserved)", "danger"],
+          ["replay attempt 02", "REPLAY_PASS · 7 / 7 · targeted-repair replay, not an unconstrained first try"]
+        ])}</dl><p class="muted">evidence/bob-sessions/ — the committed receipts above remain LOCAL / PRESEEDED.</p>`)}`;
       break;
     default:
       html = "";
