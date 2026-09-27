@@ -1,5 +1,5 @@
 project: collider-bob
-handover_version: 14
+handover_version: 15
 date: 2026-09-27
 source_of_truth: state/CURRENT.yaml
 branch: main
@@ -11,10 +11,10 @@ north_star:
   signature_moment: "37/37 tests pass; COLLIDER returns DECISION_REQUIRED."
 
 current_stage:
-  status: UIUX_MERGED_FINAL_PACKAGING
+  status: POST_SUBMISSION_DOCUMENTATION_AND_WALKTHROUGH_REFRESH
   concept_lock: LOCKED_AFTER_SECOND_CREATIVE_DEPTH_PASS
   demo_lock: EARNED
-  submission_status: FINAL_PACKAGING
+  submission_status: SUBMITTED
 
 canonical_decisions:
   - Bob-native integration is now a real product surface, not a README claim: custom mode, skill, isolated-subagent live protocol, provenance validator, and decision-memory rule export.
@@ -50,8 +50,9 @@ public_runtime:
   session_isolation: PROVEN
   real_device_mobile: PROVEN
   live_csp_headers: PROVEN
-  bound_worker_version: 364ad4fd-7eb3-4918-aef8-f9ad049ee20a
-  bound_git_commit: e185e84d9d1cf00dfa1700b6bd2439e57887a291
+  bound_worker_version: 453a881f-3b9a-4065-b65b-25b3b2ffa369
+  bound_git_commit: a909a682f1b033e41b1e1ef312dffbe24005af67
+  post_uiux_public_verification: PROVEN
 
 judge_assurance:
   status: PROVEN
@@ -132,24 +133,21 @@ bob_native_integration:
   live_session_execution: OBSERVED
 
 blocking_or_pending:
-  - verify merged UI on public Cloudflare runtime after Workers Build deployment
-  - archive selected Bob screenshots + hashes
-  - final slides
-  - submission cover and screenshot package already prepared locally
-  - final <=3 minute video
-  - Submission Integrity
-  - final snapshot
+  - post-submission README/documentation clarity pass
+  - clearer post-submission walkthrough video
+  - optional archive of selected Bob screenshots + hashes
+  - no new product functionality
 
 next_exact_action: >
-  UI/UX is merged at main commit 91795b67dc8dfeec51e485ec7cea8ada0bace60c. Verify the automatic Cloudflare
-  Workers Build on the public origin, capture the new worker version / commit binding, then use the prepared cover
-  and screenshot package for the Lablab submission. Replace captures only if the deployed UI differs. Then finish
-  slides, final <=3 minute video, Submission Integrity, and final snapshot.
+  Preserve the submitted build at archive/submission-deadline-2026-09-27 (a909a682...). Keep post-deadline work
+  limited to documentation, evidence clarity and presentation media. Replace the rushed walkthrough with a clearer
+  post-submission video of the same deployed build; do not reopen product scope.
 
 uiux_final:
   status: MERGED
   main_commit: 91795b67dc8dfeec51e485ec7cea8ada0bace60c
-  deployment: PENDING_PUBLIC_VERIFICATION
+  deployment: VERIFIED_PUBLIC
+  worker_version: 453a881f-3b9a-4065-b65b-25b3b2ffa369
   submission_assets: PREPARED_LOCAL
 
 fresh_agent_replay_attempt_02:
