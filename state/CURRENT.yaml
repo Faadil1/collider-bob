@@ -1,6 +1,6 @@
 project: collider-bob
 date: 2026-09-27
-stage: ESCALATED_BUILD_PENDING_LIVE_VERIFICATION
+stage: ESCALATED_BUILD_LIVE_THREE_VERDICT_PROVEN
 branch: claude/sharp-planck-vfqz40
 
 north_star:
@@ -77,9 +77,8 @@ comparative_evidence:
     wall_clock_improvement: NOT_MEASURED
     percentage_improvement: NOT_CLAIMED
 
-
 semantic_ci_loop:
-  status: PROVEN_LOCAL_AND_CONTAINER_IMAGE
+  status: PROVEN_PUBLIC_THREE_VERDICT
   gate:
     implementation: collider/gate.py + collider/concepts.py
     concepts: [field_name, customer_identity, money_representation]
@@ -97,29 +96,40 @@ semantic_ci_loop:
     conflicts_remaining: 2
     canon_written: false
   guard:
-    status: PROVEN_LOCAL_AND_CONTAINER_IMAGE
+    status: PROVEN_PUBLIC
     probes:
       IDENTITY_REVERT: {tests: "33 passed / 4 failed", with_memory: MERGE_BLOCKED, without_memory: DECISION_REQUIRED}
       COMPATIBLE_CHANGE: {tests: "37 passed / 0 failed", with_memory: MERGE_ALLOWED, without_memory: DECISION_REQUIRED}
       MONEY_UNIT_DRIFT: {tests: "37 passed / 0 failed", with_memory: DECISION_REQUIRED, without_memory: DECISION_REQUIRED}
     restoration: exact_bytes_every_probe
     tests: tests/test_guard_suite.py
+    public_receipt: evidence/runtime/PUBLIC-THREE-VERDICT-GUARD-2026-09-27.md
 
 public_runtime:
   status: ACTIVE
   url: https://collider-semantic-ci.faadil-casecraft.workers.dev/
   topology: Cloudflare Worker + Static Assets + per-browser-session Container
-  last_live_verified_code_commit: bdfd9d35054ddefe8e48c7e67f525f5d3d55f5e7
-  last_live_cloudflare_version_observed: f946793b
-  escalated_build_live: NOT_YET_OBSERVED
-  reason_not_observed: build environment egress policy denies the workers.dev host
+  escalated_build_live: OBSERVED
+  escalated_build_public_receipt: evidence/runtime/PUBLIC-THREE-VERDICT-GUARD-2026-09-27.md
+  exact_commit_binding: PENDING
+  reason_binding_pending: x-collider-worker-version has not yet been captured and matched to the Workers Builds commit
   provenance:
     execution_environment: CLOUDFLARE_CONTAINER
     interpretation_source: PRESEEDED
     human_decision_source: INTERACTIVE_WEB
+  observed_on_public_escalated_build:
+    - shared assumption money_representation = integer_cents shown as INFERRED
+    - IDENTITY_REVERT -> MERGE_BLOCKED
+    - same diff without memory -> DECISION_REQUIRED
+    - COMPATIBLE_CHANGE -> MERGE_ALLOWED
+    - same diff without memory -> DECISION_REQUIRED
+    - MONEY_UNIT_DRIFT -> DECISION_REQUIRED while tests remain green
+    - exact workspace restore after every guard probe
+    - SEMANTICALLY_READY_AGAIN after restore
+    - regression contract 7/7
+    - proof drawer code diffs and restoration hashes visible
   runtime_commit_binding_mechanism: x-collider-worker-version header on every /api/* response (version_metadata binding)
   remaining_before_PROVEN:
-    - three guard verdicts observed on the public URL
     - x-collider-worker-version read live and matched to its Workers Builds commit
     - two separate browser sessions each start at DECISION_REQUIRED
     - mobile smoke on the public URL
@@ -131,6 +141,7 @@ verification:
   typecheck: npx tsc --noEmit (clean)
   browser: 1440x900, 1366x768 (reduced motion), 390x844 mobile; full flow incl. KEEP UNKNOWN and EVIDENCE MODE; zero console/CSP errors; no document overflow
   container_image: real Dockerfile runtime (sandbox CA variant for pip only) ran state, decide, three probes, bad probe 400, KEEP UNKNOWN
+  public_guard_video: three verdicts + exact restoration + proof drawer observed
 
 gateway_status:
   "Real Negative Event Gate": PROVEN
@@ -168,7 +179,7 @@ submission:
   status: NOT_EARNED
   demo_lock: NOT_EARNED
   pending:
-    - live verification of the escalated build (see public_runtime.remaining_before_PROVEN)
+    - close remaining public runtime checks (binding, two-session isolation, mobile, live CSP)
     - external Real-User / Outsider Break Test
     - Judge Performance Assurance
     - refresh submission/ copy to the three-verdict Semantic CI truth
@@ -181,11 +192,11 @@ submission:
 do_not_redo:
   - technical reality check
   - baseline-vs-COLLIDER comparative evidence
-  - resolved-path, KEEP_UNKNOWN and guard proofs (now covered by tests/test_guard_suite.py)
+  - resolved-path and KEEP_UNKNOWN proofs
+  - public three-verdict guard proof
   - creative depth passes one and two
 
 next_exact_action: >
-  After Workers Builds deploys the pushed head of claude/sharp-planck-vfqz40, open the public URL in
-  two separate browser sessions, run all three future agent changes in one, confirm the other starts
-  at DECISION_REQUIRED, and record the x-collider-worker-version shown in PROOF -> PROVENANCE together
-  with the commit Workers Builds lists for that version.
+  Keep one resolved public session open. Open a second independent InPrivate session and verify it
+  starts at DECISION_REQUIRED with 2 conflicts. Then run the public page at a mobile viewport and
+  capture PROOF -> PROVENANCE showing x-collider-worker-version so it can be matched to Workers Builds.
