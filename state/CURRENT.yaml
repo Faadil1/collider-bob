@@ -159,11 +159,13 @@ gateway_registry:
     creative_depth_and_product_ambition: PROVEN
     distinctiveness_escalation: PROVEN
     concept_compression_and_validation: ACTIVE
+    concept_compression_artifact: product/CONCEPT-COMPRESSION-VALIDATION.md
     runtime_commit_binding: ACTIVE
     public_runtime_live_proof: ACTIVE
     deterministic_demo: ACTIVE
     judge_performance_assurance: PENDING
     pre_launch_ship_assurance: ACTIVE
+    pre_launch_ship_assurance_artifact: product/PRE-LAUNCH-SHIP-ASSURANCE.md
     submission_integrity: PENDING
     final_snapshot_handover: ACTIVE
 
@@ -210,5 +212,8 @@ next_exact_actions:
   - run mobile public-runtime smoke
   - record runtime-version-to-Git-SHA binding receipt
   - complete Concept Compression real-user break validation
-  - run Pre-Launch / Ship Assurance checklist on production
+  - inspect security headers/CSP and document disposition
+  - document rollback/recovery path
+  - complete Concept Compression external break validation
+  - close Pre-Launch / Ship Assurance on production
   - run Judge Performance Assurance
