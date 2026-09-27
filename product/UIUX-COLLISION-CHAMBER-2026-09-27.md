@@ -61,3 +61,29 @@ each end state immediately (guard jumps to the restored frame).
 - `npx tsc --noEmit`: clean.
 
 Not yet observed on the public Cloudflare runtime; that requires deploying this branch.
+
+## Polish pass (final)
+
+Reduction, not redesign. Same chamber, same colours, same motion.
+
+- DETECT names its two collisions exactly: `customer_identity` (email vs
+  account_id) and `field_name` (refund_amount vs credit_amount). The later
+  money-unit case in GUARD stays a separate concept (`money_representation`).
+- Removed decoration with no information job: coordinate-grid background,
+  registration corners, SVG grid ticks, CH·0x chips, BEAMLINE label,
+  LOCAL GREEN ≠ GLOBAL AGREEMENT box, hatching on UNKNOWN, the idle bench and
+  DECISION_REQUIRED, the provenance lamp, the dashed replay box, boxes around
+  secondary findings, the change card, 2 → 0 and the restore band.
+- Rail replay block reduced to "Bob replay evidence: 01 FAIL 5/7, 02 TARGETED
+  PASS 7/7". The full provenance story stays in Proof and Evidence.
+- Prose moved to Archivo at normal width, sentence case. Mono is kept for
+  identifiers, values, hashes and machine states. Uppercase is kept for
+  machine states (UNKNOWN, SPEC_GAP, verdicts, CONVENTIONAL CI / SEMANTIC CI).
+- Copy rewritten in plain sentences; dot separators, em dashes and decorative
+  arrows removed. Arrows remain only for real transitions (repairs, 2 → 0,
+  sha before → after, "checked against ↓").
+- COMPILE: 2 → 0 now carries the right column at full scale; lanes and the
+  sealed memory sit under it without extra boxes.
+- DECIDE: the decision panel owns the choice on desktop (the action bar no
+  longer repeats it); on phones the panel keeps only the question and the
+  sticky bar carries Use account_id and Keep UNKNOWN (chartreuse, equal weight).

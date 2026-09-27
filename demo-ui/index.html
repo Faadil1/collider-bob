@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="color-scheme" content="light">
-  <title>COLLIDER — Semantic CI</title>
+  <title>COLLIDER: Semantic CI</title>
   <meta
     name="description"
-    content="Semantic CI for agentic software development: when AI agents disagree, COLLIDER finds the decision the specification forgot to make."
+    content="Semantic CI for agentic software development. When AI agents disagree, COLLIDER finds the decision the specification forgot to make."
   >
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
   <link rel="preload" href="./fonts/archivo-wdth.woff2" as="font" type="font/woff2" crossorigin>
@@ -17,11 +17,8 @@
 <body data-mode="ACTIVE" data-screen="detect">
   <div class="app" id="app">
 
-    <!-- ============================================================ -->
-    <!-- TOP BAR — wordmark · mode · truth label · proof               -->
-    <!-- ============================================================ -->
     <header class="topbar">
-      <div class="brand" aria-label="COLLIDER — Semantic CI">
+      <div class="brand" aria-label="COLLIDER, Semantic CI">
         <svg class="brand-mark" viewBox="0 0 40 40" aria-hidden="true">
           <path class="bm-a" d="M2 8 L20 20" />
           <path class="bm-b" d="M2 32 L20 20" />
@@ -29,34 +26,28 @@
           <circle cx="20" cy="20" r="4.5" />
         </svg>
         <span class="brand-word">COLLIDER</span>
-        <small>Semantic CI<br>for agentic software</small>
+        <small>Semantic CI for agentic software development</small>
       </div>
 
-      <div class="mode-switch" role="radiogroup" aria-label="Demo mode">
-        <button type="button" role="radio" data-mode="ACTIVE" aria-checked="true">ACTIVE</button>
-        <button type="button" role="radio" data-mode="EVIDENCE" aria-checked="false">EVIDENCE</button>
+      <div class="mode-switch" role="radiogroup" aria-label="Mode">
+        <button type="button" role="radio" data-mode="ACTIVE" aria-checked="true">Active</button>
+        <button type="button" role="radio" data-mode="EVIDENCE" aria-checked="false">Evidence</button>
       </div>
 
       <span class="truth-badge" id="truth-badge">—</span>
 
-      <button type="button" class="proof-toggle" id="proof-toggle" aria-controls="drawer" aria-expanded="false">
-        <span aria-hidden="true">▤</span> PROOF
-      </button>
+      <button type="button" class="proof-toggle" id="proof-toggle" aria-controls="drawer" aria-expanded="false">Proof</button>
     </header>
 
-    <!-- Mobile-only compact progress -->
+    <!-- Mobile-only step indicator -->
     <div class="mobile-progress" id="mobile-progress" aria-hidden="true">
-      <span id="mp-label">01 / 07 · DETECT</span>
+      <span id="mp-label">1/7 DETECT</span>
       <span class="mp-dots" id="mp-dots"></span>
     </div>
 
-    <!-- ============================================================ -->
-    <!-- ACTIVE MODE — the collision chamber                           -->
-    <!-- ============================================================ -->
     <main class="workspace" id="workspace">
 
       <nav class="rail" id="rail" aria-label="Semantic CI loop">
-        <span class="rail-title">BEAMLINE</span>
         <ol>
           <li data-node="DETECT"><i>01</i><b>Detect</b><span></span></li>
           <li data-node="DECIDE"><i>02</i><b>Decide</b><span></span></li>
@@ -66,57 +57,52 @@
           <li data-node="REMEMBER"><i>06</i><b>Remember</b><span></span></li>
           <li data-node="GUARD"><i>07</i><b>Guard</b><span></span></li>
         </ol>
+        <!-- Separate Bob evidence, not this session. Details live in Proof. -->
         <div class="rail-replay" data-node="REPLAY">
-          <b>Fresh-agent replay</b>
-          <span class="rr-row"><em>this session</em> NOT EXECUTED</span>
-          <span class="rr-sep">separate LIVE_BOB evidence run</span>
-          <span class="rr-row rr-fail"><em>attempt 01</em> REPLAY_FAIL · 5/7</span>
-          <span class="rr-row rr-pass"><em>attempt 02</em> targeted-repair REPLAY_PASS · 7/7</span>
+          <b>Bob replay evidence</b>
+          <span class="rr-row rr-fail"><em>01</em> FAIL 5/7</span>
+          <span class="rr-row rr-pass"><em>02</em> TARGETED PASS 7/7</span>
         </div>
       </nav>
 
       <section class="stage" id="stage" aria-live="polite">
 
-        <!-- 01 DETECT ================================================ -->
+        <!-- DETECT =================================================== -->
         <div class="screen" data-screen="detect">
           <header class="screen-head">
-            <span class="ch-id">CH·01</span>
-            <span class="eyebrow">DETECT · failed-payment fixture · three independent workstreams</span>
+            <h1>Detect</h1>
+            <p>Three workstreams built the failed-payment brief independently.</p>
           </header>
 
           <div class="detect">
             <div class="ledger-of-green">
               <div class="log-row log-ok">
                 <strong id="d-tests">—</strong>
-                <span>local tests<br>passed</span>
+                <span>local tests passed</span>
               </div>
               <div class="log-row log-ok">
                 <strong id="d-suites">—</strong>
-                <span>workstreams<br>green</span>
+                <span>workstreams green</span>
               </div>
               <div class="log-but" aria-hidden="true"><span>but</span></div>
               <div class="log-row log-hit">
                 <strong id="d-conflicts">—</strong>
-                <span>integration<br>conflicts</span>
+                <span>integration conflicts</span>
               </div>
-              <p class="equation"><b>LOCAL GREEN</b> <i>≠</i> <b>GLOBAL AGREEMENT</b></p>
             </div>
 
-            <figure class="chamber" aria-label="API and Ledger trajectories collide twice; Notifications runs separately">
-              <!-- Desktop: trajectories run left → right into the integration wall -->
+            <figure class="chamber" aria-label="API and Ledger collide on customer_identity and on field_name. Notifications runs separately.">
+              <!-- Desktop: trajectories run left to right into integration -->
               <svg class="chamber-svg chamber-h" viewBox="0 0 780 560" role="img" aria-hidden="true">
-                <g class="grid-ticks">
-                  <path d="M40 20 V540 M200 20 V540 M360 20 V540 M520 20 V540 M680 20 V540" />
-                </g>
-                <line class="wall" x1="738" y1="16" x2="738" y2="544" />
-                <text class="wall-label" x="730" y="30">INTEGRATION</text>
+                <line class="wall" x1="738" y1="40" x2="738" y2="530" />
+                <text class="wall-label" x="730" y="30">integration</text>
 
                 <text class="lane-label api" x="0" y="112">API</text>
-                <text class="lane-local" x="0" y="132">✓ LOCAL</text>
+                <text class="lane-local" x="0" y="132">✓ local</text>
                 <text class="lane-label ledger" x="0" y="372">LEDGER</text>
-                <text class="lane-local" x="0" y="392">✓ LOCAL</text>
+                <text class="lane-local" x="0" y="392">✓ local</text>
                 <text class="lane-label notif" x="0" y="492">NOTIFICATIONS</text>
-                <text class="lane-local" x="0" y="512">✓ LOCAL</text>
+                <text class="lane-local" x="0" y="512">✓ local</text>
 
                 <path class="traj traj-api" d="M96 120 L226 120 C312 120 318 250 392 250 C454 250 468 360 510 360 C558 360 572 250 620 250 C668 250 676 158 738 158" />
                 <path class="traj traj-ledger" d="M96 380 L226 380 C312 380 318 250 392 250 C454 250 468 140 510 140 C558 140 572 250 620 250 C668 250 676 342 738 342" />
@@ -134,20 +120,20 @@
                   <circle class="hit-halo" cx="620" cy="250" r="26" />
                   <circle class="hit-core" cx="620" cy="250" r="11" />
                   <path class="hit-x" d="M614 244 L626 256 M626 244 L614 256" />
-                  <text class="hit-label" x="620" y="206">money field</text>
-                  <text class="hit-sub" x="620" y="424">refund_amount ≠ credit_amount</text>
+                  <text class="hit-label" x="620" y="206">field_name</text>
+                  <text class="hit-sub" x="620" y="424">refund_amount vs credit_amount</text>
                   <path class="hit-lead" d="M620 278 V408" />
                 </g>
-                <text class="notif-note" x="444" y="482">not a party to customer_identity</text>
+                <text class="notif-note" x="444" y="482">no customer_identity claim</text>
               </svg>
 
-              <!-- Mobile: the same trajectories, top → bottom -->
+              <!-- Mobile: the same trajectories, top to bottom -->
               <svg class="chamber-svg chamber-v" viewBox="0 0 340 420" role="img" aria-hidden="true">
                 <text class="lane-label api" x="40" y="18">API</text>
                 <text class="lane-label ledger" x="160" y="18">LEDGER</text>
                 <text class="lane-label notif" x="262" y="18">NOTIF.</text>
                 <line class="wall" x1="8" y1="404" x2="332" y2="404" />
-                <text class="wall-label wall-label-v" x="8" y="398">INTEGRATION</text>
+                <text class="wall-label wall-label-v" x="8" y="398">integration</text>
                 <path class="traj traj-api" d="M60 30 L60 70 C60 110 120 118 120 150 C120 186 176 196 176 226 C176 256 120 262 120 290 C120 322 70 330 70 400" />
                 <path class="traj traj-ledger" d="M180 30 L180 70 C180 110 120 118 120 150 C120 186 64 196 64 226 C64 256 120 262 120 290 C120 322 170 330 170 400" />
                 <path class="traj traj-notif" d="M290 30 L290 400" />
@@ -163,29 +149,27 @@
                   <circle class="hit-halo" cx="120" cy="290" r="18" />
                   <circle class="hit-core" cx="120" cy="290" r="8" />
                   <path class="hit-x" d="M115 285 L125 295 M125 285 L115 295" />
-                  <text class="hit-label hit-left" x="150" y="294">money field</text>
+                  <text class="hit-label hit-left" x="150" y="286">field_name</text>
+                  <text class="hit-sub hit-left" x="150" y="304">refund_amount vs credit_amount</text>
                 </g>
               </svg>
 
-              <figcaption class="collision-line">
-                <strong id="d-status">—</strong>
-                <span>2 collisions, both between API and Ledger. Notifications never touches customer_identity.</span>
-              </figcaption>
+              <figcaption class="collision-line" id="d-status">—</figcaption>
             </figure>
           </div>
 
           <div class="unavailable hidden" id="unavailable">
-            <strong>ACTIVE MODE UNAVAILABLE</strong>
-            <span>No action runtime answered on this origin. Start <code>python3 demo-ui/server.py</code>, or switch to EVIDENCE MODE to review committed receipts.</span>
-            <button type="button" id="to-evidence">SWITCH TO EVIDENCE MODE</button>
+            <strong>Active mode is unavailable</strong>
+            <span>No action runtime answered on this origin. Start <code>python3 demo-ui/server.py</code>, or open Evidence to review the committed receipts.</span>
+            <button type="button" id="to-evidence">Open Evidence</button>
           </div>
         </div>
 
-        <!-- 02 DECIDE ================================================ -->
+        <!-- DECIDE =================================================== -->
         <div class="screen" data-screen="decide">
           <header class="screen-head">
-            <span class="ch-id">CH·02</span>
-            <span class="eyebrow">DECIDE · the collision is judged against source authority</span>
+            <h1>Decide</h1>
+            <p>Each collision is checked against the brief.</p>
           </header>
 
           <div class="decide">
@@ -196,7 +180,7 @@
                 <div class="reading reading-source">
                   <dt>SOURCE</dt>
                   <dd><span class="silent">SILENT</span></dd>
-                  <small>“…credit the <mark>customer</mark>…” — no identity field</small>
+                  <small>The brief says “credit the <mark>customer</mark>” and names no identity field.</small>
                 </div>
               </dl>
 
@@ -206,66 +190,64 @@
               </svg>
 
               <div class="unknown-plate" role="status">
-                <span class="up-kicker"><b>SPEC_GAP</b> customer_identity · source silent</span>
+                <span class="up-kicker"><b>SPEC_GAP</b> <code>customer_identity</code></span>
                 <strong class="up-word">UNKNOWN</strong>
-                <span class="up-foot">the boundary of current authority — COLLIDER will not pick for you</span>
+                <span class="up-foot">Source authority ends here.</span>
               </div>
             </div>
 
             <div class="decision">
-              <span class="kicker kicker-hold">HUMAN DECISION REQUIRED</span>
+              <span class="kicker-hold">Human decision required</span>
               <p class="question">Which identity should be canonical?</p>
               <small class="question-full" id="g-question"></small>
 
               <div class="decision-options">
                 <button type="button" class="decision-option commit" data-choice="USE_ACCOUNT_ID">
-                  <i>OUTCOME A · COMMIT</i>
-                  <strong>USE account_id</strong>
-                  <span>write canon · patch spec · repair dependents · verify</span>
+                  <strong>Use account_id</strong>
+                  <span>Writes canon, patches the spec, repairs dependents and verifies.</span>
                 </button>
                 <button type="button" class="decision-option keep-unknown" data-choice="KEEP_UNKNOWN">
-                  <i>OUTCOME B · HOLD</i>
-                  <strong>KEEP UNKNOWN</strong>
-                  <span>a valid outcome · no canon · nothing repaired</span>
+                  <strong>Keep UNKNOWN</strong>
+                  <span>A valid outcome. No canon is written and nothing is repaired.</span>
                 </button>
               </div>
               <small class="decision-error" id="decision-error"></small>
-              <p class="decision-note">Either answer is recorded as a receipt. COLLIDER does not choose; it only refuses to invent authority.</p>
+              <p class="decision-note">COLLIDER will not choose. Either answer is recorded.</p>
             </div>
           </div>
 
           <div class="secondary-findings">
             <div class="drift-strip">
               <span class="tag tag-drift">AGENT_DRIFT</span>
-              <strong>money field name</strong>
+              <code class="strip-concept">field_name</code>
               <code id="g-drift">—</code>
-              <span class="drift-src">SOURCE EXPLICIT · repaired from source · no question</span>
+              <span class="drift-src">The brief names refund_amount. Repaired from source, no question asked.</span>
             </div>
             <div class="drift-strip assumption-strip" id="assumption-strip">
-              <span class="tag tag-inferred">SHARED ASSUMPTION</span>
-              <strong id="g-assume-label">—</strong>
+              <span class="tag tag-inferred">INFERRED</span>
+              <code class="strip-concept" id="g-assume-label">—</code>
               <code id="g-assume">—</code>
-              <span class="drift-src">SOURCE SILENT · all agree · stays INFERRED, never canon</span>
+              <span class="drift-src">Everyone assumes it. The brief never says it, so it stays inferred.</span>
             </div>
           </div>
         </div>
 
-        <!-- 02b KEEP UNKNOWN ========================================= -->
+        <!-- KEEP UNKNOWN ============================================= -->
         <div class="screen" data-screen="abstained">
           <header class="screen-head">
-            <span class="ch-id">CH·02</span>
-            <span class="eyebrow">DECIDE · KEEP UNKNOWN · correct abstention</span>
+            <h1>Decide</h1>
+            <p>UNKNOWN was kept.</p>
           </header>
 
           <div class="abstain">
             <div class="unknown-plate unknown-kept">
-              <span class="up-kicker"><b>HELD</b> customer_identity stays UNKNOWN</span>
-              <strong class="up-word">UNKNOWN KEPT</strong>
-              <span class="up-foot">no canon written · no dependent work repaired · a valid product outcome</span>
+              <span class="up-kicker"><b>SPEC_GAP</b> <code>customer_identity</code></span>
+              <strong class="up-word">UNKNOWN</strong>
+              <span class="up-foot">Kept on purpose. No canon was written and nothing was repaired.</span>
             </div>
             <div class="abstain-grid">
               <div class="verdict-block">
-                <span>SEMANTIC CI GATE</span>
+                <span>Gate</span>
                 <strong id="a-gate">—</strong>
                 <small id="a-conflicts">—</small>
               </div>
@@ -274,16 +256,16 @@
           </div>
         </div>
 
-        <!-- 03–06 COMPILE / PATCH / VERIFY / REMEMBER ================ -->
+        <!-- COMPILE / PATCH / VERIFY / REMEMBER ====================== -->
         <div class="screen" data-screen="compile">
           <header class="screen-head">
-            <span class="ch-id">CH·03–06</span>
-            <span class="eyebrow" id="c-eyebrow">COMPILE · PATCH · VERIFY · REMEMBER</span>
+            <h1>Compile the decision</h1>
+            <p id="c-eyebrow"></p>
           </header>
 
           <div class="compile">
             <div class="spine">
-              <span class="spine-origin"><i>HUMAN ANSWER</i> <b>customer_identity = account_id</b></span>
+              <span class="spine-origin"><i>Human decision</i> <b>customer_identity = account_id</b></span>
               <ol class="checklist" id="checklist" data-shown="0"></ol>
             </div>
 
@@ -293,14 +275,14 @@
                 <span class="result-label">integration conflicts</span>
               </div>
               <div class="result-main">
-                <strong class="result-verdict" id="r-verdict">COMPILING IN ISOLATED WORKSPACE…</strong>
+                <strong class="result-verdict" id="r-verdict">Compiling…</strong>
                 <span class="result-tests" id="r-tests">&nbsp;</span>
               </div>
 
-              <ul class="ws-mini" id="ws-mini"></ul>
+              <ul class="ws-mini" id="ws-mini" aria-label="Where the canon was applied"></ul>
 
               <div class="memory-card" id="memory-card">
-                <span class="kicker">DECISION MEMORY <b id="m-check"></b></span>
+                <span class="kicker">Decision memory <b id="m-check"></b></span>
                 <strong id="m-value">—</strong>
                 <small id="m-source">&nbsp;</small>
                 <small class="protected" id="m-protected">&nbsp;</small>
@@ -309,22 +291,22 @@
           </div>
         </div>
 
-        <!-- 07 GUARD ================================================= -->
+        <!-- GUARD ==================================================== -->
         <div class="screen" data-screen="guard">
           <header class="screen-head">
-            <span class="ch-id">CH·07</span>
-            <span class="eyebrow">GUARD · future changes judged against decision memory</span>
+            <h1>Guard</h1>
+            <p>Future changes are checked against decision memory.</p>
           </header>
 
-          <ol class="pr-list docket" id="pr-list" aria-label="Future agent changes"></ol>
+          <ol class="pr-list docket" id="pr-list" aria-label="Future changes"></ol>
 
           <div class="court" id="phase-panel" data-phase="0" data-verdict="NONE">
             <article class="change-card">
-              <span class="kicker" id="p-attempt-kicker">FUTURE CHANGE</span>
+              <span class="kicker" id="p-attempt-kicker">Proposed change</span>
               <code class="attempt-inline" id="p-inline"></code>
               <pre class="attempt-diff" id="p-attempt"></pre>
               <small id="p-attempt-file"></small>
-              <span class="vector-note" aria-hidden="true">judged against ↓</span>
+              <span class="vector-note" aria-hidden="true">checked against ↓</span>
               <div class="memory-slab">
                 <span>DECISION MEMORY</span>
                 <strong class="protected-value" id="p-protected">—</strong>
@@ -333,7 +315,7 @@
 
             <div class="bench">
               <div class="bench-idle">
-                <strong class="phase-title" id="p-idle-title">PICK A FUTURE AGENT CHANGE</strong>
+                <strong class="phase-title" id="p-idle-title">Pick a change above.</strong>
                 <p id="p-idle-text"></p>
               </div>
 
@@ -357,7 +339,7 @@
             </div>
 
             <footer class="restore-band">
-              <span class="kicker" id="p-complete-kicker">RESTORE</span>
+              <span class="kicker" id="p-complete-kicker">Restore</span>
               <strong class="complete-verdict" id="p-complete-verdict">—</strong>
               <dl class="facts facts-inline" id="p-restore"></dl>
               <ul class="complete-list" id="p-complete"></ul>
@@ -367,31 +349,27 @@
         </div>
       </section>
 
-      <!-- PROOF DRAWER — audit layer ------------------------------- -->
+      <!-- PROOF DRAWER ---------------------------------------------- -->
       <aside class="drawer" id="drawer" aria-label="Proof" aria-hidden="true">
         <header class="drawer-head">
-          <strong>AUDIT LAYER</strong>
+          <strong>Proof</strong>
           <span id="drawer-source">—</span>
-          <button type="button" id="drawer-close" aria-label="Close proof">CLOSE ×</button>
+          <button type="button" id="drawer-close" aria-label="Close proof">Close</button>
         </header>
         <div class="drawer-tabs" id="drawer-tabs" role="tablist"></div>
         <div class="drawer-body" id="drawer-body"></div>
       </aside>
     </main>
 
-    <!-- ============================================================ -->
-    <!-- EVIDENCE MODE — committed receipts                            -->
-    <!-- ============================================================ -->
+    <!-- EVIDENCE MODE -------------------------------------------------- -->
     <main class="explorer hidden" id="explorer">
       <nav class="explorer-nav" id="explorer-nav" aria-label="Committed evidence"></nav>
       <section class="explorer-body" id="explorer-body"></section>
     </main>
 
-    <!-- ============================================================ -->
-    <!-- ACTION BAR                                                    -->
-    <!-- ============================================================ -->
+    <!-- ACTION BAR ---------------------------------------------------- -->
     <footer class="actionbar">
-      <button type="button" class="btn btn-ghost" id="back">← BACK</button>
+      <button type="button" class="btn btn-ghost" id="back">Back</button>
       <span class="action-status" id="action-status"></span>
       <div class="actions">
         <button type="button" class="btn btn-secondary" id="secondary"></button>

@@ -1,4 +1,4 @@
-// COLLIDER demo UI — ACTIVE MODE product workspace + EVIDENCE MODE explorer.
+// COLLIDER demo UI: ACTIVE MODE product workspace and EVIDENCE MODE explorer.
 //
 // Every value shown in ACTIVE MODE comes from a response of the local action
 // server (same-origin, relative URLs). Every value in EVIDENCE MODE comes from
@@ -36,8 +36,8 @@ let server = null;      // /api/state payload (ACTIVE provenance) or null
 let serverChecked = false;
 let mode = "ACTIVE";
 let drawerOpen = false;
-let proofTab = "CODE DIFF";
-let evidenceTab = "BASELINE";
+let proofTab = "Code diff";
+let evidenceTab = "Baseline";
 let timers = [];
 
 let active = freshSession();
@@ -227,7 +227,7 @@ function resetSession() {
   clearTimers();
   active = freshSession();
   drawerOpen = false;
-  proofTab = "CODE DIFF";
+  proofTab = "Code diff";
   render();
 }
 
@@ -271,14 +271,14 @@ function findingRows(findings) {
   if (!findings || !findings.length) return "<p class=\"muted\">No findings.</p>";
   return `<ul class="findings">${findings.map((f) => {
     if (f.kind === "SPEC_GAP") {
-      const v = Object.entries(f.candidates).map(([ws, x]) => `${ws}=${x}`).join(" · ");
-      return `<li><b>SPEC_GAP</b> ${esc(f.concept)} — source silent, UNKNOWN · ${esc(v)}</li>`;
+      const v = Object.entries(f.candidates).map(([ws, x]) => `${ws}=${x}`).join(", ");
+      return `<li><b>SPEC_GAP</b> ${esc(f.concept)}: source silent, UNKNOWN (${esc(v)})</li>`;
     }
     if (f.kind === "AGENT_DRIFT") {
-      const v = Object.entries(f.violations).map(([ws, x]) => `${ws}=${x}`).join(" · ");
-      return `<li><b>AGENT_DRIFT</b> ${esc(f.concept)} — ${esc(f.authority)} expects <code>${esc(f.expected)}</code> · ${esc(v)}</li>`;
+      const v = Object.entries(f.violations).map(([ws, x]) => `${ws}=${x}`).join(", ");
+      return `<li><b>AGENT_DRIFT</b> ${esc(f.concept)}: ${esc(f.authority)} expects <code>${esc(f.expected)}</code> (${esc(v)})</li>`;
     }
-    return `<li><b>${esc(f.kind)}</b> ${esc(f.concept)} — ${esc(f.note || "")}</li>`;
+    return `<li><b>${esc(f.kind)}</b> ${esc(f.concept)}: ${esc(f.note || "")}</li>`;
   }).join("")}</ul>`;
 }
 
@@ -300,10 +300,11 @@ function renderChrome() {
   document.body.dataset.mode = mode;
   document.body.dataset.screen = active.screen;
   if (mode === "ACTIVE" && !server) {
-    $("truth-badge").textContent = serverChecked ? "ACTIVE MODE UNAVAILABLE" : "ACTIVE MODE · CONNECTING…";
+    $("truth-badge").textContent = serverChecked ? "Active mode unavailable" : "Connecting…";
   } else {
     const p = mode === "ACTIVE" ? activeProvenance() : L.provenance("EVIDENCE");
-    $("truth-badge").textContent = [p.label, ...p.detail].join(" · ");
+    $("truth-badge").innerHTML =
+      `<b>${esc(p.label)}</b>` + p.detail.map((x) => `<span>${esc(x)}</span>`).join("");
   }
 
   document.querySelectorAll(".mode-switch button").forEach((b) => {
@@ -353,8 +354,8 @@ function currentNode(status) {
 }
 
 const NODE_TEXT = {
-  done: "✓", waiting: "waiting", running: "running…", violation: "blocking",
-  restoring: "restoring…", idle: "", skipped: "skipped", abstained: "unknown kept",
+  done: "✓", waiting: "waiting", running: "running", violation: "blocking",
+  restoring: "restoring", idle: "", skipped: "skipped", abstained: "UNKNOWN kept",
   failed: "failed", pending: "pending"
 };
 
@@ -375,9 +376,7 @@ function renderRail() {
   // Mobile progress
   const nodes = L.NODES.filter((n) => n !== "REPLAY");
   const idx = nodes.indexOf(current) + 1;
-  $("mp-label").textContent =
-    `${String(idx).padStart(2, "0")} / 07 · ${current}` +
-    (current === "GUARD" && status.GUARD !== "done" && status.GUARD !== "idle" ? ` · ${NODE_TEXT[status.GUARD] || status.GUARD}` : "");
+  $("mp-label").textContent = `${idx}/7 ${current}`;
   $("mp-dots").innerHTML = nodes.map((n) => {
     const st = n === "DETECT" && active.screen === "detect" ? "current" : status[n];
     return `<i data-status="${st}" class="${n === current ? "current" : ""}"></i>`;
@@ -427,9 +426,9 @@ function renderDetect() {
   $("d-conflicts").textContent = g ? g.integration.conflict_count : "—";
   bind("api-identity", g ? g.facts.api_customer_identity_field : "—");
   bind("ledger-identity", g ? g.facts.ledger_customer_identity_field : "—");
-  $("d-status").textContent = g
-    ? `${g.integration.status} · GATE ${g.verdict}`
-    : serverChecked ? "no live gate" : "checking local gate…";
+  $("d-status").innerHTML = g
+    ? `<b>${esc(g.integration.status)}</b><span>gate: ${esc(g.verdict)}</span>`
+    : serverChecked ? "No live gate on this origin." : "Checking the gate…";
   $("unavailable").classList.toggle("hidden", !serverChecked || Boolean(server));
 }
 
@@ -446,9 +445,9 @@ function renderDecide() {
   $("decision-error").textContent = active.error && active.screen === "decide" ? active.error : "";
   const assumption = g?.assumptions?.[0];
   $("assumption-strip").classList.toggle("hidden", !assumption);
-  $("g-assume-label").textContent = assumption ? assumption.label : "—";
+  $("g-assume-label").textContent = assumption ? assumption.concept : "—";
   $("g-assume").textContent = assumption
-    ? `${assumption.value} · ${assumption.workstreams.length} of ${assumption.workstreams.length} agree · ${assumption.epistemic_state}`
+    ? `${assumption.value}, ${assumption.workstreams.length} of ${assumption.workstreams.length} agree`
     : "—";
 
   const decided = Boolean(active.decision || active.abstention);
@@ -462,7 +461,7 @@ function renderAbstained() {
   if (!a) return;
   $("a-gate").textContent = a.gate_verdict;
   $("a-conflicts").textContent =
-    `${a.integration.conflict_count} conflicts remain · ${a.concept} ${a.epistemic_state}`;
+    `${a.integration.conflict_count} conflicts remain.`;
   $("a-facts").innerHTML = dl([
     ["canon written", String(a.canon_written)],
     ["decision memory written", String(a.decision_memory_written)],
@@ -481,20 +480,20 @@ function compileItems(d) {
   const v = d.memory.verification;
   const ok = (x) => Boolean(x);
   return [
-    ["decision compiled", ok(d.decision), d.memory.decision_ref],
-    ["specification patched", ok(d.spec_patch?.marker), `${d.spec_patch.target} · collider:canon marker`],
-    ["API repaired", ok(api), api ? `${api.file_modified} · ${api.prior_value} → ${api.canonical_value}` : "no repair"],
-    ["Ledger drift repaired", ok(ledger), ledger ? `${ledger.file_modified} · ${ledger.prior_value} → ${ledger.canonical_value}` : "no repair"],
-    ["regression contract generated", ok(d.contract), d.memory.regression_artifact_ref],
-    ["decision memory written", ok(d.memory), `canon/decision-memory.json · ${d.memory.evidence_state}`],
-    ["verification passed", v.tests_failed === 0 && v.tests_passed !== null,
-      v.tests_passed === null ? "not run" : `${v.tests_passed} passed · ${v.tests_failed} failed`]
+    ["Decision compiled", ok(d.decision), d.memory.decision_ref],
+    ["Spec patched", ok(d.spec_patch?.marker), `${d.spec_patch.target}, collider:canon marker`],
+    ["API repaired", ok(api), api ? `${api.file_modified}: ${api.prior_value} → ${api.canonical_value}` : "no repair"],
+    ["Ledger drift repaired", ok(ledger), ledger ? `${ledger.file_modified}: ${ledger.prior_value} → ${ledger.canonical_value}` : "no repair"],
+    ["Regression contract written", ok(d.contract), d.memory.regression_artifact_ref],
+    ["Decision memory written", ok(d.memory), `canon/decision-memory.json (${d.memory.evidence_state})`],
+    ["Verified", v.tests_failed === 0 && v.tests_passed !== null,
+      v.tests_passed === null ? "not run" : `${v.tests_passed} passed, ${v.tests_failed} failed`]
   ];
 }
 
 const CHECK_LABELS = [
-  "decision compiled", "specification patched", "API repaired", "Ledger drift repaired",
-  "regression contract generated", "decision memory written", "verification passed"
+  "Decision compiled", "Spec patched", "API repaired", "Ledger drift repaired",
+  "Regression contract written", "Decision memory written", "Verified"
 ];
 
 function renderCompile() {
@@ -519,24 +518,24 @@ function renderCompile() {
       `<span class="rn-from">${esc(m.integration_conflicts_before)}</span><i>→</i><span class="rn-to">${esc(m.integration_conflicts_after)}</span>`);
     $("r-verdict").textContent = d.gate_after.verdict.replace("_", " ");
     $("r-tests").textContent =
-      v.tests_passed === null ? "verification not run" : `${v.tests_passed} passed · ${v.tests_failed} failed`;
+      v.tests_passed === null ? "verification not run" : `${v.tests_passed} passed, ${v.tests_failed} failed`;
     const mem = d.memory;
     $("m-check").textContent = mem.evidence_state === "OBSERVED" ? "✓" : "";
     $("m-value").textContent = `${mem.concept} = ${mem.canonical_value}`;
     $("m-source").textContent =
       mem.human_decision_source === "INTERACTIVE_LOCAL_UI" || mem.human_decision_source === "INTERACTIVE_WEB"
-        ? "source: interactive human decision"
-        : `source: human · ${mem.human_decision_source}`;
+        ? "Set by an interactive human decision."
+        : `Set by a human decision (${mem.human_decision_source}).`;
     $("m-protected").textContent = ready
-      ? `protected for ${mem.affected_dependents.join(", ")} · ${mem.regression_artifact_ref}`
-      : "not protected: verification did not pass";
+      ? `Guards ${mem.affected_dependents.join(" and ")} with ${mem.regression_artifact_ref}`
+      : "Not protected: verification did not pass.";
     // The canonical trace reaches only the workstreams the decision repaired.
     html($("ws-mini"), m.workstreams.map((w) =>
-      `<li data-changed="${w.changed}" data-ws="${esc(w.workstream)}"><b>${esc(w.workstream)}</b><i aria-hidden="true"></i><span>${w.changed ? "CANON APPLIED" : "UNTOUCHED"}</span></li>`
+      `<li data-changed="${w.changed}" data-ws="${esc(w.workstream)}"><b>${esc(w.workstream)}</b><i aria-hidden="true"></i><span>${w.changed ? "canon applied" : "untouched"}</span></li>`
     ).join(""));
   } else {
     html($("r-number"), `<span class="rn-from">2</span><i>→</i><span class="rn-to">·</span>`);
-    $("r-verdict").textContent = d ? "VERIFYING…" : "COMPILING IN ISOLATED WORKSPACE…";
+    $("r-verdict").textContent = d ? "Verifying…" : "Compiling…";
     $("r-tests").innerHTML = "&nbsp;";
     $("m-check").textContent = "";
     $("m-value").textContent = "—";
@@ -546,7 +545,7 @@ function renderCompile() {
   }
   $("c-eyebrow").textContent = active.error && active.screen === "compile"
     ? active.error
-    : "COMPILE · PATCH · VERIFY · REMEMBER — one human answer becomes durable system state";
+    : "";
 }
 
 // Changed source lines of a unified diff, without the file headers.
@@ -562,7 +561,7 @@ function renderPrList() {
     const r = active.guards[c.id];
     // The current change shows its verdict only once the panel has revealed it.
     const revealing = active.guardProbe === c.id && (active.guardRunning || (r && active.guardPhase < 2));
-    const status = revealing ? "judging…" : r ? verdictText(r.guard_verdict) : "not yet judged";
+    const status = revealing ? "running" : r ? verdictText(r.guard_verdict) : "not run";
     const verdict = revealing ? "RUNNING" : r ? r.guard_verdict : "NONE";
     return `<li data-verdict="${esc(verdict)}" data-current="${active.guardProbe === c.id}">` +
       `<button type="button" data-probe="${esc(c.id)}" aria-pressed="${active.guardProbe === c.id}" ${!ready || active.busy ? "disabled" : ""}>` +
@@ -587,14 +586,14 @@ function renderGuard() {
   renderPrList();
 
   const change = FUTURE_CHANGES.find((c) => c.id === active.guardProbe);
-  $("p-idle-title").textContent = active.guardRunning
-    ? "JUDGING IN AN ISOLATED WORKSPACE…"
-    : active.error && active.screen === "guard" ? active.error : "PICK A FUTURE AGENT CHANGE";
-  $("p-idle-text").textContent = active.guardRunning && change
-    ? `${change.title} · ${change.file}. Applying the change, running every test, running the gate with and without decision memory, then restoring.`
-    : "Each change is applied to this session’s compiled workspace, judged with and without decision memory, then restored byte for byte. These are controlled future changes, not autonomous agents.";
+  $("p-idle-title").textContent = active.guardRunning && change
+    ? `${change.title}…`
+    : active.error && active.screen === "guard" ? active.error : "Pick a change above.";
+  $("p-idle-text").textContent = active.guardRunning
+    ? "Applying the change, running the tests, then the gate with and without decision memory."
+    : "Each change runs in this session's workspace and is restored afterwards. They are scripted changes, not agents.";
   if (!g) {
-    $("p-attempt-kicker").textContent = change ? `FUTURE CHANGE · ${change.title}` : "FUTURE CHANGE";
+    $("p-attempt-kicker").textContent = "Proposed change";
     $("p-inline").textContent = change ? change.file : "";
     $("p-attempt").innerHTML = "";
     $("p-attempt-file").textContent = "";
@@ -608,10 +607,10 @@ function renderGuard() {
   const lines = changedLines(g.probe_diff);
   const total = suite.passed_count + suite.failed_count;
 
-  $("p-attempt-kicker").textContent = `FUTURE CHANGE · ${g.title}`;
+  $("p-attempt-kicker").textContent = "Proposed change";
   $("p-attempt").innerHTML = renderDiff(lines.join("\n"));
   $("p-attempt-file").textContent =
-    `${g.affected_file} · sha ${short(g.sha_before_probe)} → ${short(g.sha_during_probe)}`;
+    `${g.affected_file}, sha ${short(g.sha_before_probe)} → ${short(g.sha_during_probe)}`;
   // An undecided concept has no canonical value: show what the other
   // workstreams still assume.
   const assumed = g.violation?.candidates
@@ -626,25 +625,20 @@ function renderGuard() {
   $("p-ci-state").textContent = suite.failed_count ? `${suite.failed_count} FAILED` : "ALL TESTS PASS";
   court.dataset.tests = suite.failed_count ? "red" : "green";
 
-  $("p-verdict-kicker").textContent = {
-    MERGE_BLOCKED: "SEMANTIC CI · CANON VIOLATION",
-    DECISION_REQUIRED: "SEMANTIC CI · NEW SPEC_GAP · SOURCE SILENT",
-    MERGE_ALLOWED: "SEMANTIC CI · NO CONCEPT CHANGED"
-  }[v] || "SEMANTIC CI";
+  $("p-verdict-kicker").textContent = "SEMANTIC CI";
   $("p-verdict").textContent = verdictText(v);
   $("p-rule").textContent = v === "MERGE_BLOCKED"
-    ? `${g.concept} must remain ${g.decision_memory_value}`
+    ? `Contradicts decision memory. ${g.concept} must stay ${g.decision_memory_value}.`
     : v === "DECISION_REQUIRED"
-      ? (g.surfaced_question || "The workstreams now disagree where the source is silent.")
-      : `Decision memory still holds: ${g.decision_memory_concept} = ${g.decision_memory_value}`;
+      ? `New SPEC_GAP on ${g.concept}. The brief never set it.`
+      : "No semantic concept changed.";
   $("p-cf").innerHTML =
-    `<b>Same diff without decision memory →</b> ${esc(cf.verdict)}` +
-    (g.memory_changed_verdict ? " <em>· memory changed the verdict</em>" : " <em>· no decision covers this yet</em>");
-  $("p-violation").innerHTML = dl([
-    ["finding", g.violation ? `${g.violation.kind} · ${g.violation.authority}` : "none",
-      v === "MERGE_BLOCKED" ? "danger" : v === "DECISION_REQUIRED" ? "unknown" : ""],
-    ["gate", `${g.gate_during_probe} · without memory ${cf.verdict}`]
-  ]);
+    `Without decision memory, the same change gets <b>${esc(cf.verdict)}</b>. ` +
+    (g.memory_changed_verdict ? "Memory changed the verdict." : "No decision covers this concept yet.");
+  // Only the new question deserves space under the verdict.
+  $("p-violation").innerHTML = v === "DECISION_REQUIRED" && g.surfaced_question
+    ? dl([["next question", g.surfaced_question]])
+    : "";
 
   $("p-restore").innerHTML = dl([
     ["sha before", short(g.sha_before_probe)],
@@ -653,13 +647,13 @@ function renderGuard() {
   ]);
 
   const tick = (ok, text) => `<li data-ok="${ok}">${ok ? "✓" : "✗"} ${esc(text)}</li>`;
-  $("p-complete-kicker").textContent = phase >= 4 ? "RESTORED" : phase === 3 ? "RESTORING…" : "RESTORE";
+  $("p-complete-kicker").textContent = phase >= 4 ? "Restored" : phase === 3 ? "Restoring…" : "Restore";
   $("p-complete-verdict").textContent = verdictText(v);
   $("p-complete-verdict").dataset.verdict = v;
   $("p-complete").innerHTML = [
     ...(g.as_expected === false ? [tick(false, `expected ${verdictText(g.expected_guard_verdict)}`)] : []),
-    tick(g.restoration_verified && g.restored_exact_bytes, "exact bytes restored"),
-    tick(g.gate_after_restore === "SEMANTICALLY_READY", g.gate_after_restore === "SEMANTICALLY_READY" ? "semantically ready again" : g.gate_after_restore),
+    tick(g.restoration_verified && g.restored_exact_bytes, `exact bytes, sha ${short(g.sha_after_restore)}`),
+    tick(g.gate_after_restore === "SEMANTICALLY_READY", g.gate_after_restore),
     tick(ca.passed && ca.failed_count === 0, `contract ${ca.passed_count}/${ca.passed_count + ca.failed_count}`)
   ].join("");
   $("p-receipt").textContent = `receipt ${g.receipt_path}`;
@@ -670,8 +664,8 @@ function renderGuard() {
 // ---------------------------------------------------------------------------
 
 const PROOF_TABS = [
-  "CODE DIFF", "SPEC PATCH", "REGRESSION CONTRACT", "DECISION MEMORY",
-  "RECEIPT", "HASHES", "PROVENANCE"
+  "Code diff", "Spec patch", "Contract", "Decision memory",
+  "Receipt", "Hashes", "Provenance"
 ];
 
 function renderDrawer() {
@@ -686,55 +680,55 @@ function renderDrawer() {
   const a = active.abstention;
   const guards = FUTURE_CHANGES.map((c) => active.guards[c.id]).filter(Boolean);
   $("drawer-source").textContent = d
-    ? `${activeLabel()} · ${d.receipt_dir}`
-    : a ? `${activeLabel()} · ${a.receipt_dir}` : "no action taken yet";
+    ? `${activeLabel()}, ${d.receipt_dir}`
+    : a ? `${activeLabel()}, ${a.receipt_dir}` : "No action taken yet.";
 
   const none = (msg) => `<p class="muted">${esc(msg)}</p>`;
   let body = "";
 
   switch (proofTab) {
-    case "CODE DIFF":
+    case "Code diff":
       body = d
-        ? section("repair.patch · compiled workspace", pre(renderDiff(d.repair_patch), "diff")) +
-          guards.map((g) => section(`future agent change · ${g.title} · ${verdictText(g.guard_verdict)} (restored afterwards)`, pre(renderDiff(g.probe_diff), "diff"))).join("")
-        : none(a ? "KEEP UNKNOWN: no code was changed." : "No decision yet: no code has been changed.");
+        ? section("repair.patch (compiled workspace)", pre(renderDiff(d.repair_patch), "diff")) +
+          guards.map((g) => section(`${g.title}: ${verdictText(g.guard_verdict)}, then restored`, pre(renderDiff(g.probe_diff), "diff"))).join("")
+        : none(a ? "UNKNOWN was kept. No code changed." : "No decision yet, so no code has changed.");
       break;
-    case "SPEC PATCH":
+    case "Spec patch":
       body = d
         ? section("spec.diff", pre(renderDiff(d.spec_diff), "diff")) +
           section("spec-patch.json", pre(json(d.spec_patch)))
-        : none(a ? "KEEP UNKNOWN: no spec patch was written." : "No decision yet.");
+        : none(a ? "UNKNOWN was kept. No spec patch was written." : "No decision yet.");
       break;
-    case "REGRESSION CONTRACT":
+    case "Contract":
       body = d
         ? section(d.memory.regression_artifact_ref, pre(esc(d.contract))) +
           section("verification command", pre(esc(d.memory.verification.command || "")))
         : none("No regression contract exists without a canonical decision.");
       break;
-    case "DECISION MEMORY":
+    case "Decision memory":
       body = d
         ? section("canon/decision-memory.json", pre(json({ schema: "collider.decision-memory/v1", decisions: [d.memory] })))
-        : none(a ? "KEEP UNKNOWN: no decision memory was written." : "No decision memory yet.");
+        : none(a ? "UNKNOWN was kept. No decision memory was written." : "No decision memory yet.");
       break;
-    case "RECEIPT":
+    case "Receipt":
       body =
         guards.map((g) => section(g.receipt_path, pre(json(g)))).join("") +
         (d ? section("manifest.json", pre(json(d.manifest))) +
              section("gate before", findingRows(d.gate_before.findings)) +
              section("gate after", findingRows(d.gate_after.findings)) : "") +
         (a ? section("abstention.json", pre(json(a))) : "") +
-        (!d && !a && server ? section("live gate · committed tree", findingRows(server.gate.findings)) : "") ||
+        (!d && !a && server ? section("live gate on the committed tree", findingRows(server.gate.findings)) : "") ||
         none("No receipt yet.");
       break;
-    case "HASHES":
+    case "Hashes":
       body = d
-        ? section("workstreams · compiled workspace",
+        ? section("workstreams in the compiled workspace",
             `<table class="hash-table"><thead><tr><th>workstream</th><th>before</th><th>after</th><th></th></tr></thead><tbody>${
               d.manifest.workstreams.map((w) =>
                 `<tr><td>${esc(w.workstream)}</td><td><code>${esc(short(w.sha256_before, 16))}</code></td><td><code>${esc(short(w.sha256_after, 16))}</code></td><td>${w.changed ? "CHANGED" : "unchanged"}</td></tr>`
               ).join("")}</tbody></table>` +
             `<p class="muted">source tree untouched: ${esc(d.manifest.source_tree_untouched)}</p>`) +
-          guards.map((g) => section(`future agent change · ${g.affected_file}`, `<dl class="facts">${dl([
+          guards.map((g) => section(`${g.title}: ${g.affected_file}`, `<dl class="facts">${dl([
             ["before probe", g.sha_before_probe],
             ["during probe", g.sha_during_probe],
             ["after restore", g.sha_after_restore],
@@ -744,10 +738,10 @@ function renderDrawer() {
         : a ? section("committed tree", `<dl class="facts">${dl(Object.entries(a.source_sha256))}</dl>`)
           : none("No hashes yet.");
       break;
-    case "PROVENANCE": {
+    case "Provenance": {
       const p = activeProvenance();
       const r = d ? d.replay : null;
-      body = section("truth label", `<p class="truth">${esc([p.label, ...p.detail].join(" · "))}</p>`) +
+      body = section("truth label", `<p class="truth">${esc([p.label, ...p.detail].join(", "))}</p>`) +
         section("run", `<dl class="facts">${dl([
           ["execution", server ? server.execution_environment : "—"],
           ["worker version", server?.worker_version || "none (not served by a Cloudflare Worker)"],
@@ -756,23 +750,23 @@ function renderDrawer() {
           ["input commit", d ? d.manifest.input_commit : a ? a.input_commit : "—"],
           ["receipts", d ? d.receipt_dir : a ? a.receipt_dir : "—"]
         ])}</dl>`) +
-        section("separate LIVE_BOB evidence run — not this session", `<dl class="facts">${dl([
-          ["run", "live-bob-2026-09-27-01 · three independent Bob agents · contamination CLEAN"],
-          ["observed", "customer_identity → SPEC_GAP / UNKNOWN before any human decision"],
-          ["replay attempt 01", "REPLAY_FAIL · 5 passed / 2 failed (preserved)", "danger"],
-          ["replay attempt 02", "REPLAY_PASS · 7 / 7 · targeted-repair replay under a general minimal-change constraint"],
-          ["this demo's interpretations", "PRESEEDED — not generated live by Bob", "unknown"]
-        ])}</dl><p class="muted">evidence/bob-sessions/ · cited, not re-executed by this page.</p>`) +
-        section("fresh-agent replay · this session", `<dl class="facts">${dl([
+        section("Separate LIVE_BOB run (not this session)", `<dl class="facts">${dl([
+          ["run", "live-bob-2026-09-27-01, three independent Bob agents, contamination check clean"],
+          ["observed", "customer_identity classified SPEC_GAP / UNKNOWN before any human decision"],
+          ["replay attempt 01", "REPLAY_FAIL, 5 passed and 2 failed (kept on record)", "danger"],
+          ["replay attempt 02", "REPLAY_PASS 7/7, a targeted-repair replay with a general minimal-change constraint"],
+          ["this demo's interpretations", "PRESEEDED, not generated live by Bob", "unknown"]
+        ])}</dl><p class="muted">Cited from evidence/bob-sessions/. This page does not re-run it.</p>`) +
+        section("Fresh-agent replay in this session", `<dl class="facts">${dl([
           ["status", "NOT_EXECUTED", "unknown"],
           ["runtime state", "PENDING_LIVE_BOB", "unknown"],
           ["reason", r ? r.reason : "Replay requires an independent live agent session; none exists in this environment."],
           ...(r ? [
-            ["given", `${r.inputs.patched_spec} · ${r.inputs.decision_memory}`],
-            ["withheld", r.inputs.withheld.join(" · ")],
+            ["given", `${r.inputs.patched_spec}, ${r.inputs.decision_memory}`],
+            ["withheld", r.inputs.withheld.join(", ")],
             ["accepts only", r.acceptance.execution_source_in.join(", ")]
           ] : []),
-          ["not the guard", "The guard probe is a controlled change against persisted canon in this session's runtime, not an independent agent."]
+          ["guard probes", "Scripted changes run against decision memory in this session. They are not agents."]
         ])}</dl>`);
       break;
     }
@@ -798,7 +792,7 @@ function renderActiveActions() {
   const primary = $("primary");
   const secondary = $("secondary");
   let status = "";
-  const proofLabel = drawerOpen ? "HIDE PROOF" : "VIEW PROOF";
+  const proofLabel = drawerOpen ? "Hide proof" : "Proof";
   const toggleProof = () => { drawerOpen = !drawerOpen; render(); };
 
   setButton(back, "", null);
@@ -807,12 +801,12 @@ function renderActiveActions() {
   switch (active.screen) {
     case "detect":
       if (serverChecked && !server) {
-        setButton(primary, "ACTIVE MODE UNAVAILABLE", null, { disabled: true });
-        setButton(secondary, "EVIDENCE MODE", () => setMode("EVIDENCE"));
-        status = "no local action server on this origin";
+        setButton(primary, "Active mode unavailable", null, { disabled: true });
+        setButton(secondary, "Open Evidence", () => setMode("EVIDENCE"));
+        status = "No action runtime on this origin.";
       } else {
-        setButton(primary, "RUN COLLIDER →", runCollider, { disabled: !server });
-        status = server ? "classify the disagreement" : "checking local gate…";
+        setButton(primary, "Run COLLIDER", runCollider, { disabled: !server });
+        status = server ? "" : "Connecting to the runtime…";
       }
       break;
     case "decide": {
@@ -820,40 +814,39 @@ function renderActiveActions() {
       // sticky bar so the decision is always reachable (mobile included).
       const gap = server?.gate.findings.some((f) => f.kind === "SPEC_GAP");
       const locked = !server || !gap || active.busy || Boolean(active.decision || active.abstention);
-      setButton(back, "← BACK", () => { active.screen = "detect"; render(); }, { disabled: active.busy });
-      setButton(secondary, "KEEP UNKNOWN", () => decide("KEEP_UNKNOWN"), { disabled: locked });
-      setButton(primary, active.busy ? "WORKING…" : "USE account_id →", () => decide("USE_ACCOUNT_ID"), { disabled: locked });
-      status = "human decision required · COLLIDER will not pick for you";
+      setButton(back, "Back", () => { active.screen = "detect"; render(); }, { disabled: active.busy });
+      setButton(secondary, "Keep UNKNOWN", () => decide("KEEP_UNKNOWN"), { disabled: locked });
+      setButton(primary, active.busy ? "Working…" : "Use account_id", () => decide("USE_ACCOUNT_ID"), { disabled: locked });
+      status = "Waiting for a human decision.";
       break;
     }
     case "abstained":
       setButton(secondary, proofLabel, toggleProof);
-      setButton(primary, "RESET SESSION ↺", resetSession);
-      status = "UNKNOWN kept · gate DECISION_REQUIRED";
+      setButton(primary, "Start over", resetSession);
+      status = "UNKNOWN kept. The gate stays at DECISION_REQUIRED.";
       break;
     case "compile": {
       const done = compileComplete();
       const ready = done && active.decision.gate_after.verdict === "SEMANTICALLY_READY";
       setButton(secondary, done ? proofLabel : "", toggleProof);
-      if (!done) setButton(primary, "COMPILING…", null, { disabled: true });
-      else if (ready) setButton(primary, "TEST FUTURE AGENT CHANGES →", () => runGuard((nextUntestedChange() || FUTURE_CHANGES[0]).id), { disabled: active.busy });
-      else setButton(primary, "RESET SESSION ↺", resetSession);
-      status = !done ? "compiling in isolated workspace" : ready ? "canon protected · guard waiting" : active.decision.gate_after.verdict;
+      if (!done) setButton(primary, "Compiling…", null, { disabled: true });
+      else if (ready) setButton(primary, "Test future changes", () => runGuard((nextUntestedChange() || FUTURE_CHANGES[0]).id), { disabled: active.busy });
+      else setButton(primary, "Start over", resetSession);
+      status = !done ? "Compiling in an isolated workspace." : ready ? "" : active.decision.gate_after.verdict;
       break;
     }
     case "guard": {
       const finished = active.guard && active.guardPhase >= 4;
       const next = nextUntestedChange();
       const judged = Object.keys(active.guards).length;
-      setButton(back, "← COMPILE", () => { active.screen = "compile"; render(); }, { disabled: active.busy || !finished && active.guardRunning });
+      setButton(back, "Back", () => { active.screen = "compile"; render(); }, { disabled: active.busy || !finished && active.guardRunning });
       setButton(secondary, finished ? proofLabel : "", toggleProof);
-      if (active.guardRunning || (active.guard && !finished)) setButton(primary, "JUDGING…", null, { disabled: true });
-      else if (next) setButton(primary, `NEXT: ${next.title.toUpperCase()} →`, () => runGuard(next.id), { disabled: active.busy });
-      else setButton(primary, "RESET SESSION ↺", resetSession);
-      status = active.guardRunning ? "judging future change"
-        : !active.guard ? (active.error || "pick a future agent change")
-        : ["", "future agent change", verdictText(active.guard.guard_verdict).toLowerCase(), "restoring verified state",
-           `restored · ${judged} of ${FUTURE_CHANGES.length} changes judged`][active.guardPhase];
+      if (active.guardRunning || (active.guard && !finished)) setButton(primary, "Running…", null, { disabled: true });
+      else if (next) setButton(primary, `Next: ${next.title}`, () => runGuard(next.id), { disabled: active.busy });
+      else setButton(primary, "Start over", resetSession);
+      status = active.guardRunning || (active.guard && !finished) ? ""
+        : !active.guard ? (active.error || "")
+        : `${judged} of ${FUTURE_CHANGES.length} changes checked.`;
       break;
     }
     default:
@@ -866,11 +859,11 @@ function renderActiveActions() {
 // EVIDENCE MODE — explorer (committed receipts only)
 // ---------------------------------------------------------------------------
 
-const EVIDENCE_TABS = ["BASELINE", "COMPARATIVE PROOF", "DECISION RECEIPT", "HASHES", "TRUTH BOUNDARY"];
+const EVIDENCE_TABS = ["Baseline", "Comparison", "Decision receipt", "Hashes", "Truth boundary"];
 
 function renderExplorer() {
   $("explorer-nav").innerHTML =
-    `<div class="explorer-label"><strong>COMMITTED EVIDENCE</strong><span>LOCAL / PRESEEDED</span><small>Receipts are read from the repository. Nothing here was executed by this browser.</small></div>` +
+    `<div class="explorer-label"><strong>Committed evidence</strong><span>LOCAL / PRESEEDED</span><small>Read from the repository. Nothing here runs in the browser.</small></div>` +
     EVIDENCE_TABS.map((t, i) =>
       `<button type="button" data-tab="${esc(t)}" aria-selected="${t === evidenceTab}"><i>${String(i + 1).padStart(2, "0")}</i>${esc(t)}</button>`
     ).join("");
@@ -885,9 +878,9 @@ function renderExplorer() {
   let html = "";
 
   switch (evidenceTab) {
-    case "BASELINE":
+    case "Baseline":
       html = `
-        <header class="ex-head"><span class="kicker">baseline-001 · no COLLIDER</span>
+        <header class="ex-head"><span class="kicker">baseline-001, without COLLIDER</span>
           <h2>Locally green. Integration blocked.</h2></header>
         <div class="ex-metrics">
           <div><strong>${esc(b.testsPassed)}</strong><span>local tests passed</span></div>
@@ -898,28 +891,28 @@ function renderExplorer() {
         ${section("conflicts observed at integration", `<table class="hash-table"><thead><tr><th>conflict</th><th>api</th><th>ledger</th><th>classification</th></tr></thead><tbody>${
           b.conflictList.map((x) => `<tr><td>${esc(x.conflict_id)}</td><td><code>${esc(x.api_value)}</code></td><td><code>${esc(x.ledger_value)}</code></td><td>${esc(x.classification ?? "none (baseline does not classify)")}</td></tr>`).join("")
         }</tbody></table>`)}
-        <p class="muted">evidence/runs/baseline-001 · runtime input ${esc(short(b.commit))}</p>`;
+        <p class="muted">evidence/runs/baseline-001, runtime input ${esc(short(b.commit))}</p>`;
       break;
-    case "COMPARATIVE PROOF":
+    case "Comparison":
       html = `
         <header class="ex-head"><span class="kicker">baseline-001 vs local-resolved-004</span>
           <h2>${esc(b.conflicts)} → ${esc(r.conflicts)} <small>${esc(r.status)}</small></h2></header>
         ${section("classification", `<ul class="findings">
-          <li><b>SPEC_GAP</b> ${esc(c.customerIdentity.concept)} · ${esc(c.customerIdentity.epistemicState)} · auto_resolve ${esc(c.customerIdentity.autoResolve)} · ${esc(Object.entries(c.customerIdentity.values).map(([k, v]) => `${k}=${v}`).join(" · "))}</li>
-          <li><b>AGENT_DRIFT</b> ${esc(c.fieldName.concept)} · source says <code>${esc(c.fieldName.authoritativeValue)}</code> · ${esc(c.fieldName.source)}</li>
-          <li><b>${esc(c.moneyRepresentation.subtype)}</b> ${esc(c.moneyRepresentation.concept)} · upgrades to fact: ${esc(c.moneyRepresentation.upgradesToFact)}</li>
+          <li><b>SPEC_GAP</b> ${esc(c.customerIdentity.concept)} is ${esc(c.customerIdentity.epistemicState)}, auto_resolve ${esc(c.customerIdentity.autoResolve)} (${esc(Object.entries(c.customerIdentity.values).map(([k, v]) => `${k}=${v}`).join(", "))})</li>
+          <li><b>AGENT_DRIFT</b> ${esc(c.fieldName.concept)}: the source says <code>${esc(c.fieldName.authoritativeValue)}</code> (${esc(c.fieldName.source)})</li>
+          <li><b>${esc(c.moneyRepresentation.subtype)}</b> ${esc(c.moneyRepresentation.concept)}: upgrades to fact ${esc(c.moneyRepresentation.upgradesToFact)}</li>
         </ul>`)}
         ${section("targeted repairs", `<table class="hash-table"><thead><tr><th>workstream</th><th>concept</th><th>before → after</th><th>source</th></tr></thead><tbody>${
           data.repairs.map((x) => `<tr><td>${esc(x.workstream)}</td><td>${esc(x.concept)}</td><td><code>${esc(x.before)} → ${esc(x.after)}</code></td><td>${esc(x.source)}</td></tr>`).join("")
         }</tbody></table><p class="muted">notifications: unchanged</p>`)}
-        ${section("fairness", `<p>${data.fairness.starting_workstream_artifacts_byte_identical ? "Starting workstream artifacts BYTE-IDENTICAL across both conditions." : "Fairness check FAILED."}</p><p class="muted">${esc(data.fairness.note)}</p>`)}
-        <p class="muted">evidence/comparisons/baseline-001-vs-local-resolved-004 · evidence commit ${esc(short(data.evidenceCommit))}</p>`;
+        ${section("fairness", `<p>${data.fairness.starting_workstream_artifacts_byte_identical ? "Both runs started from byte-identical workstream artifacts." : "Fairness check FAILED."}</p><p class="muted">${esc(data.fairness.note)}</p>`)}
+        <p class="muted">evidence/comparisons/baseline-001-vs-local-resolved-004, evidence commit ${esc(short(data.evidenceCommit))}</p>`;
       break;
-    case "DECISION RECEIPT": {
+    case "Decision receipt": {
       const m = R.manifest;
       const v = R.memory.verification;
       html = `
-        <header class="ex-head"><span class="kicker">${esc(R.receipt_dir)} · human decision ${esc(R.decision.human_decision_source)}</span>
+        <header class="ex-head"><span class="kicker">${esc(R.receipt_dir)}, human decision ${esc(R.decision.human_decision_source)}</span>
           <h2>${esc(R.decision.concept)} = ${esc(R.decision.canonical_value)}</h2></header>
         <div class="ex-metrics">
           <div><strong class="mono">${esc(m.gate_before)}</strong><span>gate before</span></div>
@@ -934,24 +927,24 @@ function renderExplorer() {
         ${section("not in this receipt", `<p>The guard probe runs only in ACTIVE MODE; no guard receipt is committed. Fresh-agent replay: <b>${esc(R.replay.status)} / ${esc(R.replay.runtime_state)}</b>.</p>`)}`;
       break;
     }
-    case "HASHES":
+    case "Hashes":
       html = `
-        <header class="ex-head"><span class="kicker">artifact hashes</span><h2>Before · after · restored</h2></header>
-        ${section("local-resolved-004 · repair captured, then source restored", `<table class="hash-table"><thead><tr><th>workstream</th><th>before</th><th>after</th><th>restored</th><th></th></tr></thead><tbody>${
+        <header class="ex-head"><span class="kicker">artifact hashes</span><h2>Before, after and restored</h2></header>
+        ${section("local-resolved-004: repair captured, source restored", `<table class="hash-table"><thead><tr><th>workstream</th><th>before</th><th>after</th><th>restored</th><th></th></tr></thead><tbody>${
           Object.entries(data.hashes).map(([ws, h]) => `<tr><td>${esc(ws)}</td><td><code>${esc(short(h.before, 16))}</code></td><td><code>${esc(short(h.after, 16))}</code></td><td><code>${esc(short(h.restored, 16))}</code></td><td>${h.changed ? (h.restored_to_input ? "CHANGED + RESTORED" : "CHECK FAILED") : "UNCHANGED"}</td></tr>`).join("")
         }</tbody></table>`)}
-        ${section("decision-001 · compiled workspace", `<table class="hash-table"><thead><tr><th>workstream</th><th>before</th><th>after</th><th></th></tr></thead><tbody>${
+        ${section("decision-001, compiled workspace", `<table class="hash-table"><thead><tr><th>workstream</th><th>before</th><th>after</th><th></th></tr></thead><tbody>${
           R.manifest.workstreams.map((w) => `<tr><td>${esc(w.workstream)}</td><td><code>${esc(short(w.sha256_before, 16))}</code></td><td><code>${esc(short(w.sha256_after, 16))}</code></td><td>${w.changed ? "CHANGED" : "UNCHANGED"}</td></tr>`).join("")
         }</tbody></table><p class="muted">source tree untouched: ${esc(R.manifest.source_tree_untouched)}</p>`)}`;
       break;
-    case "TRUTH BOUNDARY":
+    case "Truth boundary":
       html = `
-        <header class="ex-head"><span class="kicker">truth boundary</span><h2>What this evidence proves — and what it does not.</h2></header>
+        <header class="ex-head"><span class="kicker">truth boundary</span><h2>What this evidence proves, and what it does not.</h2></header>
         ${section("proven locally", `<dl class="facts">${dl([
           ["execution", "LOCAL"],
           ["interpretations", "PRESEEDED"],
           ["human decision (decision-001)", R.decision.human_decision_source],
-          ["classification", "deterministic · classifier_judgment_used = false"],
+          ["classification", "deterministic, classifier_judgment_used = false"],
           ["canonical evidence modified", String(R.manifest.truth_boundary.canonical_evidence_modified)]
         ])}</dl>`)}
         ${section("not claimed", `<dl class="facts">${dl([
@@ -961,11 +954,11 @@ function renderExplorer() {
           ["percentage improvement", R.manifest.truth_boundary.percentage_improvement, "unknown"],
           ["browser execution", "none: this explorer only reads committed receipts", "unknown"]
         ])}</dl>`)}
-        ${section("separate observed evidence — not this receipt", `<dl class="facts">${dl([
-          ["LIVE_BOB run", "live-bob-2026-09-27-01 · three independent Bob agents · SPEC_GAP / UNKNOWN observed"],
-          ["replay attempt 01", "REPLAY_FAIL · 5 / 7 (preserved)", "danger"],
-          ["replay attempt 02", "REPLAY_PASS · 7 / 7 · targeted-repair replay, not an unconstrained first try"]
-        ])}</dl><p class="muted">evidence/bob-sessions/ — the committed receipts above remain LOCAL / PRESEEDED.</p>`)}`;
+        ${section("separate observed evidence (not these receipts)", `<dl class="facts">${dl([
+          ["LIVE_BOB run", "live-bob-2026-09-27-01, three independent Bob agents, SPEC_GAP / UNKNOWN observed"],
+          ["replay attempt 01", "REPLAY_FAIL 5/7, kept on record", "danger"],
+          ["replay attempt 02", "REPLAY_PASS 7/7, a targeted-repair replay, not an unconstrained first try"]
+        ])}</dl><p class="muted">From evidence/bob-sessions/. The receipts above stay LOCAL / PRESEEDED.</p>`)}`;
       break;
     default:
       html = "";
@@ -976,12 +969,12 @@ function renderExplorer() {
 
 function renderEvidenceActions() {
   const i = EVIDENCE_TABS.indexOf(evidenceTab);
-  setButton($("back"), "← PREVIOUS", () => { evidenceTab = EVIDENCE_TABS[i - 1]; render(); }, { disabled: i === 0 });
+  setButton($("back"), "Previous", () => { evidenceTab = EVIDENCE_TABS[i - 1]; render(); }, { disabled: i === 0 });
   setButton($("secondary"), "", null);
   setButton($("primary"),
-    i < EVIDENCE_TABS.length - 1 ? `${EVIDENCE_TABS[i + 1]} →` : "ACTIVE MODE →",
+    i < EVIDENCE_TABS.length - 1 ? `Next: ${EVIDENCE_TABS[i + 1]}` : "Back to active mode",
     () => { if (i < EVIDENCE_TABS.length - 1) evidenceTab = EVIDENCE_TABS[i + 1]; else setMode("ACTIVE"); render(); });
-  $("action-status").textContent = "COMMITTED EVIDENCE · nothing is executed by this browser";
+  $("action-status").textContent = "Committed receipts. Nothing runs in this browser.";
 }
 
 // ---------------------------------------------------------------------------
