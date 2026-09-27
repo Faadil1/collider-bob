@@ -6,16 +6,19 @@ never the repaired code) to a FRESH, independent agent and observe whether it
 now implements the resolved concept correctly without being told the answer.
 
 This module defines the request and the acceptance contract only. It does not
-execute an agent. The live runtime for this step is a Bob session, and no Bob
-budget is available, so every replay produced here is recorded truthfully as:
-
-    status:        NOT_EXECUTED
-    runtime_state: PENDING_LIVE_BOB
+execute an agent. The live runtime for this step is an independent Bob session. A replay request is
+recorded as NOT_EXECUTED / PENDING_LIVE_BOB until an external execution result is
+submitted and evaluated. The request builder never fabricates a live result.
 
 A replay result may only be accepted if it comes from an independent execution
 source and carries the evidence fields listed in REQUIRED_RESULT_FIELDS.
 Anything else is rejected rather than narrated as a pass.
 """
+
+import argparse
+import json
+from pathlib import Path
+
 
 INDEPENDENT_EXECUTION_SOURCES = ("LIVE_BOB_SESSION",)
 
@@ -40,9 +43,9 @@ def build_replay_request(memory_record: dict, spec_relpath: str,
         "status": "NOT_EXECUTED",
         "runtime_state": "PENDING_LIVE_BOB",
         "reason": (
-            "Replay requires an independent live agent session. Bob budget is "
-            "exhausted; no independent execution source exists in this "
-            "environment. No result is fabricated."
+            "Replay requires an independent live agent session. No replay result has "
+            "been submitted yet, so the runtime state remains PENDING_LIVE_BOB. "
+            "No result is fabricated."
         ),
         "inputs": {
             "patched_spec": spec_relpath,
