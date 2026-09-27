@@ -1,5 +1,5 @@
 project: collider-bob
-handover_version: 13
+handover_version: 14
 date: 2026-09-27
 source_of_truth: state/CURRENT.yaml
 branch: main
@@ -11,7 +11,7 @@ north_star:
   signature_moment: "37/37 tests pass; COLLIDER returns DECISION_REQUIRED."
 
 current_stage:
-  status: UIUX_REDESIGN_IMPLEMENTED_PENDING_REVIEW
+  status: UIUX_MERGED_FINAL_PACKAGING
   concept_lock: LOCKED_AFTER_SECOND_CREATIVE_DEPTH_PASS
   demo_lock: EARNED
   submission_status: FINAL_PACKAGING
@@ -132,17 +132,25 @@ bob_native_integration:
   live_session_execution: OBSERVED
 
 blocking_or_pending:
-  - review + merge design/claude-uiux-pass (redesign implemented and locally validated)
-  - observe the redesigned UI on the public runtime after deploy
-  - archive selected Bob screenshots + hashes after UI lock
-  - final slides and cover
+  - verify merged UI on public Cloudflare runtime after Workers Build deployment
+  - archive selected Bob screenshots + hashes
+  - final slides
+  - submission cover and screenshot package already prepared locally
   - final <=3 minute video
   - Submission Integrity
   - final snapshot
 
 next_exact_action: >
-  Review design/claude-uiux-pass (product/UIUX-COLLISION-CHAMBER-2026-09-27.md). After merge and deploy, run the
-  public flow once on desktop and phone, then archive screenshots and proceed to slides, cover and final video.
+  UI/UX is merged at main commit 91795b67dc8dfeec51e485ec7cea8ada0bace60c. Verify the automatic Cloudflare
+  Workers Build on the public origin, capture the new worker version / commit binding, then use the prepared cover
+  and screenshot package for the Lablab submission. Replace captures only if the deployed UI differs. Then finish
+  slides, final <=3 minute video, Submission Integrity, and final snapshot.
+
+uiux_final:
+  status: MERGED
+  main_commit: 91795b67dc8dfeec51e485ec7cea8ada0bace60c
+  deployment: PENDING_PUBLIC_VERIFICATION
+  submission_assets: PREPARED_LOCAL
 
 fresh_agent_replay_attempt_02:
   status: REPLAY_PASS

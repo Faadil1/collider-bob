@@ -1,6 +1,6 @@
 project: collider-bob
 date: 2026-09-27
-stage: UIUX_REDESIGN_IMPLEMENTED_PENDING_REVIEW
+stage: UIUX_MERGED_FINAL_PACKAGING
 branch: main
 
 north_star:
@@ -180,10 +180,11 @@ submission:
     - demo/DEMO-SCRIPT-ACTIVE.md
     - evidence/bob-sessions/JUDGE-EVIDENCE-MANIFEST-2026-09-27.md
   pending:
-    - review + merge the Claude UI/UX redesign (branch design/claude-uiux-pass; product/UIUX-COLLISION-CHAMBER-2026-09-27.md; locally validated desktop/mobile/reduced-motion)
-    - observe the redesigned UI on the public Cloudflare runtime after deploy
-    - archive selected Bob screenshots and bind hashes after final UI direction is locked
-    - slides and cover
+    - verify the merged UI on the public Cloudflare runtime after Workers Build deployment
+    - archive selected Bob screenshots and bind hashes
+    - final cover asset is prepared locally for submission
+    - final screenshot set is prepared locally for submission
+    - slides
     - final <=3 min video from demo/DEMO-SCRIPT-ACTIVE.md
     - Submission Integrity Gate
     - final snapshot
@@ -204,9 +205,27 @@ do_not_redo:
   - repo publication audit
 
 next_exact_action: >
-  Review design/claude-uiux-pass (collision-chamber redesign, product/UIUX-COLLISION-CHAMBER-2026-09-27.md).
-  After merge and deploy, run the full flow once on the public URL (desktop + phone), then archive selected
-  screenshots and continue slides, cover and final video from demo/DEMO-SCRIPT-ACTIVE.md.
+  UI/UX redesign is merged to main at 91795b67dc8dfeec51e485ec7cea8ada0bace60c. Cloudflare Workers Builds should
+  deploy the main-branch merge automatically; verify the public origin shows the polished copy (including
+  "Source authority ends here.", "Bob replay evidence", and "field_name") and record the new worker version /
+  commit binding. Submission cover and screenshot assets are prepared locally; after public runtime verification,
+  replace any capture that differs from the deployed build, then finish slides, final <=3 minute video, Submission
+  Integrity Gate, and final snapshot.
+
+uiux_final:
+  status: MERGED
+  main_commit: 91795b67dc8dfeec51e485ec7cea8ada0bace60c
+  design_record: product/UIUX-COLLISION-CHAMBER-2026-09-27.md
+  validation_before_merge:
+    desktop: [1440x900, 1366x768]
+    mobile: 390x844
+    reduced_motion: PASS
+    pytest: "271 passed, 123 subtests passed"
+    typecheck: clean
+  deployment: TRIGGERED_BY_MAIN_MERGE_PENDING_PUBLIC_VERIFICATION
+  submission_assets:
+    cover: PREPARED_LOCAL
+    screenshots: PREPARED_LOCAL
 
 fresh_agent_replay_attempt_02:
   status: REPLAY_PASS
