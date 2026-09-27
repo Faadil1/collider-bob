@@ -10,7 +10,7 @@
 <p align="center">
   <a href="https://collider-semantic-ci.faadil-casecraft.workers.dev/"><strong>Live Demo</strong></a>
   ·
-  <a href="https://scrimba.com/explain/guide0tftf2fa4?claim=3geifapic08ivlp9&fullscreen=1"><strong>Final Walkthrough</strong></a>
+  <a href="https://scrimba.com/explain/guide0fr8krhbe?claim=dmn31o0nk830ujs6&fullscreen=1"><strong>Technical Walkthrough</strong></a>
   ·
   <a href="evidence/bob-sessions/LIVE-BOB-2026-09-27-01.md"><strong>Bob Proof</strong></a>
   ·
@@ -18,6 +18,13 @@
 </p>
 
 <p align="center"><sub>IBM Bob 2 Hackathon · Cloudflare Worker + per-session Container</sub></p>
+
+<details>
+<summary>Submission-time walkthrough</summary>
+
+The walkthrough that was linked in the repository before the submission deadline is preserved here: [Deadline Walkthrough](https://scrimba.com/explain/guide0tftf2fa4?claim=3geifapic08ivlp9&fullscreen=1).
+
+</details>
 
 ## The problem
 
@@ -132,7 +139,7 @@ The public runtime uses one isolated container per browser session. Guard probes
 
 **Live:** [collider-semantic-ci.faadil-casecraft.workers.dev](https://collider-semantic-ci.faadil-casecraft.workers.dev/)
 
-**Walkthrough:** [COLLIDER final walkthrough](https://scrimba.com/explain/guide0tftf2fa4?claim=3geifapic08ivlp9&fullscreen=1)
+**Walkthrough:** [COLLIDER technical walkthrough](https://scrimba.com/explain/guide0fr8krhbe?claim=dmn31o0nk830ujs6&fullscreen=1)
 
 **Local:**
 
