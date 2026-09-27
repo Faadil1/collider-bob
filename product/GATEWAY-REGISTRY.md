@@ -22,10 +22,10 @@ Every registered gateway receives an explicit status. Nothing is silently forgot
 | Evidence Integrity | PROVEN | tests/test_active_repair.py pins canonical evidence hashes; suite no longer writes evidence/. Fresh LIVE_BOB replay is a boundary, not claimed. |
 | Bob-Native Integration | ACTIVE | product/BOB-NATIVE-INTEGRATION.md — Bob load-bearing in implementation/design; canonical interpretations PRESEEDED, not LIVE_BOB. |
 | Runtime / Commit Binding | ACTIVE | Mechanism shipped: every API response carries x-collider-worker-version (cloudflare/README.md). PROVEN after one live read of that id matched to its Workers Builds commit. |
-| Public Runtime / Live Proof | ACTIVE | Escalated three-verdict guard and separate-session isolation are proven live (evidence/runtime/PUBLIC-THREE-VERDICT-GUARD-2026-09-27.md; evidence/runtime/PUBLIC-SESSION-ISOLATION-2026-09-27.md). Remaining: mobile smoke, live CSP/header check, exact version↔commit binding. |
-| Deterministic Demo | ACTIVE | Public desktop guard flow and separate-session isolation are captured. Live mobile closure and runtime/version binding still pending. |
+| Public Runtime / Live Proof | ACTIVE | Three-verdict guard, separate-session isolation, and real-iPhone mobile smoke are proven live (see evidence/runtime/ receipts). Remaining: live CSP/header check and exact Worker-version↔commit binding. |
+| Deterministic Demo | ACTIVE | Public desktop guard flow, separate-session isolation, and full real-iPhone mobile flow are captured. Runtime/version binding remains pending. |
 | Judge Performance Assurance | PENDING | Run after remaining public-runtime checks, before video lock. |
-| Pre-Launch / Ship Assurance | ACTIVE | product/PRE-LAUNCH-SHIP-ASSURANCE.md — LIVE_RUNTIME_CHECK includes three-verdict guard + session isolation; remaining ship blockers are binding, mobile, and live CSP/header confirmation. |
+| Pre-Launch / Ship Assurance | ACTIVE | product/PRE-LAUNCH-SHIP-ASSURANCE.md — LIVE_RUNTIME_CHECK includes three-verdict guard, session isolation, and real-device mobile. Remaining ship blockers: Worker-version↔commit binding and live CSP/header confirmation. |
 | Submission Integrity | PENDING | submission/ copy predates the active loop and third verdict; refresh to proven truth boundary. |
 | Final Snapshot / CURRENT / HANDOVER | ACTIVE | state/CURRENT.yaml and state/HANDOVER.yaml updated through the public three-verdict proof; final snapshot after remaining gates. |
 | x402 | N/A | No payment rail in the product. |
