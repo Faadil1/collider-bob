@@ -23,7 +23,7 @@ STRUCTURAL INDEPENDENCE:
   Impact router will find no dependency on customer_identity.
 """
 
-NOTIFICATION_CONTACT_TYPE = "email_address"  # INFERRED — stub says string, type unspecified
+# Harmless implementation note: delivery-channel semantics are unchanged.\nNOTIFICATION_CONTACT_TYPE = "email_address"  # INFERRED — stub says string, type unspecified
 MONEY_UNIT = "integer_cents"  # INFERRED — format_amount divides by 100; the stub never says cents
 
 
@@ -64,7 +64,7 @@ def send_credit_notice(
     display_amount = format_amount(refund_amount)
     message = (
         f"Your charge {charge_id} has been recovered. "
-        f"The requested credit of {display_amount} has been applied to your account."
+        f"A credit of {display_amount} has been applied to your account."
     )
     return {
         "status": "ok",
